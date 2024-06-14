@@ -14,8 +14,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.image.ImageView?>
 <AnchorPane fx:id="mainAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="100.0" minWidth="100.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="659.0" prefWidth="837.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.MainController">
-   <children>
+    <children>
       <MenuBar fx:id="mainMenuBar" layoutY="2.0" nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="File">
@@ -44,7 +45,7 @@
          <children>
             <ToolBar fx:id="dummyToolBar" prefHeight="26.0" prefWidth="1000.0">
               <items>
-                <Button minHeight="20.0" minWidth="80.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="80.0" text="dummyButton">
+                <Button fx:id="dummyButton" minHeight="20.0" minWidth="80.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="80.0" text="dummyButton">
                      <font>
                         <Font size="10.0" />
                      </font>
@@ -57,7 +58,7 @@
                      <children>
                         <HBox fx:id="chooseFileHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                            <children>
-                              <Button maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="image" HBox.hgrow="ALWAYS">
+                              <Button fx:id="fileDialogButton" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#callFileDialog" prefHeight="25.0" prefWidth="25.0" text="image" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets left="5.0" />
                                  </HBox.margin>
@@ -65,7 +66,7 @@
                                     <Font size="9.0" />
                                  </font>
                               </Button>
-                              <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="250.0" text="Адрес файла *******************************************************************************************************************" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                              <Label fx:id="chosenFileLabel" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="250.0" text="Адрес файла" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets right="5.0" />
                                  </HBox.margin>
@@ -78,15 +79,15 @@
                               <Insets top="5.0" />
                            </VBox.margin>
                         </HBox>
-                        <HBox maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
+                        <HBox fx:id="choseTypeAndSectionHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                            <children>
-                              <ComboBox maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать секцию..." HBox.hgrow="ALWAYS" />
-                              <ComboBox maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать тип..." HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="sectionComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать секцию..." HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="typeComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать тип..." HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+                <AnchorPane fx:id="graphsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
               </items>
                <VBox.margin>
                   <Insets />

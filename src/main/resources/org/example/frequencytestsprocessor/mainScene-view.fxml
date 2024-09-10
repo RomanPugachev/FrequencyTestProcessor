@@ -14,29 +14,23 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.image.ImageView?>
 <AnchorPane fx:id="mainAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="100.0" minWidth="100.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="659.0" prefWidth="837.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.MainController">
     <children>
       <MenuBar fx:id="mainMenuBar" layoutY="2.0" nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu fx:id="file" mnemonicParsing="false" text="mainMenuBar.file">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem fx:id="close" mnemonicParsing="false" text="mainMenuBar.file.close" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="View">
+            <Menu fx:id="settings" mnemonicParsing="false" text="mainMenuBar.settings">
               <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
+                  <Menu fx:id="languageSettings" mnemonicParsing="false" text="mainMenuBar.settings.languageSettings">
+                    <items>
+                        <MenuItem fx:id="language_ru" mnemonicParsing="false" text="mainMenuBar.settings.languageSettings.language_ru" />
+                        <MenuItem fx:id="language_en" mnemonicParsing="false" text="mainMenuBar.settings.languageSettings.language_en" />
+                    </items>
+                  </Menu>
               </items>
             </Menu>
         </menus>
@@ -45,7 +39,7 @@
          <children>
             <ToolBar fx:id="dummyToolBar" prefHeight="26.0" prefWidth="1000.0">
               <items>
-                <Button fx:id="dummyButton" minHeight="20.0" minWidth="80.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="80.0" text="dummyButton">
+                <Button fx:id="changeLanguageButton" minHeight="20.0" minWidth="80.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="80.0" text="Change interface language" onMouseClicked="#updateLanguage">
                      <font>
                         <Font size="10.0" />
                      </font>
@@ -63,10 +57,10 @@
                                     <Insets left="5.0" />
                                  </HBox.margin>
                                  <font>
-                                    <Font size="9.0" />
+                                    <Font size="5.0" />
                                  </font>
                               </Button>
-                              <Label fx:id="chosenFileLabel" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="250.0" text="Адрес файла" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                              <Label fx:id="chosenFileLabel" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="250.0" text="File address" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets right="5.0" />
                                  </HBox.margin>
@@ -81,8 +75,8 @@
                         </HBox>
                         <HBox fx:id="choseTypeAndSectionHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                            <children>
-                              <ComboBox fx:id="sectionComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать секцию..." HBox.hgrow="ALWAYS" />
-                              <ComboBox fx:id="typeComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Выбрать тип..." HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="sectionComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Choose section..." HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="typeComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Choose type..." HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                      </children>

@@ -2,6 +2,9 @@ package org.example.frequencytestsprocessor;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -10,11 +13,22 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
+import org.example.frequencytestsprocessor.services.PropertyService;
+import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ButtonLanguageObserver;
+import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ComboBoxLanguageObserver;
+import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.LabelLanguageObserver;
+import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.MenuBarLanguageObserver;
+
+import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 public class MainController {
 
+    //Objects of interface
     @FXML
     private ResourceBundle resources;
 
@@ -34,7 +48,7 @@ public class MainController {
     private VBox dataProcessVBox;
 
     @FXML
-    private Button dummyButton;
+    private Button changeLanguageButton;
 
     @FXML
     private HBox dummyHBox;
@@ -66,13 +80,53 @@ public class MainController {
     @FXML
     private ComboBox<?> typeComboBox;
 
+    // Common application parameters
     private File chosenFile;
+    @Getter
+    @Setter
+    private String currentLanguage = RU;
+    private LanguageNotifier languageNotifier;
+    @Setter
+    private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
+
+    public void initializeServices(){
+        initializeLanguageService();
+    }
+
+    public void initializeLanguageService() {
+        languageNotifier = new LanguageNotifier();
+        languageNotifier.addObserver(
+                List.of(
+                        new MenuBarLanguageObserver(mainMenuBar),
+                        new ButtonLanguageObserver(changeLanguageButton),
+                        new LabelLanguageObserver(chosenFileLabel),
+                        new ComboBoxLanguageObserver(sectionComboBox),
+                        new ComboBoxLanguageObserver(typeComboBox)
+                )
+        );
+        currentLanguage = RU;
+        updateLanguage();
+    }
+
+    @FXML
+    private void updateLanguage() {
+        if (currentLanguage.equals(RU)) {
+            currentLanguage = EN;
+        } else {
+            currentLanguage = RU;
+        }
+        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
+        if (newTitle != null) {
+            byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
+            String decodedTitle = new String(bytes, StandardCharsets.UTF_8);
+            mainStage.setTitle(decodedTitle);
+        }
+        languageNotifier.changeLanguage(currentLanguage);
+    }
 
     @FXML
     private void callFileDialog(MouseEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Выберите файл с данными");
-        File chosenFile = fileChooser.showOpenDialog(new Stage());
+        File chosenFile = getFileFromDialog();
         if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".unv")){
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
             this.chosenFile = chosenFile;
@@ -83,16 +137,14 @@ public class MainController {
             alert.setContentText("Попробуйте открыть файл формата .unv");
             alert.showAndWait();
         }
-
     }
-
     @FXML
     void initialize() {
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert dummyButton != null : "fx:id=\"dummyButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -103,7 +155,6 @@ public class MainController {
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-
+        initializeServices();
     }
-
 }

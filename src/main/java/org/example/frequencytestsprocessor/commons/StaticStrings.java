@@ -12,5 +12,6 @@ public class StaticStrings {
     public static final String PROPERTIES = "properties";
     public static final String MAIN_MENU_BAR = "mainMenuBar";
     public static final String MAIN_APPLICATION_NAME = "mainApplicationName";
+    public static final String UFF_STATIC_STRING = "UFF";
     public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language.properties";
 }

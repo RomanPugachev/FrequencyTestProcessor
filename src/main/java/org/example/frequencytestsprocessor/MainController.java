@@ -1,12 +1,13 @@
 package org.example.frequencytestsprocessor;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -16,12 +17,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.services.PropertyService;
+
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ButtonLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ComboBoxLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.LabelLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.MenuBarLanguageObserver;
+import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -80,8 +82,14 @@ public class MainController {
     @FXML
     private ComboBox<?> typeComboBox;
 
+    // Common static objects
+    @Getter
+    private static ObjectMapper objectMapper = new ObjectMapper();
+
     // Common application parameters
     private File chosenFile;
+    @Getter
+    private UFF uff;
     @Getter
     @Setter
     private String currentLanguage = RU;
@@ -127,9 +135,11 @@ public class MainController {
     @FXML
     private void callFileDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
-        if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".unv")){
+        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
+                chosenFile.getAbsolutePath().endsWith(".uff"))){
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
             this.chosenFile = chosenFile;
+            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath(), objectMapper);
         } else if(chosenFile != null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка");

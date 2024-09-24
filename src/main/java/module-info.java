@@ -3,6 +3,8 @@ module org.example.frequencytestsprocessor {
     requires javafx.fxml;
     requires java.desktop;
     requires static lombok;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
 
 
     opens org.example.frequencytestsprocessor to javafx.fxml;

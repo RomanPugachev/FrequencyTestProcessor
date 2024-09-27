@@ -1,16 +1,17 @@
 package org.example.frequencytestsprocessor.services.languageService;
 
-import lombok.Getter;
 import org.example.frequencytestsprocessor.services.PropertyService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.RU;
 
 public class LanguageNotifier {
     private String currentLanguage = RU;
     private List<LanguageObserver> observers = new ArrayList<>();
-    @Getter
     private PropertyService lanaguagePropertyService;
 
     {
@@ -38,5 +39,9 @@ public class LanguageNotifier {
     public void changeLanguage(String newLanguage) {
         currentLanguage = newLanguage;
         notifyObservers();
+    }
+
+    public PropertyService getLanaguagePropertyService() {
+        return this.lanaguagePropertyService;
     }
 }

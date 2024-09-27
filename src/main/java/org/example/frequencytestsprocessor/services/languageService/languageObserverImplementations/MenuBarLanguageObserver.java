@@ -1,19 +1,22 @@
 package org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations;
 
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.MenuBar;
-import lombok.AllArgsConstructor;
+import javafx.scene.control.MenuItem;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.MAIN_MENU_BAR;
 
-@AllArgsConstructor
 public class MenuBarLanguageObserver implements LanguageObserver {
     private MenuBar menuBar;
+
+    public MenuBarLanguageObserver(MenuBar menuBar) {
+        this.menuBar = menuBar;
+    }
 
     @Override
     public void updateLanguage(Properties languageProperties, String newLanguage) {

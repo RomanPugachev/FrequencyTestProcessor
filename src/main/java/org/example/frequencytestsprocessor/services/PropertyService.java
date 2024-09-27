@@ -1,15 +1,9 @@
 package org.example.frequencytestsprocessor.services;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.ResourceBundle;
-
-import lombok.Getter;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
-@Getter
+
 public class PropertyService {
     private Properties properties;
 
@@ -19,13 +13,17 @@ public class PropertyService {
 
     public Properties loadProperties(String pathToFile) {
         Properties properties = new Properties();
-        try(InputStream is = PropertyService.class.getResourceAsStream(pathToFile)){
+        try (InputStream is = PropertyService.class.getResourceAsStream(pathToFile)) {
             properties.load(is);
         } catch (IOException e) {
             System.out.println("Не удалось считать файл configuration.properties");
             return null;
         }
         return properties;
+    }
+
+    public Properties getProperties() {
+        return this.properties;
     }
 }
 /*

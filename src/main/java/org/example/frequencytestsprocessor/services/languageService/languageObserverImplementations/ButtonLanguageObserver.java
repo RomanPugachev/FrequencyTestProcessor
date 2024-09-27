@@ -1,18 +1,20 @@
 package org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
-import java.util.Properties;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
-@AllArgsConstructor
 public class ButtonLanguageObserver implements LanguageObserver {
     private Button button;
+
+    public ButtonLanguageObserver(Button button) {
+        this.button = button;
+    }
+
     @Override
     public void updateLanguage(Properties languageProperties, String currentLanguage) {
         String key = button.getId() + DOT;

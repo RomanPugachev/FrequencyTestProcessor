@@ -1,7 +1,6 @@
 package org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations;
 
 import javafx.scene.control.Label;
-import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
@@ -9,13 +8,17 @@ import java.util.Properties;
 
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
-@AllArgsConstructor
 public class LabelLanguageObserver implements LanguageObserver {
     private Label label;
+
+    public LabelLanguageObserver(Label label) {
+        this.label = label;
+    }
+
     @Override
     public void updateLanguage(Properties languageProperties, String currentLanguage) {
         String key = label.getId() + DOT;
-        if (key.equals("chosenFileLabel.") && label.getText().indexOf(":") >=0) {
+        if (key.equals("chosenFileLabel.") && label.getText().indexOf(":") >= 0) {
             return;
         }
         String translatedText = languageProperties.getProperty(key + currentLanguage);

@@ -1,12 +1,5 @@
 package org.example.frequencytestsprocessor;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -16,14 +9,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
-import lombok.Setter;
-
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ButtonLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ComboBoxLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.LabelLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.MenuBarLanguageObserver;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
+
+import java.io.File;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -91,13 +89,11 @@ public class MainController {
     @Getter
     private UFF uff;
     @Getter
-    @Setter
     private String currentLanguage = RU;
     private LanguageNotifier languageNotifier;
-    @Setter
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
 
-    public void initializeServices(){
+    public void initializeServices() {
         initializeLanguageService();
     }
 
@@ -136,11 +132,11 @@ public class MainController {
     private void callFileDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
         if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
-                chosenFile.getAbsolutePath().endsWith(".uff"))){
+                chosenFile.getAbsolutePath().endsWith(".uff"))) {
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
             this.chosenFile = chosenFile;
             this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath(), objectMapper);
-        } else if(chosenFile != null) {
+        } else if (chosenFile != null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка");
             alert.setHeaderText("Ошибка открытия файла");
@@ -148,6 +144,7 @@ public class MainController {
             alert.showAndWait();
         }
     }
+
     @FXML
     void initialize() {
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -166,5 +163,9 @@ public class MainController {
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         initializeServices();
+    }
+
+    public void setMainStage(Stage mainStage) {
+        this.mainStage = mainStage;
     }
 }

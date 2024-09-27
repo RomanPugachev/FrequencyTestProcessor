@@ -14,4 +14,5 @@ public class StaticStrings {
     public static final String MAIN_APPLICATION_NAME = "mainApplicationName";
     public static final String UFF_STATIC_STRING = "UFF";
     public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language.properties";
+    public static final String PATH_OF_PYTHON_SCRIPT_FOR_UFF = "temp";
 }

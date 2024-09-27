@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.example.frequencytestsprocessor.MainController;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @EqualsAndHashCode
 @ToString
@@ -184,7 +186,7 @@ public class UFF {
         List<Object> uffDataList = new ArrayList<>();
         Process process = null;
         try {
-            process = new ProcessBuilder("python", "UFFReaderApp.py", fileAddress).start();
+            process = new ProcessBuilder(String.format("python %s %s", PATH_OF_PYTHON_SCRIPT_FOR_UFF, fileAddress)).redirectErrorStream(true).start();
         } catch (IOException e) {
             if (process != null) {
                 process.destroy();

@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>FrequencyTestsProcessor</artifactId>
+    <artifactId>FrequencyTestsProcessor_copy</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>FrequencyTestsProcessor</name>
+    <name>FrequencyTestsProcessor_copy</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,6 +31,14 @@
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
         </dependency>
+
+        <!-- JEP Dependency -->
+        <dependency>
+            <groupId>black.ninia</groupId>
+            <artifactId>jep</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
         <!-- JUnit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -45,7 +53,12 @@
             <scope>test</scope>
         </dependency>
 
-
+        <!-- Commons - io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.16.1</version>
+        </dependency>
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

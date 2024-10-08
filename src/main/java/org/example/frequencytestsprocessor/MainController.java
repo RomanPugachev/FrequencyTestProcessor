@@ -8,7 +8,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jep.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ButtonLanguageObserver;
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ComboBoxLanguageObserver;
@@ -16,7 +18,7 @@ import org.example.frequencytestsprocessor.services.languageService.languageObse
 import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.MenuBarLanguageObserver;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.ResourceBundle;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
+@Setter
 public class MainController {
 
     //Objects of interface
@@ -163,9 +166,29 @@ public class MainController {
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         initializeServices();
+        callMyPythonScript();
     }
 
-    public void setMainStage(Stage mainStage) {
-        this.mainStage = mainStage;
+    private void callMyPythonScript() {
+        // Initialize the JEP shared interpreter
+        try (ByteArrayOutputStream jepOuputStream = new ByteArrayOutputStream();
+             Jep jep = new JepConfig().redirectStdout(jepOuputStream).createSubInterpreter();){
+            jep.exec("import pyuff");
+            jep.exec("import numpy as np");
+            jep.exec("import sys");
+            jep.exec("from java.lang import System");
+            jep.exec("s = pyuff.__version__");
+            jep.exec("s1 = sys.version_info.__str__()");
+            jep.exec("print('Hello from Python')");
+            jep.exec("System.out.println(s)");
+            jep.exec("System.out.println(s1)");
+        } catch (JepException e){
+            e.printStackTrace();
+            System.out.println("EXECUTION WITH ERROR");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("EXECUTION WITH ERROR");
+        }
+
     }
 }

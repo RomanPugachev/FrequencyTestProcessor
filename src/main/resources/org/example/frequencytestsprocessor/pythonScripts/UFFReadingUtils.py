@@ -2,7 +2,7 @@ import sys
 import json
 import pyuff
 import numpy as np
-import os
+
 
 def jsonalzie_list_with_complex(complex_list):
     return [{"real": possible_complex.real, "imag": possible_complex.imag} if isinstance(possible_complex, complex) else possible_complex
@@ -21,7 +21,6 @@ def parse_UFF(file_path):
         jsonalizable_dict = jsonalize_set(current_set)
         print(json.dumps(jsonalizable_dict))
         print("END_OF_JSON")
-parse_UFF('C:\\Temp\\test_uff.uff');
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

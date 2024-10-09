@@ -173,15 +173,45 @@ public class MainController {
         // Initialize the JEP shared interpreter
         try (ByteArrayOutputStream jepOuputStream = new ByteArrayOutputStream();
              Jep jep = new JepConfig().redirectStdout(jepOuputStream).createSubInterpreter();){
-            jep.exec("import pyuff");
-            jep.exec("import numpy as np");
-            jep.exec("import sys");
+            /*
+            jep.exec("import numpy as np\n" +
+                    "import os\n" +
+                    "import sys\n" +
+                    "uffModuleDir = os.getcwd() + \\\\ + ...");
+            jep.exec("sys.path.insert(1, f'/path/to/application/app/folder')\n" +
+                    "import file");
+            jep.exec("import FrequencyTestsProcessor.src.main.java.org.example.frequencytestsprocessor.services.uffFilesProcService.pythonSource.UFFReaderApp as UFFReadingUtils");
             jep.exec("from java.lang import System");
-            jep.exec("s = pyuff.__version__");
-            jep.exec("s1 = sys.version_info.__str__()");
-            jep.exec("print('Hello from Python')");
-            jep.exec("System.out.println(s)");
-            jep.exec("System.out.println(s1)");
+            jep.exec("print('Hello from Python')\n" +
+                    "print('Hello from Python')");
+            jep.exec("current_directory = os.getcwd()\n" +
+                    "print(f\"Current directory: {current_directory}\")");
+            */
+            jep.exec("import sys\n" +
+                    "import json\n" +
+                    "import pyuff\n" +
+                    "import numpy as np\n" +
+                    "import os\n" +
+                    "\n" +
+                    "def jsonalzie_list_with_complex(complex_list):\n" +
+                    "    return [{\"real\": possible_complex.real, \"imag\": possible_complex.imag} if isinstance(possible_complex, complex) else possible_complex\n" +
+                    "            for possible_complex in complex_list]\n" +
+                    "\n" +
+                    "def jsonalize_set(incoming_set):\n" +
+                    "    return {k: jsonalzie_list_with_complex(v.tolist()) if isinstance(v, np.ndarray) else v\n" +
+                    "            for k, v in incoming_set.items()}\n" +
+                    "\n" +
+                    "\n" +
+                    "def parse_UFF(file_path):\n" +
+                    "    unv_file = pyuff.UFF(file_path)\n" +
+                    "    print(str(unv_file.get_set_types())[1:-1])\n" +
+                    "    for i in range(unv_file.get_n_sets()):\n" +
+                    "        current_set = unv_file.read_sets(i)\n" +
+                    "        jsonalizable_dict = jsonalize_set(current_set)\n" +
+                    "        print(json.dumps(jsonalizable_dict))\n" +
+                    "        print(\"END_OF_JSON\")\n" +
+                    "parse_UFF('C:\\\\Temp\\\\test_uff.uff');");
+            printByteArrayOutputStram(jepOuputStream);
         } catch (JepException e){
             e.printStackTrace();
             System.out.println("EXECUTION WITH ERROR");
@@ -189,6 +219,14 @@ public class MainController {
             e.printStackTrace();
             System.out.println("EXECUTION WITH ERROR");
         }
+    }
 
+    private static void printByteArrayOutputStram(ByteArrayOutputStream jepOuputStream) throws IOException {
+        var resultByteArray = jepOuputStream.toByteArray();
+        try (BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(resultByteArray)))){
+            while (inputStreamReader.ready()) {
+                System.out.println(inputStreamReader.readLine());
+            }
+        }
     }
 }

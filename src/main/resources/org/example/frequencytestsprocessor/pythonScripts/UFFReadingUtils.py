@@ -22,8 +22,3 @@ def parse_UFF(file_path):
         print(json.dumps(jsonalizable_dict))
         print("END_OF_JSON")
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
-    else:
-        print("Please provide a file path")

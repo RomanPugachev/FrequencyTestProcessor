@@ -9,16 +9,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import jep.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
-import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ButtonLanguageObserver;
-import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.ComboBoxLanguageObserver;
-import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.LabelLanguageObserver;
-import org.example.frequencytestsprocessor.services.languageService.languageObserverImplementations.MenuBarLanguageObserver;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
+import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
+import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 
 import java.io.*;
+import java.lang.reflect.Executable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.printByteArrayOutputStram;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 @Setter
@@ -95,6 +97,7 @@ public class MainController {
     private String currentLanguage = RU;
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
+    private Refresher refresher = this.new Refresher();
 
     public void initializeServices() {
         initializeLanguageService();
@@ -104,11 +107,11 @@ public class MainController {
         languageNotifier = new LanguageNotifier();
         languageNotifier.addObserver(
                 List.of(
-                        new MenuBarLanguageObserver(mainMenuBar),
-                        new ButtonLanguageObserver(changeLanguageButton),
-                        new LabelLanguageObserver(chosenFileLabel),
-                        new ComboBoxLanguageObserver(sectionComboBox),
-                        new ComboBoxLanguageObserver(typeComboBox)
+                        new LanguageObserverDecorator<>(mainMenuBar),
+                        new LanguageObserverDecorator(changeLanguageButton),
+                        new LanguageObserverDecorator(chosenFileLabel),
+                        new LanguageObserverDecorator(sectionComboBox),
+                        new LanguageObserverDecorator(typeComboBox)
                 )
         );
         currentLanguage = RU;
@@ -170,63 +173,22 @@ public class MainController {
     }
 
     private void callMyPythonScript() {
-        // Initialize the JEP shared interpreter
-        try (ByteArrayOutputStream jepOuputStream = new ByteArrayOutputStream();
-             Jep jep = new JepConfig().redirectStdout(jepOuputStream).createSubInterpreter();){
-            /*
-            jep.exec("import numpy as np\n" +
-                    "import os\n" +
-                    "import sys\n" +
-                    "uffModuleDir = os.getcwd() + \\\\ + ...");
-            jep.exec("sys.path.insert(1, f'/path/to/application/app/folder')\n" +
-                    "import file");
-            jep.exec("import FrequencyTestsProcessor.src.main.java.org.example.frequencytestsprocessor.services.uffFilesProcService.pythonSource.UFFReaderApp as UFFReadingUtils");
-            jep.exec("from java.lang import System");
-            jep.exec("print('Hello from Python')\n" +
-                    "print('Hello from Python')");
-            jep.exec("current_directory = os.getcwd()\n" +
-                    "print(f\"Current directory: {current_directory}\")");
-            */
-            jep.exec("import sys\n" +
-                    "import json\n" +
-                    "import pyuff\n" +
-                    "import numpy as np\n" +
-                    "import os\n" +
-                    "\n" +
-                    "def jsonalzie_list_with_complex(complex_list):\n" +
-                    "    return [{\"real\": possible_complex.real, \"imag\": possible_complex.imag} if isinstance(possible_complex, complex) else possible_complex\n" +
-                    "            for possible_complex in complex_list]\n" +
-                    "\n" +
-                    "def jsonalize_set(incoming_set):\n" +
-                    "    return {k: jsonalzie_list_with_complex(v.tolist()) if isinstance(v, np.ndarray) else v\n" +
-                    "            for k, v in incoming_set.items()}\n" +
-                    "\n" +
-                    "\n" +
-                    "def parse_UFF(file_path):\n" +
-                    "    unv_file = pyuff.UFF(file_path)\n" +
-                    "    print(str(unv_file.get_set_types())[1:-1])\n" +
-                    "    for i in range(unv_file.get_n_sets()):\n" +
-                    "        current_set = unv_file.read_sets(i)\n" +
-                    "        jsonalizable_dict = jsonalize_set(current_set)\n" +
-                    "        print(json.dumps(jsonalizable_dict))\n" +
-                    "        print(\"END_OF_JSON\")\n" +
-                    "parse_UFF('C:\\\\Temp\\\\test_uff.uff');");
-            printByteArrayOutputStram(jepOuputStream);
-        } catch (JepException e){
-            e.printStackTrace();
-            System.out.println("EXECUTION WITH ERROR");
+         // Initialize the JEP shared interpreter
+        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
+        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
+        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
+        pythonInterpreter.exec(pythonScript);
+        pythonInterpreter.exec(String.format("parse_UFF('%s')", "C:\\\\Temp\\\\test_uff.uff"));
+        try {
+            printByteArrayOutputStram(pythonOutput);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("EXECUTION WITH ERROR");
+            throw new RuntimeException("Unable to print python output from Main controller", e.getCause());
         }
     }
 
-    private static void printByteArrayOutputStram(ByteArrayOutputStream jepOuputStream) throws IOException {
-        var resultByteArray = jepOuputStream.toByteArray();
-        try (BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(resultByteArray)))){
-            while (inputStreamReader.ready()) {
-                System.out.println(inputStreamReader.readLine());
-            }
+    private class Refresher {
+        private void refreshOnChangeFilePath() {
+            System.out.printf("Refresher.refreshOnChangeFilePath(): new file is %s", MainController.this.chosenFile);
         }
     }
 }

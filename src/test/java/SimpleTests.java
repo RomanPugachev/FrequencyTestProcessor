@@ -12,4 +12,9 @@ public class SimpleTests {
         System.out.println(tests.getIntVal());
         System.out.println("Hello, world!");
     }
+    public static void printCurrentWorkingDirectory() {
+        String currentWorkingDirectory = System.getProperty("user.dir");
+        System.out.println("Current working directory: " + currentWorkingDirectory);
+    }
 }
+

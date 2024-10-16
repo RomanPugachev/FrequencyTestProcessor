@@ -20,5 +20,7 @@ def parse_UFF(file_path):
         current_set = unv_file.read_sets(i)
         jsonalizable_dict = jsonalize_set(current_set)
         print(json.dumps(jsonalizable_dict))
-        print("END_OF_JSON")
 
+def test_parse_UFF():
+    parse_UFF('C:\\Temp\\test_uff.uff');
+test_parse_UFF()

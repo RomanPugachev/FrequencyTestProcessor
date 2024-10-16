@@ -173,17 +173,7 @@ public class MainController {
     }
 
     private void callMyPythonScript() {
-         // Initialize the JEP shared interpreter
-        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
-        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
-        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
-        pythonInterpreter.exec(pythonScript);
-        pythonInterpreter.exec(String.format("parse_UFF('%s')", "C:\\\\Temp\\\\test_uff.uff"));
-        try {
-            printByteArrayOutputStram(pythonOutput);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to print python output from Main controller", e.getCause());
-        }
+
     }
 
     private class Refresher {

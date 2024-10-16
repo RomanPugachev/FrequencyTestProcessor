@@ -2,14 +2,18 @@ package org.example.frequencytestsprocessor.services.uffFilesProcService;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jep.Jep;
 import lombok.*;
 import org.example.frequencytestsprocessor.MainController;
+import org.example.frequencytestsprocessor.commons.CommonMethods;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
+import org.example.frequencytestsprocessor.services.PythonInterpreterService;
+
+import static org.example.frequencytestsprocessor.commons.CommonMethods.printByteArrayOutputStram;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +29,7 @@ public class UFF {
     private List<Integer> typesOfDatasets;
     @Getter
     @Setter
-    private List<Object> datasets;
+    private List<UFFDataset> datasets;
 
     private UFF() {
         typesOfDatasets = null;
@@ -46,8 +50,7 @@ public class UFF {
         }
     }
 
-    public class UFF151 {
-        public int type;
+    public class UFF151 extends UFFDataset{
         @JsonProperty("model_name")
         public String modelName;
         public String description;
@@ -74,7 +77,7 @@ public class UFF {
         public String timeFileWritten;
     }
 
-    public class UFF164{
+    public class UFF164 extends UFFDataset{
         public int type;
         @JsonProperty("units_code")
         public int unitsCode;
@@ -89,7 +92,7 @@ public class UFF {
         public double tempOffset;
     }
 
-    public class UFF58 {
+    public class UFF58 extends UFFDataset {
         public int type;
         public int binary;
         public String id1;
@@ -184,16 +187,22 @@ public class UFF {
     public static UFF readUNVFile(String fileAddress, ObjectMapper objectMapper) {
         UFF resultUFF = new UFF();
         List<Object> uffDataList = new ArrayList<>();
-        Process process = null;
-        try {
-            process = new ProcessBuilder(String.format("python %s %s", PATH_OF_PYTHON_SCRIPT_FOR_UFF, fileAddress)).redirectErrorStream(true).start();
-        } catch (IOException e) {
-            if (process != null) {
-                process.destroy();
+        // Initialize the JEP shared interpreter
+        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
+        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
+        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
+        pythonInterpreter.exec(pythonScript);
+        pythonInterpreter.exec(String.format("parse_UFF('%s')", "C:\\\\Temp\\\\test_uff.uff"));
+        // Read the output from the Python script
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pythonOutput.toByteArray())))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                uffDataList.add(line);
             }
-            throw new RuntimeException("Failed to start UFFReaderApp.py process", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to print python output from Main controller", e.getCause());
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+        try  {
             // Read types
             List<Integer> types = Arrays.stream(reader.readLine().trim().split(" "))
                     .map(Integer::valueOf)

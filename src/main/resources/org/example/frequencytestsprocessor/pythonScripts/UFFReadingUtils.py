@@ -15,12 +15,16 @@ def jsonalize_set(incoming_set):
 
 def parse_UFF(file_path):
     unv_file = pyuff.UFF(file_path)
-    print(str(unv_file.get_set_types())[1:-1])
+    print(*unv_file.get_set_types())
     for i in range(unv_file.get_n_sets()):
         current_set = unv_file.read_sets(i)
         jsonalizable_dict = jsonalize_set(current_set)
         print(json.dumps(jsonalizable_dict))
 
 def test_parse_UFF():
-    parse_UFF('C:\\Temp\\test_uff.uff');
-test_parse_UFF()
+    parse_UFF('C:\\Temp\\test_uff.uff')
+
+# if __name__ == '__main__':
+    # print(line.replace('"', '\\"'))
+    # test_parse_UFF()
+    # .__str__().replace('"', '\\"')

@@ -1,16 +1,21 @@
 package org.example.frequencytestsprocessor.services.uffFilesProcService;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jep.Jep;
 import lombok.*;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.example.frequencytestsprocessor.MainController;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
-import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF151;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.printByteArrayOutputStram;
+
+import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 import java.io.*;
@@ -24,9 +29,10 @@ import java.util.stream.Collectors;
 @ToString
 @AllArgsConstructor
 public class UFF {
+    public List<Long> toBeProcessedDatasetsIndices;
     @Getter
     @Setter
-    private List<Integer> typesOfDatasets;
+    private List<Long> typesOfDatasets;
     @Getter
     @Setter
     private List<UFFDataset> datasets;
@@ -36,204 +42,74 @@ public class UFF {
         datasets = null;
     }
 
-    public static UFF parseJSON(String json) {
-        ObjectMapper objectMapper = MainController.getObjectMapper();
-        try {
-            return objectMapper.readValue(json, UFF.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            return UFF.class.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't create UFF instance", e);
-        }
-    }
-
-    public class UFF151 extends UFFDataset{
-        @JsonProperty("model_name")
-        public String modelName;
-        public String description;
-        @JsonProperty("db_app")
-        public String dbApp;
-        @JsonProperty("date_db_created")
-        public String dateDbCreated;
-        @JsonProperty("time_db_created")
-        public String timeDbCreated;
-        @JsonProperty("version_db1")
-        public int versionDb1;
-        @JsonProperty("version_db2")
-        public int versionDb2;
-        @JsonProperty("file_type")
-        public int fileType;
-        @JsonProperty("date_db_saved")
-        public String dateDbSaved;
-        @JsonProperty("time_db_saved")
-        public String timeDbSaved;
-        public String program;
-        @JsonProperty("date_file_written")
-        public String dateFileWritten;
-        @JsonProperty("time_file_written")
-        public String timeFileWritten;
-    }
-
-    public class UFF164 extends UFFDataset{
-        public int type;
-        @JsonProperty("units_code")
-        public int unitsCode;
-        @JsonProperty("units_description")
-        public String unitsDescription;
-        @JsonProperty("temp_mode")
-        public int tempMode;
-        public double length;
-        public double force;
-        public double temp;
-        @JsonProperty("temp_offset")
-        public double tempOffset;
-    }
-
-    public class UFF58 extends UFFDataset {
-        public int type;
-        public int binary;
-        public String id1;
-        public String id2;
-        public String id3;
-        public String id4;
-        public String id5;
-        @JsonProperty("func_type")
-        public int funcType;
-        @JsonProperty("func_id")
-        public int funcId;
-        @JsonProperty("ver_num")
-        public int verNum;
-        @JsonProperty("load_case_id")
-        public int loadCaseId;
-        @JsonProperty("rsp_ent_name")
-        public String rspEntName;
-        @JsonProperty("rsp_node")
-        public int rspNode;
-        @JsonProperty("rsp_dir")
-        public int rspDir;
-        @JsonProperty("ref_ent_name")
-        public String refEntName;
-        @JsonProperty("ref_node")
-        public int refNode;
-        @JsonProperty("ref_dir")
-        public int refDir;
-        @JsonProperty("ord_data_type")
-        public int ordDataType;
-        @JsonProperty("num_pts")
-        public int numPts;
-        @JsonProperty("abscissa_spacing")
-        public int abscissaSpacing;
-        @JsonProperty("abscissa_min")
-        public double abscissaMin;
-        @JsonProperty("abscissa_inc")
-        public double abscissaInc;
-        @JsonProperty("z_axis_value")
-        public double zAxisValue;
-        @JsonProperty("abscissa_spec_data_type")
-        public int abscissaSpecDataType;
-        @JsonProperty("abscissa_len_unit_exp")
-        public int abscissaLenUnitExp;
-        @JsonProperty("abscissa_force_unit_exp")
-        public int abscissaForceUnitExp;
-        @JsonProperty("abscissa_temp_unit_exp")
-        public int abscissaTempUnitExp;
-        @JsonProperty("abscissa_axis_lab")
-        public String abscissaAxisLab;
-        @JsonProperty("abscissa_axis_units_lab")
-        public String abscissaAxisUnitsLab;
-        @JsonProperty("ordinate_spec_data_type")
-        public int ordinateSpecDataType;
-        @JsonProperty("ordinate_len_unit_exp")
-        public int ordinateLenUnitExp;
-        @JsonProperty("ordinate_force_unit_exp")
-        public int ordinateForceUnitExp;
-        @JsonProperty("ordinate_temp_unit_exp")
-        public int ordinateTempUnitExp;
-        @JsonProperty("ordinate_axis_lab")
-        public String ordinateAxisLab;
-        @JsonProperty("ordinate_axis_units_lab")
-        public String ordinateAxisUnitsLab;
-        @JsonProperty("orddenom_spec_data_type")
-        public int orddenomSpecDataType;
-        @JsonProperty("orddenom_len_unit_exp")
-        public int orddenomLenUnitExp;
-        @JsonProperty("orddenom_force_unit_exp")
-        public int orddenomForceUnitExp;
-        @JsonProperty("orddenom_temp_unit_exp")
-        public int orddenomTempUnitExp;
-        @JsonProperty("orddenom_axis_lab")
-        public String orddenomAxisLab;
-        @JsonProperty("orddenom_axis_units_lab")
-        public String orddenomAxisUnitsLab;
-        @JsonProperty("z_axis_spec_data_type")
-        public int zAxisSpecDataType;
-        @JsonProperty("z_axis_len_unit_exp")
-        public int zAxisLenUnitExp;
-        @JsonProperty("z_axis_force_unit_exp")
-        public int zAxisForceUnitExp;
-        @JsonProperty("z_axis_temp_unit_exp")
-        public int zAxisTempUnitExp;
-        @JsonProperty("z_axis_axis_lab")
-        public String zAxisAxisLab;
-        @JsonProperty("z_axis_axis_units_lab")
-        public String zAxisAxisUnitsLab;
-        public List<Double> x;
-        public List<Complex> data;
-    }
-
-    public static UFF readUNVFile(String fileAddress, ObjectMapper objectMapper) {
+    public static UFF readUNVFile(String fileAddress) {
+        // Basic initialization
         UFF resultUFF = new UFF();
-        List<Object> uffDataList = new ArrayList<>();
-        // Initialize the JEP shared interpreter
-        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
-        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
-        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
-        pythonInterpreter.exec(pythonScript);
-        pythonInterpreter.exec(String.format("parse_UFF('%s')", "C:\\\\Temp\\\\test_uff.uff"));
-        // Read the output from the Python script
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pythonOutput.toByteArray())))){
-            String line;
-            while ((line = reader.readLine()) != null) {
-                uffDataList.add(line);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to print python output from Main controller", e.getCause());
-        }
-        try  {
-            // Read types
-            List<Integer> types = Arrays.stream(reader.readLine().trim().split(" "))
-                    .map(Integer::valueOf)
-                    .collect(Collectors.toList());
-            resultUFF.setTypesOfDatasets(types);
-
+        ObjectMapper objectMapper = MainController.getObjectMapper();
+        //Read data with Python
+        byte[] pythonOutput = UFF.getPythonOutputByteArray(pythonizePathToFile(fileAddress, CommonMethods.PathFrom.SYSTEM));
+        // Read the Python output
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pythonOutput)))){
+            // Setting types of datasets
+            String line = reader.readLine();
+            print(line);
+            resultUFF.setTypesOfDatasets(
+                    Arrays.stream(line.trim().split(" "))
+                    .map(Long::valueOf)
+                    .collect(Collectors.toList()));
+            resultUFF.datasets = new ArrayList<>(resultUFF.typesOfDatasets.size()); resultUFF.toBeProcessedDatasetsIndices = new ArrayList<>(resultUFF.typesOfDatasets.size());
             // Read and parse JSON data for each type
-            for (Integer type : resultUFF.getTypesOfDatasets()) {
-                StringBuilder jsonOutput = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null && !line.equals("END_OF_JSON")) {
-                    jsonOutput.append(line);
+            for (int datasetTypeId = 0; datasetTypeId < resultUFF.typesOfDatasets.size(); datasetTypeId++) {
+                int timeout = 10;
+                while (!reader.ready()){
+                    timeout--;
+                    Thread.sleep(1000);
+                    if (timeout == 0) {
+                        throw new RuntimeException("Timeout while waiting for BufferedReader output");
+                    }
                 }
-
+                line = reader.readLine();
+                print("Java read another line:", line);
+                if (line == null || line.isEmpty()) {
+                    datasetTypeId--;
+                    continue; // Scip empty lines
+                }
+                Long datasetType = resultUFF.typesOfDatasets.get(datasetTypeId);
                 // Parse JSON data
                 try {
-                    Class<?> uffClass = Class.forName("org.example.frequencytestsprocessor.services.uffFilesProcService.UFF" + type);
-                    Object uffData = objectMapper.readValue(jsonOutput.toString(), uffClass);
-                    uffDataList.add(uffData);
+                    Class<?> uffClass = Class.forName(BASE_UFF_TYPES_CALSS_PATH + datasetType);
+                    UFFDataset uffData = (UFFDataset) objectMapper.readValue(line, uffClass);
+                    resultUFF.datasets.add(uffData);
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Unsuppoeted type of dataset: " + type + "\n" + e.getMessage(), e);
+                    throw new RuntimeException("Unsupported type of dataset: " + datasetType + "\n" + e.getMessage(), e);
                 }
+                if (datasetType == 58) { resultUFF.toBeProcessedDatasetsIndices.add(Long.valueOf(datasetTypeId)); }
             }
         } catch (Exception e) {
             throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
         }
-        resultUFF.setDatasets(uffDataList);
         System.out.println("UFF: " + resultUFF);
         return resultUFF;
     }
 
+    protected static byte[] getPythonOutputByteArray(String UFFPath) {
+        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
+        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
+        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
+        pythonInterpreter.exec(pythonScript);
+        pythonInterpreter.exec(String.format("parse_UFF('%s')", UFFPath));
+        return pythonOutput.toByteArray();
+    }
+    @Override
+    public String toString() {
+         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+                 .append(TYPES_OF_DATASETS, typesOfDatasets)
+                 .append(TO_BE_PROCESSED_DATASETS_INDICES, toBeProcessedDatasetsIndices)
+                 .append(DATASETS, datasets)
+                 .toString();
+    }
 }
+
+
 
 

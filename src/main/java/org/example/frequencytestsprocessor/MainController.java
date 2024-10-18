@@ -87,7 +87,7 @@ public class MainController {
 
     // Common static objects
     @Getter
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     // Common application parameters
     private File chosenFile;
@@ -141,7 +141,7 @@ public class MainController {
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
             this.chosenFile = chosenFile;
-            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath(), objectMapper);
+            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
         } else if (chosenFile != null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка");
@@ -169,11 +169,6 @@ public class MainController {
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         initializeServices();
-        callMyPythonScript();
-    }
-
-    private void callMyPythonScript() {
-
     }
 
     private class Refresher {

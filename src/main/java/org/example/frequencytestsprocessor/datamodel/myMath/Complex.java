@@ -1,9 +1,10 @@
 package org.example.frequencytestsprocessor.datamodel.myMath;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@AllArgsConstructor
+@Data
 public class Complex {
-    public double real;
-    public double imag;
+    private double real;
+    private double imag;
 }

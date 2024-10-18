@@ -14,6 +14,18 @@ public class StaticStrings {
     public static final String UFF_STATIC_STRING = "UFF";
     public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language.properties";
     public static final String PATH_OF_PYTHON_SCRIPT_FOR_UFF = "src/main/resources/org/example/frequencytestsprocessor/pythonScripts/UFFReadingUtils.py";
+    public static final String BASE_UFF_TYPES_CALSS_PATH = "org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF";
+    public static final String TYPES_OF_DATASETS = "typesOfDatasets";
+    public static final String TO_BE_PROCESSED_DATASETS_INDICES = "toBeProcessedDatasetsIndices";
+    public static final String DATASETS = "datasets";
+
+
+
+
+
+
+
+
     public static final String VALID_PYTHON_SCRIPT = "import sys\n" +
             "import json\n" +
             "import pyuff\n" +

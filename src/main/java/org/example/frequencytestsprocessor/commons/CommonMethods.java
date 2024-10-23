@@ -49,12 +49,12 @@ public class CommonMethods {
         PYTHON,
         SYSTEM
     }
-    public static void main(String[] args) {
-        String pathPython = "C:\\\\Temp\\\\test_uff.uff";
-        String pathJava = "C:\\Temp\\test_uff.uff";
-        String pathSystem = new File("C:\\Temp\\test_uff.uff").getAbsolutePath();
-        String transtaltedPathFromPython = pythonizePathToFile(pathPython, PathFrom.PYTHON);
-        String transtaltedPathFromJava = pythonizePathToFile(pathJava, PathFrom.JAVA);
-        String transtaltedPathFromSystem = pythonizePathToFile(pathSystem, PathFrom.SYSTEM);
-    }
+//    public static void main(String[] args) {
+//        String pathPython = "C:\\\\Temp\\\\test_uff.uff";
+//        String pathJava = "C:\\Temp\\test_uff.uff";
+//        String pathSystem = new File("C:\\Temp\\test_uff.uff").getAbsolutePath();
+//        String transtaltedPathFromPython = pythonizePathToFile(pathPython, PathFrom.PYTHON);
+//        String transtaltedPathFromJava = pythonizePathToFile(pathJava, PathFrom.JAVA);
+//        String transtaltedPathFromSystem = pythonizePathToFile(pathSystem, PathFrom.SYSTEM);
+//    }
 }

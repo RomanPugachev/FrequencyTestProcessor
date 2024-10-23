@@ -73,8 +73,8 @@
                         </HBox>
                         <HBox fx:id="choseTypeAndSectionHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                            <children>
-                              <ComboBox fx:id="sectionComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Choose section..." HBox.hgrow="ALWAYS" />
-                              <ComboBox fx:id="typeComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="Choose type..." HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="sectionComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="DEFAULT SECTION" HBox.hgrow="ALWAYS" />
+                              <ComboBox fx:id="typeComboBox" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="25.0" promptText="DEFAULT TYPE" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                      </children>

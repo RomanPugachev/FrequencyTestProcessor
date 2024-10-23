@@ -18,10 +18,9 @@ public class StaticStrings {
     public static final String TYPES_OF_DATASETS = "typesOfDatasets";
     public static final String TO_BE_PROCESSED_DATASETS_INDICES = "toBeProcessedDatasetsIndices";
     public static final String DATASETS = "datasets";
-
-
-
-
+    public static final String DEFAULT = "default";
+    public static final String DEFAULT_SECTION_ID = "section.default";
+    public static final String DEFAULT_TYPE_ID = "type.default";
 
 
 

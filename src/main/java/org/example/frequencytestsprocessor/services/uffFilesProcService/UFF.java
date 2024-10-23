@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.example.frequencytestsprocessor.MainController;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF151;
@@ -21,6 +22,7 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,9 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @ToString
 @AllArgsConstructor
-public class UFF {
-    public List<Long> toBeProcessedDatasetsIndices;
+public class UFF implements Iterable<UFF58> {
+    @Getter
+    private List<Long> toBeProcessedDatasetsIndices;
     @Getter
     @Setter
     private List<Long> typesOfDatasets;
@@ -42,6 +45,22 @@ public class UFF {
         datasets = null;
     }
 
+    public Iterator<UFF58> iterator() {
+        return new Iterator<UFF58>() {
+            int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < toBeProcessedDatasetsIndices.size();
+            }
+
+            @Override
+            public UFF58 next() {
+                return (UFF58) datasets.get(toBeProcessedDatasetsIndices.get(index++).intValue());
+            }
+        };
+    }
+
     public static UFF readUNVFile(String fileAddress) {
         // Basic initialization
         UFF resultUFF = new UFF();
@@ -52,7 +71,6 @@ public class UFF {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(pythonOutput)))){
             // Setting types of datasets
             String line = reader.readLine();
-            print(line);
             resultUFF.setTypesOfDatasets(
                     Arrays.stream(line.trim().split(" "))
                     .map(Long::valueOf)
@@ -69,7 +87,6 @@ public class UFF {
                     }
                 }
                 line = reader.readLine();
-                print("Java read another line:", line);
                 if (line == null || line.isEmpty()) {
                     datasetTypeId--;
                     continue; // Scip empty lines
@@ -88,7 +105,6 @@ public class UFF {
         } catch (Exception e) {
             throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
         }
-        System.out.println("UFF: " + resultUFF);
         return resultUFF;
     }
 
@@ -109,7 +125,3 @@ public class UFF {
                  .toString();
     }
 }
-
-
-
-

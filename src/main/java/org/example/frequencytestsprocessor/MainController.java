@@ -1,6 +1,8 @@
 package org.example.frequencytestsprocessor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -8,26 +10,22 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import jep.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.commons.CommonMethods;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
-import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 
 import java.io.*;
-import java.lang.reflect.Executable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.getFileFromDialog;
-import static org.example.frequencytestsprocessor.commons.CommonMethods.printByteArrayOutputStram;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 @Setter
@@ -80,10 +78,10 @@ public class MainController {
     private SplitPane processAndVisualizeSplitPane;
 
     @FXML
-    private ComboBox<?> sectionComboBox;
+    private ComboBox<Section> sectionComboBox;
 
     @FXML
-    private ComboBox<?> typeComboBox;
+    private ComboBox<SensorDataType> typeComboBox;
 
     // Common static objects
     @Getter
@@ -108,10 +106,10 @@ public class MainController {
         languageNotifier.addObserver(
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
-                        new LanguageObserverDecorator(changeLanguageButton),
-                        new LanguageObserverDecorator(chosenFileLabel),
-                        new LanguageObserverDecorator(sectionComboBox),
-                        new LanguageObserverDecorator(typeComboBox)
+                        new LanguageObserverDecorator<>(changeLanguageButton),
+                        new LanguageObserverDecorator<>(chosenFileLabel),
+                        Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
+                        SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER
                 )
         );
         currentLanguage = RU;
@@ -142,6 +140,7 @@ public class MainController {
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
             this.chosenFile = chosenFile;
             this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
+            refresher.refreshOnChangeFilePath();
         } else if (chosenFile != null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Ошибка");
@@ -173,7 +172,33 @@ public class MainController {
 
     private class Refresher {
         private void refreshOnChangeFilePath() {
-            System.out.printf("Refresher.refreshOnChangeFilePath(): new file is %s", MainController.this.chosenFile);
+            sectionComboBox.getItems().clear();
+            sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
+
+            UFF58Representation currentRepresentation;
+            for (UFF58 currentUFF58 : uff) {
+                try {
+                    currentRepresentation = new UFF58Representation(currentUFF58); final Section currentSectionInRepr = currentRepresentation.section;
+                    final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;
+                    if (!sectionComboBox.getItems().contains(currentRepresentation.section)) {
+                        sectionComboBox.getItems().add(currentRepresentation.section);
+                    } Section currentSection = sectionComboBox.getItems().stream().filter(section -> section.equals(currentSectionInRepr)).findFirst().orElse(null);
+                    if (!currentSection.getTypes().contains(currentRepresentation.sensorDataType)) {
+                        currentSection.addType(currentRepresentation.sensorDataType);
+                    } SensorDataType currentType = currentSection.getTypes().stream().filter(type -> type.equals(currentTypeRepresentation)).findFirst().orElse(null);
+                    currentType.addSensor(currentRepresentation.sensorWithData);
+                } catch (Exception e) {
+                    print("Couldn't create representation of UFF58 dataset");
+                }
+            }
+
+            sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // 4. Extract unique MiddleObjects from selected HigherObject
+                    ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());
+                    typeComboBox.setItems(sensorDataTypes);
+                }
+            });
         }
     }
 }

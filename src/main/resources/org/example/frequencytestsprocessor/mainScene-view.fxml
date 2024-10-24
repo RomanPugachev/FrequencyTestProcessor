@@ -50,12 +50,12 @@
                      <children>
                         <HBox fx:id="chooseFileHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                            <children>
-                              <Button fx:id="fileDialogButton" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#callFileDialog" prefHeight="25.0" prefWidth="25.0" text="image" HBox.hgrow="ALWAYS">
+                              <Button fx:id="fileDialogButton" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#callFileDialog" prefHeight="25.0" prefWidth="25.0" text="SearchFile" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets left="5.0" />
                                  </HBox.margin>
                                  <font>
-                                    <Font size="5.0" />
+                                    <Font size="7.5" />
                                  </font>
                               </Button>
                               <Label fx:id="chosenFileLabel" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="250.0" text="File address" textAlignment="CENTER" HBox.hgrow="ALWAYS">

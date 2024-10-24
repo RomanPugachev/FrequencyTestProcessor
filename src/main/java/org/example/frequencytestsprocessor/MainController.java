@@ -167,13 +167,13 @@ public class MainController {
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        refresher.setDefaultComboBoxes();
         initializeServices();
     }
 
     private class Refresher {
         private void refreshOnChangeFilePath() {
-            sectionComboBox.getItems().clear();
-            sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
+            setDefaultComboBoxes();
 
             UFF58Representation currentRepresentation;
             for (UFF58 currentUFF58 : uff) {
@@ -182,13 +182,13 @@ public class MainController {
                     final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;
                     if (!sectionComboBox.getItems().contains(currentRepresentation.section)) {
                         sectionComboBox.getItems().add(currentRepresentation.section);
-                    } Section currentSection = sectionComboBox.getItems().stream().filter(section -> section.equals(currentSectionInRepr)).findFirst().orElse(null);
+                    } Section currentSection = sectionComboBox.getItems().stream().filter(section -> section.equals(currentSectionInRepr)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find section by representation"));
                     if (!currentSection.getTypes().contains(currentRepresentation.sensorDataType)) {
                         currentSection.addType(currentRepresentation.sensorDataType);
-                    } SensorDataType currentType = currentSection.getTypes().stream().filter(type -> type.equals(currentTypeRepresentation)).findFirst().orElse(null);
+                    } SensorDataType currentType = currentSection.getTypes().stream().filter(type -> type.equals(currentTypeRepresentation)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find type in current section"));
                     currentType.addSensor(currentRepresentation.sensorWithData);
                 } catch (Exception e) {
-                    print("Couldn't create representation of UFF58 dataset");
+                    print("Couldn't create representation of UFF58 dataset, because:\n" + e.getMessage());
                 }
             }
 
@@ -199,6 +199,11 @@ public class MainController {
                     typeComboBox.setItems(sensorDataTypes);
                 }
             });
+        }
+
+        private void setDefaultComboBoxes() {
+            sectionComboBox.getItems().clear();
+            sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
         }
     }
 }

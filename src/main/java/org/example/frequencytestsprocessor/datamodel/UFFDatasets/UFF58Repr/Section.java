@@ -1,20 +1,22 @@
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
-import lombok.*;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DEFAULT_SECTION_ID;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
 @EqualsAndHashCode(exclude = {"types"})
 @NoArgsConstructor
 public class Section {
-    public static final Section DEFAULT_SECTION = (new Section("DEFAULT SECTION")).addType(SensorDataType.DEFAULT_TYPE);
+    public static final Section DEFAULT_SECTION = (new Section("DEFAULT SECTION"));
     public static final LanguageObserver DEFAULT_SECTION_LANGUAGE_OBSERVER = (languageProperties, currentLanguage) -> {
         String key = DEFAULT_SECTION_ID + DOT;
         String text = languageProperties.getProperty(key + currentLanguage);
@@ -32,11 +34,22 @@ public class Section {
     @Getter
     @Setter
     private Set<SensorDataType> types = new HashSet<>();
+
+    {
+        addDefaultType();
+    }
+
+    protected Section addDefaultType() {
+        types.add(SensorDataType.DEFAULT_TYPE);
+        return this;
+    }
+
     public Section addType(SensorDataType type) {
         types.add(type);
         type.parentSection = this;
         return this;
     }
+
     public Section(String sectionName) {
         this.sectionName = sectionName;
     }
@@ -47,5 +60,10 @@ public class Section {
         for (SensorDataType type : types) {
             type.parentSection = this;
         }
+        addDefaultType();
+    }
+
+    public String toString() {
+        return this.sectionName;
     }
 }

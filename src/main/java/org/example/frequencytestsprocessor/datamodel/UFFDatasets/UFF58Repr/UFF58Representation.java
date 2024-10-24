@@ -7,6 +7,7 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import java.util.List;
 import java.util.Set;
 
+
 public class UFF58Representation {
     public Section section;
     public SensorDataType sensorDataType;

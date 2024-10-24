@@ -1,9 +1,12 @@
 package org.example.frequencytestsprocessor.datamodel.myMath;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Complex implements Cloneable{
     private double real;
     private double imag;
@@ -21,4 +24,16 @@ public class Complex implements Cloneable{
             throw new RuntimeException("Couldn't clone Complex", e);
         }
     }
+    protected boolean canEqual(final Object other) {
+        return other instanceof Complex;
+    }
 }
+
+
+
+
+
+
+
+
+

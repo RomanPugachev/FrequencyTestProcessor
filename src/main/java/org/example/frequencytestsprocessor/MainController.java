@@ -108,8 +108,12 @@ public class MainController {
                         new LanguageObserverDecorator<>(mainMenuBar),
                         new LanguageObserverDecorator<>(changeLanguageButton),
                         new LanguageObserverDecorator<>(chosenFileLabel),
-                        Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
-                        SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER
+                        new LanguageObserverDecorator<>(sectionComboBox),
+                        new LanguageObserverDecorator<>(typeComboBox),
+                        SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
+                        Section.DEFAULT_SECTION_LANGUAGE_OBSERVER
+
+
                 )
         );
         currentLanguage = RU;
@@ -167,14 +171,24 @@ public class MainController {
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        refresher.setDefaultComboBoxes();
         initializeServices();
+        setupWidgetsBehaviour();
+        refresher.setDefaultComboBoxes();
+    }
+
+    private void setupWidgetsBehaviour() {
+        sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());
+                typeComboBox.setItems(sensorDataTypes);
+                typeComboBox.setValue(SensorDataType.DEFAULT_TYPE);
+            }
+        });
     }
 
     private class Refresher {
         private void refreshOnChangeFilePath() {
             setDefaultComboBoxes();
-
             UFF58Representation currentRepresentation;
             for (UFF58 currentUFF58 : uff) {
                 try {
@@ -191,19 +205,13 @@ public class MainController {
                     print("Couldn't create representation of UFF58 dataset, because:\n" + e.getMessage());
                 }
             }
-
-            sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    // 4. Extract unique MiddleObjects from selected HigherObject
-                    ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());
-                    typeComboBox.setItems(sensorDataTypes);
-                }
-            });
         }
 
         private void setDefaultComboBoxes() {
             sectionComboBox.getItems().clear();
             sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
+            sectionComboBox.setValue(sectionComboBox.getItems().getFirst());
+            typeComboBox.setValue(typeComboBox.getItems().getFirst());
         }
     }
 }

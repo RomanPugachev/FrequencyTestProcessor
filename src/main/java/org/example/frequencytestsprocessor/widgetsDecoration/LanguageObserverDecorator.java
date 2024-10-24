@@ -4,8 +4,10 @@ import javafx.scene.control.*;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.Properties;
 
+import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
 public class LanguageObserverDecorator<T extends Control> extends WidgetDecorator<T> implements LanguageObserver {
@@ -28,10 +30,12 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
                 } break;
             }
             case ComboBox comboBox -> {
+                ComboBox currentComboBox = (ComboBox<?>) widget;
                 if (text != null) {
                     byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
                     String decodedText = new String(bytes, StandardCharsets.UTF_8);
-                    ((ComboBox<?>) widget).setPromptText(decodedText);
+                    Object selectedItem = currentComboBox.getSelectionModel().getSelectedItem();
+                    currentComboBox.setValue(selectedItem);
                 } else {
                     throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                 } break;

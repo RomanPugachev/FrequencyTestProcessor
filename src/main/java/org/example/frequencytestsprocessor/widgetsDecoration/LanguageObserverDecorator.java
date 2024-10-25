@@ -29,17 +29,6 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
                     throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                 } break;
             }
-            case ComboBox comboBox -> {
-                ComboBox currentComboBox = (ComboBox<?>) widget;
-                if (text != null) {
-                    byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
-                    String decodedText = new String(bytes, StandardCharsets.UTF_8);
-                    Object selectedItem = currentComboBox.getSelectionModel().getSelectedItem();
-                    currentComboBox.setValue(selectedItem);
-                } else {
-                    throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
-                } break;
-            }
             case Label label -> {
                 if (text != null) {
                     if (key.equals("chosenFileLabel.") && ((Label) widget).getText().contains(":")) {

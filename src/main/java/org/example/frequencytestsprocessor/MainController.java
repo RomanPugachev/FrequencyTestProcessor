@@ -17,6 +17,7 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Secti
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
@@ -24,6 +25,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -108,12 +110,16 @@ public class MainController {
                         new LanguageObserverDecorator<>(mainMenuBar),
                         new LanguageObserverDecorator<>(changeLanguageButton),
                         new LanguageObserverDecorator<>(chosenFileLabel),
-                        new LanguageObserverDecorator<>(sectionComboBox),
-                        new LanguageObserverDecorator<>(typeComboBox),
                         SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
-                        Section.DEFAULT_SECTION_LANGUAGE_OBSERVER
-
-
+                        Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
+                        (languageProperties, currentLanguage) -> {
+                            Section currentSection = sectionComboBox.getValue();
+                            SensorDataType currentType = typeComboBox.getValue();
+                            sectionComboBox.getItems().remove(currentSection);
+                            sectionComboBox.getItems().add(currentSection);
+                            sectionComboBox.setValue(currentSection);
+                            typeComboBox.setValue(currentType);
+                        }
                 )
         );
         currentLanguage = RU;

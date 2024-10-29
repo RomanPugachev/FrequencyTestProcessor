@@ -18,9 +18,31 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
     @Override
     public void updateLanguage(Properties languageProperties, String currentLanguage) {
         String key = widget.getId() + DOT;
-        String text = languageProperties.getProperty(key + currentLanguage);
+        String text;
         switch (widget) {
+            case TableView<?> tableView -> {
+                text = languageProperties.getProperty(key + currentLanguage);
+                if (text != null) {
+                    byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                    String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                    tableView.setPlaceholder(new Label(decodedText));
+                } else {
+                    throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                }
+                for (TableColumn<?, ?> column : tableView.getColumns()) {
+                    text = languageProperties.getProperty(key + column.getId() + DOT + currentLanguage);
+                    if (text != null) {
+                        byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                        String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                        column.setText(decodedText);
+                    } else {
+                        throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                    }
+                }
+                break;
+            }
             case Button button -> {
+                text = languageProperties.getProperty(key + currentLanguage);
                 if (text != null) {
                     byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
                     String decodedText = new String(bytes, StandardCharsets.UTF_8);
@@ -30,6 +52,7 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
                 } break;
             }
             case Label label -> {
+                text = languageProperties.getProperty(key + currentLanguage);
                 if (text != null) {
                     if (key.equals("chosenFileLabel.") && ((Label) widget).getText().contains(":")) {
                         return; // Check if file path label is not empty, then it mustn't be changed

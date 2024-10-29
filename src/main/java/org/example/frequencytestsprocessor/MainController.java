@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
@@ -33,12 +35,21 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 @Setter
 public class MainController {
 
-    //Objects of interface
+////Objects of interface//////////////
     @FXML
     private ResourceBundle resources;
 
     @FXML
     private URL location;
+
+    @FXML
+    private TableColumn<Sensor, String> availableSensorsColumn;
+
+    @FXML
+    private TableView availableSensorsTable;
+
+    @FXML
+    private Button changeLanguageButton;
 
     @FXML
     private HBox chooseFileHBox;
@@ -50,10 +61,13 @@ public class MainController {
     private Label chosenFileLabel;
 
     @FXML
-    private VBox dataProcessVBox;
+    private TableView<?> chosenSensorsTable;
 
     @FXML
-    private Button changeLanguageButton;
+    private MenuItem close;
+
+    @FXML
+    private VBox dataProcessVBox;
 
     @FXML
     private HBox dummyHBox;
@@ -62,10 +76,25 @@ public class MainController {
     private ToolBar dummyToolBar;
 
     @FXML
+    private Menu file;
+
+    @FXML
     private Button fileDialogButton;
 
     @FXML
     private AnchorPane graphsAnchorPane;
+
+    @FXML
+    private TableColumn<?, ?> idColumn;
+
+    @FXML
+    private Menu languageSettings;
+
+    @FXML
+    private MenuItem language_en;
+
+    @FXML
+    private MenuItem language_ru;
 
     @FXML
     private AnchorPane mainAnchorPane;
@@ -83,9 +112,18 @@ public class MainController {
     private ComboBox<Section> sectionComboBox;
 
     @FXML
-    private ComboBox<SensorDataType> typeComboBox;
+    private TableColumn<?, ?> sensorNameColumn;
 
-    // Common static objects
+    @FXML
+    private HBox sensorsChoiseHBox;
+
+    @FXML
+    private Menu settings;
+
+    @FXML
+    private ComboBox<SensorDataType> typeComboBox;
+////////////////////////////////////////////////////////
+/// Common static objects //////////////////////////////
     @Getter
     public static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -119,7 +157,9 @@ public class MainController {
                             sectionComboBox.getItems().add(currentSection);
                             sectionComboBox.setValue(currentSection);
                             typeComboBox.setValue(currentType);
-                        }
+                        },
+                        new LanguageObserverDecorator<>(availableSensorsTable),
+                        new LanguageObserverDecorator<>(chosenSensorsTable)
                 )
         );
         currentLanguage = RU;
@@ -162,20 +202,32 @@ public class MainController {
 
     @FXML
     void initialize() {
+        assert availableSensorsColumn != null : "fx:id=\"availableSensorsColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chosenSensorsTable != null : "fx:id=\"chosenSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert close != null : "fx:id=\"close\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainMenuBar != null : "fx:id=\"mainMenuBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorNameColumn != null : "fx:id=\"sensorNameColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         initializeServices();
         setupWidgetsBehaviour();
@@ -183,11 +235,19 @@ public class MainController {
     }
 
     private void setupWidgetsBehaviour() {
+        availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());
                 typeComboBox.setItems(sensorDataTypes);
                 typeComboBox.setValue(SensorDataType.DEFAULT_TYPE);
+            }
+        });
+        typeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                ObservableList<Sensor> sensors = FXCollections.observableArrayList(newValue.getSensors());
+                availableSensorsTable.getItems().clear();
+                availableSensorsTable.getItems().addAll(sensors);
             }
         });
     }

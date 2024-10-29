@@ -1,2 +1,2 @@
-# frequency-test-processor
-Данный проект реализует пользовательский интерфейс для удобной обработки частотных испытаний с сохранением результатов в виде графиков с подписями, сохраняемых в файл формата .doc
+# FrequencyTestsProcessor
+This project implements a user interface for convenient processing of frequency tests with saving the results in the form of graphs with signatures saved in a .doc file format

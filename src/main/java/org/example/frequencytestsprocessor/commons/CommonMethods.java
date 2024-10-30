@@ -4,6 +4,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.List;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -48,6 +50,11 @@ public class CommonMethods {
         JAVA,
         PYTHON,
         SYSTEM
+    }
+
+    public static String getAppropriateIDChosenSensor (List<String> sensorsIDs) {
+        print("I'll choose good sensor ID for this list of sensors: " + sensorsIDs);
+        return "Hello, I'm a chosen sensor ID";
     }
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

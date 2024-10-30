@@ -1,6 +1,8 @@
 package org.example.frequencytestsprocessor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -14,6 +16,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
@@ -22,7 +25,6 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Senso
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
-import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
@@ -30,7 +32,6 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -49,7 +50,7 @@ public class MainController {
     private TableColumn<Sensor, String> availableSensorsColumn;
 
     @FXML
-    private TableView availableSensorsTable;
+    private TableView<Sensor> availableSensorsTable;
 
     @FXML
     private Button changeLanguageButton;
@@ -64,7 +65,7 @@ public class MainController {
     private Label chosenFileLabel;
 
     @FXML
-    private TableView<?> chosenSensorsTable;
+    private TableView<Sensor> chosenSensorsTable;
 
     @FXML
     private MenuItem close;
@@ -88,7 +89,7 @@ public class MainController {
     private AnchorPane graphsAnchorPane;
 
     @FXML
-    private TableColumn<?, ?> idColumn;
+    private TableColumn<Sensor, String> idColumn;
 
     @FXML
     private Menu languageSettings;
@@ -239,6 +240,27 @@ public class MainController {
 
     private void setupWidgetsBehaviour() {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
+        sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
+        idColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Sensor, String >, ObservableValue<String >>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Sensor, String> param) {
+                List<Sensor> observedItems = chosenSensorsTable.getItems().stream().filter(sensor -> param.getValue()!=sensor).toList();
+                return new SimpleStringProperty(getAppropriateIDChosenSensor(observedItems.stream()
+                        .map(sensor -> idColumn.getCellObservableValue(sensor).getValue()).toList())); // Get ID from the sensor object
+            }
+        });
+        availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER){
+                    ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
+                    for (Sensor item : items) {
+                        chosenSensorsTable.getItems().add(item);
+                    }
+                }
+            }
+        });
+
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());
@@ -250,19 +272,8 @@ public class MainController {
             if (newValue != null) {
                 ObservableList<Sensor> sensors = FXCollections.observableArrayList(newValue.getSensors());
                 availableSensorsTable.getItems().clear();
+                chosenSensorsTable.getItems().clear();
                 availableSensorsTable.getItems().addAll(sensors);
-            }
-        });
-        availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.ENTER){
-                    print("You pressed enter!");
-                    var items = availableSensorsTable.getSelectionModel().getSelectedItems();
-                    for (var item : items) {
-                        print(item);
-                    }
-                }
             }
         });
     }
@@ -275,13 +286,17 @@ public class MainController {
                 try {
                     currentRepresentation = new UFF58Representation(currentUFF58); final Section currentSectionInRepr = currentRepresentation.section;
                     final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;
+                    Sensor currentSensorRepresentation = currentRepresentation.sensorWithData;
                     if (!sectionComboBox.getItems().contains(currentRepresentation.section)) {
                         sectionComboBox.getItems().add(currentRepresentation.section);
                     } Section currentSection = sectionComboBox.getItems().stream().filter(section -> section.equals(currentSectionInRepr)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find section by representation"));
                     if (!currentSection.getTypes().contains(currentRepresentation.sensorDataType)) {
                         currentSection.addType(currentRepresentation.sensorDataType);
                     } SensorDataType currentType = currentSection.getTypes().stream().filter(type -> type.equals(currentTypeRepresentation)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find type in current section"));
-                    currentType.addSensor(currentRepresentation.sensorWithData);
+                    if (!currentType.getSensors().contains(currentRepresentation.sensorWithData)){
+                        currentType.addSensor(currentRepresentation.sensorWithData);
+                    } Sensor currentSensor = currentType.getSensors().stream().filter(sensor -> sensor.equals(currentSensorRepresentation)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find sensor"));
+                    currentSensor.mergeSensorData(currentSensorRepresentation);
                 } catch (Exception e) {
                     print("Couldn't create representation of UFF58 dataset, because:\n" + e.getMessage());
                 }
@@ -296,3 +311,6 @@ public class MainController {
         }
     }
 }
+
+// PROMPT
+//I want to give opportunity for user to redact value of id in table with consequent check of edited value. I want to call dialog on double click on table item. Dialog is the form where will be displayed new value text edit, and buttons OK and Cancel. After pressing OK button in dialog, program checks if new value is valid and changes ID of element,

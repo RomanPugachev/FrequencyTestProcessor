@@ -21,6 +21,7 @@ public class Sensor {
         this.sensorName = sensorName;
         this.data.put(currentRun, new SensorData(freqs, complexes));
     }
+
     public Sensor addRun(Long currentRun, List<Double> freqs, List<Complex> complexes) {
         if (currentRun == null) {
             throw new RuntimeException("currentRun can't be null");

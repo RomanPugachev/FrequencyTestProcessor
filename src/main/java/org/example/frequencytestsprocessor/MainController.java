@@ -20,10 +20,7 @@ import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
@@ -32,6 +29,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -241,21 +239,14 @@ public class MainController {
     private void setupWidgetsBehaviour() {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
-        idColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Sensor, String >, ObservableValue<String >>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Sensor, String> param) {
-                List<Sensor> observedItems = chosenSensorsTable.getItems().stream().filter(sensor -> param.getValue()!=sensor).toList();
-                return new SimpleStringProperty(getAppropriateIDChosenSensor(observedItems.stream()
-                        .map(sensor -> idColumn.getCellObservableValue(sensor).getValue()).toList())); // Get ID from the sensor object
-            }
-        });
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
         availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 if (event.getCode() == KeyCode.ENTER){
                     ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
                     for (Sensor item : items) {
-                        chosenSensorsTable.getItems().add(item);
+                        chosenSensorsTable.getItems().add(new SensorDTO(item, "Not default"));
                     }
                 }
             }

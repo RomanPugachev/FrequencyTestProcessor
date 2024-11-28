@@ -5,7 +5,10 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CommonMethods {
@@ -54,7 +57,16 @@ public class CommonMethods {
     }
 
     public static String generateId (List<String> sensorsIDs) {
-        return "Here will be generated ID";
+        Long minId = 0L, maxId = 0L, numRows = (long) sensorsIDs.size();
+        if (numRows.equals(0L)) return "F0";
+        Set<Long> existingNums = new HashSet<>();
+        Pattern regexPattern = Pattern.compile("^F\\d+$");
+        sensorsIDs.forEach((s) -> {
+            if (regexPattern.matcher(s).matches()) {
+                existingNums.add(Long.parseLong(s.substring(1)));
+            }
+        }});
+        return "";
     }
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

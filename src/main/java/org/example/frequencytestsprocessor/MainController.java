@@ -245,8 +245,11 @@ public class MainController {
             public void handle(KeyEvent event) {
                 if (event.getCode() == KeyCode.ENTER){
                     ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
+                    List<String> existingIds = chosenSensorsTable.getItems().stream().map((s) -> ((SensorProxyForTable) s).getStringId()).collect(Collectors.toList());
                     for (Sensor item : items) {
-                        chosenSensorsTable.getItems().add(new SensorProxyForTable(item, "Not default"));
+                        String newId = generateId(existingIds);
+                        existingIds.add(newId);
+                        chosenSensorsTable.getItems().add(new SensorProxyForTable(item, newId));
                     }
                 }
             }

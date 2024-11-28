@@ -54,9 +54,7 @@ public class CommonMethods {
     }
 
     public static String generateId (List<String> sensorsIDs) {
-        String joinedIds = sensorsIDs.stream()
-                .collect(Collectors.joining("|"));
-        return "Hello|" + joinedIds;
+        return "Here will be generated ID";
     }
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

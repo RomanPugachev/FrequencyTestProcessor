@@ -87,7 +87,7 @@ public class MainController {
     private AnchorPane graphsAnchorPane;
 
     @FXML
-    private TableColumn<Sensor, String> idColumn;
+    private TableColumn<Sensor, String> sensorIdColumn;
 
     @FXML
     private Menu languageSettings;
@@ -218,7 +218,7 @@ public class MainController {
         assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert idColumn != null : "fx:id=\"idColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -239,14 +239,14 @@ public class MainController {
     private void setupWidgetsBehaviour() {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
+        sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
         availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 if (event.getCode() == KeyCode.ENTER){
                     ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
                     for (Sensor item : items) {
-                        chosenSensorsTable.getItems().add(new SensorDTO(item, "Not default"));
+                        chosenSensorsTable.getItems().add(new SensorProxyForTable(item, "Not default"));
                     }
                 }
             }

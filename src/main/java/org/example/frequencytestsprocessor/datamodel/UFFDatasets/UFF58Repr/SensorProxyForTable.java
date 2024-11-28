@@ -4,12 +4,12 @@ import lombok.Getter;
 
 import java.util.Map;
 
-public class SensorDTO extends Sensor {
+public class SensorProxyForTable extends Sensor {
     @Getter
     private String stringId;
     private Sensor originalSensor;
 
-    public SensorDTO(Sensor originalSensor, String stringId) {
+    public SensorProxyForTable(Sensor originalSensor, String stringId) {
         this.originalSensor = originalSensor;
         this.stringId = stringId;
     }

@@ -92,7 +92,7 @@
                                         <TableView fx:id="chosenSensorsTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="sensorNameColumn" editable="false" sortable="false" text="CHOSEN_SENSOR" />
-                                                <TableColumn fx:id="idColumn" sortable="false" text="ID_IN_FORMULA" />
+                                                <TableColumn fx:id="sensorIdColumn" sortable="false" text="ID_IN_FORMULA" />
                                             </columns>
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

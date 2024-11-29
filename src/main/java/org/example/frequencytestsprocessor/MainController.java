@@ -9,18 +9,22 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
@@ -45,10 +49,22 @@ public class MainController {
     private URL location;
 
     @FXML
+    private MenuItem addAvailableSensorsMenuItem;
+
+    @FXML
+    private MenuItem formulaAdditionAnalithicalMenuItem;
+
+    @FXML
+    private MenuItem formulaAdditionSensorMenuItem;
+
+    @FXML
     private TableColumn<Sensor, String> availableSensorsColumn;
 
     @FXML
     private TableView<Sensor> availableSensorsTable;
+
+    @FXML
+    private ContextMenu availableSensorsTableContextMenu;
 
     @FXML
     private Button changeLanguageButton;
@@ -66,10 +82,34 @@ public class MainController {
     private TableView<Sensor> chosenSensorsTable;
 
     @FXML
+    private ContextMenu chosenSensorsTableContextMenu;
+
+    @FXML
     private MenuItem close;
 
     @FXML
+    private TableColumn<Formula, String> commentToFormulaColumn;
+
+    @FXML
     private VBox dataProcessVBox;
+
+    @FXML
+    private MenuItem deleteChosenSensorsMenuItem;
+
+    @FXML
+    private MenuItem deleteFormulaMenuItem;
+
+    @FXML
+    private TableColumn<Formula, String> formulaIdColumn;
+
+    @FXML
+    private TableColumn<Formula, String> formulaStringColumn;
+
+    @FXML
+    private TableView<Formula> formulaTable;
+
+    @FXML
+    private ContextMenu formulasContextMenu;
 
     @FXML
     private HBox dummyHBox;
@@ -204,21 +244,33 @@ public class MainController {
 
     @FXML
     void initialize() {
+//        Добавляем меню бар к таблицам и добавляем редактор формул
+        assert addAvailableSensorsMenuItem != null : "fx:id=\"addAvailableSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsColumn != null : "fx:id=\"availableSensorsColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert availableSensorsTableContextMenu != null : "fx:id=\"availableSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenSensorsTable != null : "fx:id=\"chosenSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chosenSensorsTableContextMenu != null : "fx:id=\"chosenSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert close != null : "fx:id=\"close\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert commentToFormulaColumn != null : "fx:id=\"commentToFormulaColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert deleteChosenSensorsMenuItem != null : "fx:id=\"deleteChosenSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaAdditionSensorMenuItem != null : "fx:id=\"formulaAdditionSensorMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaIdColumn != null : "fx:id=\"formulaIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaStringColumn != null : "fx:id=\"formulaStringColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaTable != null : "fx:id=\"formulaTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulasContextMenu != null : "fx:id=\"formulasContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -227,16 +279,37 @@ public class MainController {
         assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorNameColumn != null : "fx:id=\"sensorNameColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
     }
 
     private void setupWidgetsBehaviour() {
+
+        Переписать
+        try (InputStream input = MainApplication.class.getResourceAsStream("images/package.svg");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+            StringBuilder svgData = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                svgData.append(line).append("\n"); // Append each line of SVG data
+            }
+            SVGPath svgPath = new SVGPath();
+            svgPath.setContent(svgData.toString());
+            svgPath.setScaleX(0.5); //Example scaling
+            svgPath.setScaleY(0.5); //Example scaling
+
+            fileDialogButton.setGraphic(svgPath);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle exceptions appropriately
+        }
+        Добавление изображения в кнопку
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
@@ -254,6 +327,23 @@ public class MainController {
                 }
             }
         });
+        chosenSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.DELETE){
+                    ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
+                    chosenSensorsTable.getItems().removeAll(selectedItems);
+                }
+            }
+        });
+//        ContextMenu contextMenu = new ContextMenu();
+//        MenuItem deleteMenuItem = new MenuItem("Delete");
+//        deleteMenuItem.setOnAction(event -> {
+//            ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
+//            chosenSensorsTable.getItems().removeAll(selectedItems);
+//        });
+//        contextMenu.getItems().add(deleteMenuItem);
+//        chosenSensorsTable.setContextMenu(contextMenu);
 
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -270,6 +360,8 @@ public class MainController {
                 availableSensorsTable.getItems().addAll(sensors);
             }
         });
+        availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        chosenSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     private class Refresher {
@@ -305,6 +397,3 @@ public class MainController {
         }
     }
 }
-
-// PROMPT
-//I want to give opportunity for user to redact value of id in table with consequent check of edited value. I want to call dialog on double click on table item. Dialog is the form where will be displayed new value text edit, and buttons OK and Cancel. After pressing OK button in dialog, program checks if new value is valid and changes ID of element,

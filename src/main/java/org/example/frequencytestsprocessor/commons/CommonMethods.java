@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -57,16 +58,31 @@ public class CommonMethods {
     }
 
     public static String generateId (List<String> sensorsIDs) {
-        Long minId = 0L, maxId = 0L, numRows = (long) sensorsIDs.size();
+        long minId = Long.MAX_VALUE;
+        long maxId = Long.MIN_VALUE;
+        Long numRows = (long) sensorsIDs.size();
         if (numRows.equals(0L)) return "F0";
         Set<Long> existingNums = new HashSet<>();
         Pattern regexPattern = Pattern.compile("^F\\d+$");
-        sensorsIDs.forEach((s) -> {
+        // Searching for existing indexes
+        for (String s : sensorsIDs) {
             if (regexPattern.matcher(s).matches()) {
-                existingNums.add(Long.parseLong(s.substring(1)));
+                Long curNum = Long.parseLong(s.substring(1));
+                existingNums.add(curNum);
+                minId = Math.min(minId, curNum);
+                maxId = Math.max(maxId, curNum);
             }
-        }});
-        return "";
+        }
+        // Generating new index
+        if (minId > 0L) {
+            return "F0";
+        } else {
+            Long newId = minId + 1L;
+            while (existingNums.contains(newId)) {
+                newId++;
+            }
+            return "F" + newId;
+        }
     }
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

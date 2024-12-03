@@ -177,6 +177,7 @@ public class MainController {
     private String currentLanguage = RU;
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
+    private MainApplication mainApplication;
     private Refresher refresher = this.new Refresher();
 
     public void initializeServices() {
@@ -241,6 +242,19 @@ public class MainController {
             alert.showAndWait();
         }
     }
+    public void loadImages(){
+        try {
+            Image image = mainApplication.getImage("images/" + "package.jpg");
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(25);
+            imageView.setFitHeight(25);
+            imageView.setPreserveRatio(true);
+            fileDialogButton.setGraphic(imageView);
+
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + e.getMessage());
+        }
+    }
 
     @FXML
     void initialize() {
@@ -291,25 +305,6 @@ public class MainController {
     }
 
     private void setupWidgetsBehaviour() {
-
-        Переписать
-        try (InputStream input = MainApplication.class.getResourceAsStream("images/package.svg");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-            StringBuilder svgData = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                svgData.append(line).append("\n"); // Append each line of SVG data
-            }
-            SVGPath svgPath = new SVGPath();
-            svgPath.setContent(svgData.toString());
-            svgPath.setScaleX(0.5); //Example scaling
-            svgPath.setScaleY(0.5); //Example scaling
-
-            fileDialogButton.setGraphic(svgPath);
-        } catch (Exception e) {
-            e.printStackTrace(); // Handle exceptions appropriately
-        }
-        Добавление изображения в кнопку
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
@@ -336,15 +331,6 @@ public class MainController {
                 }
             }
         });
-//        ContextMenu contextMenu = new ContextMenu();
-//        MenuItem deleteMenuItem = new MenuItem("Delete");
-//        deleteMenuItem.setOnAction(event -> {
-//            ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
-//            chosenSensorsTable.getItems().removeAll(selectedItems);
-//        });
-//        contextMenu.getItems().add(deleteMenuItem);
-//        chosenSensorsTable.setContextMenu(contextMenu);
-
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());

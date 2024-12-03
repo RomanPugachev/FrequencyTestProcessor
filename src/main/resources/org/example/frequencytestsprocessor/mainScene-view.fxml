@@ -92,7 +92,7 @@
                                             <contextMenu>
                                                 <ContextMenu fx:id="availableSensorsTableContextMenu">
                                                     <items>
-                                                        <MenuItem fx:id="addAvailableSensorsMenuItem" mnemonicParsing="false" text="DEFAULT_ADD_SENSORS" />
+                                                        <MenuItem fx:id="addAvailableSensorsMenuItem" mnemonicParsing="false" onAction="#addAvailableSensorsToChosen" text="DEFAULT_ADD_SENSORS" />
                                                     </items>
                                                 </ContextMenu>
                                             </contextMenu>
@@ -140,7 +140,7 @@
                               </ContextMenu>
                            </contextMenu>
                         </TableView>
-                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
+                        <Button fx:id="performCalculationsButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>

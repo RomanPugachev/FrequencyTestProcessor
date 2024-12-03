@@ -148,6 +148,9 @@ public class MainController {
     private VBox mainVBox;
 
     @FXML
+    private Button performCalculationsButton;
+
+    @FXML
     private SplitPane processAndVisualizeSplitPane;
 
     @FXML
@@ -202,7 +205,9 @@ public class MainController {
                             typeComboBox.setValue(currentType);
                         },
                         new LanguageObserverDecorator<>(availableSensorsTable),
-                        new LanguageObserverDecorator<>(chosenSensorsTable)
+                        new LanguageObserverDecorator<>(chosenSensorsTable),
+                        new LanguageObserverDecorator<>(formulaTable),
+                        new LanguageObserverDecorator<>(performCalculationsButton)
                 )
         );
         currentLanguage = RU;
@@ -242,6 +247,18 @@ public class MainController {
             alert.showAndWait();
         }
     }
+
+    @FXML
+    private void addAvailableSensorsToChosen() {
+        ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
+        List<String> existingIds = chosenSensorsTable.getItems().stream().map((s) -> ((SensorProxyForTable) s).getStringId()).collect(Collectors.toList());
+        for (Sensor item : items) {
+            String newId = generateId(existingIds);
+            existingIds.add(newId);
+            chosenSensorsTable.getItems().add(new SensorProxyForTable(item, newId));
+        }
+    }
+
     public void loadImages(){
         try {
             Image image = mainApplication.getImage("images/" + "package.jpg");
@@ -291,6 +308,7 @@ public class MainController {
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainMenuBar != null : "fx:id=\"mainMenuBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert performCalculationsButton != null : "fx:id=\"performCalculationsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -308,20 +326,14 @@ public class MainController {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
-        availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.ENTER){
-                    ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
-                    List<String> existingIds = chosenSensorsTable.getItems().stream().map((s) -> ((SensorProxyForTable) s).getStringId()).collect(Collectors.toList());
-                    for (Sensor item : items) {
-                        String newId = generateId(existingIds);
-                        existingIds.add(newId);
-                        chosenSensorsTable.getItems().add(new SensorProxyForTable(item, newId));
-                    }
-                }
-            }
-        });
+//        availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
+//            @Override
+//            public void handle(KeyEvent event) {
+//                if (event.getCode() == KeyCode.ENTER){
+//                    addAvailableSensorsToChosen();
+//                }
+//            }
+//        });
         chosenSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {

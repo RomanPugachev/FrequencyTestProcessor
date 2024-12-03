@@ -39,6 +39,20 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
                         throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                     }
                 }
+                // Update context menu
+                ContextMenu contextMenu = tableView.getContextMenu();
+                if (contextMenu != null) {
+                    for (MenuItem item : contextMenu.getItems()) {
+                        text = languageProperties.getProperty(key + item.getId() + DOT + currentLanguage);
+                        if (text != null) {
+                            byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                            String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                            item.setText(decodedText);
+                        } else {
+                            throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key + item.getId()));
+                        }
+                    }
+                }
                 break;
             }
             case Button button -> {

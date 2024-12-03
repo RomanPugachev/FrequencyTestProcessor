@@ -249,6 +249,13 @@ public class MainController {
     }
 
     @FXML
+    private void handleAvailableSensorsTableKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            addAvailableSensorsToChosen();
+        }
+    }
+
+    @FXML
     private void addAvailableSensorsToChosen() {
         ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
         List<String> existingIds = chosenSensorsTable.getItems().stream().map((s) -> ((SensorProxyForTable) s).getStringId()).collect(Collectors.toList());
@@ -258,6 +265,7 @@ public class MainController {
             chosenSensorsTable.getItems().add(new SensorProxyForTable(item, newId));
         }
     }
+
 
     public void loadImages(){
         try {
@@ -326,14 +334,6 @@ public class MainController {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
-//        availableSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
-//            @Override
-//            public void handle(KeyEvent event) {
-//                if (event.getCode() == KeyCode.ENTER){
-//                    addAvailableSensorsToChosen();
-//                }
-//            }
-//        });
         chosenSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {

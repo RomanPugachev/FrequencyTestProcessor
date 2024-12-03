@@ -82,7 +82,7 @@
                                 </HBox>
                                 <HBox fx:id="sensorsChoiseHBox" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="100.0" VBox.vgrow="ALWAYS">
                                     <children>
-                                        <TableView fx:id="availableSensorsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
+                                        <TableView fx:id="availableSensorsTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" onKeyPressed="#handleAvailableSensorsTableKeyPressed" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="availableSensorsColumn" editable="false" prefWidth="75.0" sortable="false" text="AVAILABE_SENSORS" />
                                             </columns>

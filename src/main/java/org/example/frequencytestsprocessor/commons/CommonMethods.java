@@ -1,9 +1,17 @@
 package org.example.frequencytestsprocessor.commons;
 
+import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -15,6 +23,16 @@ public class CommonMethods {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл с данными");
         return fileChooser.showOpenDialog(new Stage());
+    }
+    public static void showAlert(String title, String header, String content){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+    public static void showAlertUnimplemented(){
+        showAlert("Ошибка", "Ошибка произведения рассчета", "Пока что функция произведения рассчёта не реализована");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();
@@ -48,6 +66,34 @@ public class CommonMethods {
         JAVA,
         PYTHON,
         SYSTEM
+    }
+
+    public static String generateId (List<String> sensorsIDs) {
+        long minId = Long.MAX_VALUE;
+        long maxId = Long.MIN_VALUE;
+        Long numRows = (long) sensorsIDs.size();
+        if (numRows.equals(0L)) return "F0";
+        Set<Long> existingNums = new HashSet<>();
+        Pattern regexPattern = Pattern.compile("^F\\d+$");
+        // Searching for existing indexes
+        for (String s : sensorsIDs) {
+            if (regexPattern.matcher(s).matches()) {
+                Long curNum = Long.parseLong(s.substring(1));
+                existingNums.add(curNum);
+                minId = Math.min(minId, curNum);
+                maxId = Math.max(maxId, curNum);
+            }
+        }
+        // Generating new index
+        if (minId > 0L) {
+            return "F0";
+        } else {
+            Long newId = minId + 1L;
+            while (existingNums.contains(newId)) {
+                newId++;
+            }
+            return "F" + newId;
+        }
     }
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

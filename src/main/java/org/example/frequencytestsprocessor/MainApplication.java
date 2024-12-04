@@ -17,11 +17,17 @@ public class MainApplication extends Application {
 
         MainController controller = loader.getController();
         controller.setMainStage(stage);
+        controller.setMainApplication(this);
         Scene scene = new Scene(root);
         stage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("images/logo.png")));
         stage.setTitle("Frequency tests processor");
         stage.setScene(scene);
         stage.show();
+        controller.loadImages();
+    }
+
+    public Image getImage(String path) {
+        return new Image(MainApplication.class.getResourceAsStream(path));
     }
 
     public static void main(String[] args) {

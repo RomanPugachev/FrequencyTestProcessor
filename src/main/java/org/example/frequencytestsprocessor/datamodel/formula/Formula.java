@@ -1,18 +1,39 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public abstract class Formula {
-    String content;
-    String id;
-    String description;
+    protected String formulaString;
+    protected String id;
+    protected String comment;
+    protected FormulaType formulaType;
 
-    FormulaType formulaType;
-//     To be continued
     public enum FormulaType {
         ANALYTICAL,
-        SENSOR_BASED
+        SENSOR_BASED,
+        UNKNOWN
     }
+
+    public Formula() {
+        formulaString = "";
+        id = "";
+        comment = "";
+        this.formulaType = FormulaType.UNKNOWN;
+    }
+    public Formula(String formulaString, String id, String comment) {
+        this.formulaString = formulaString;
+        this.id = id;
+        this.comment = comment;
+        this.formulaType = FormulaType.UNKNOWN;
+    }
+    public Formula(String formulaString, String id, String comment, FormulaType formulaType) {
+        this.formulaString = formulaString;
+        this.id = id;
+        this.comment = comment;
+        this.formulaType = formulaType;
+    }
+
 }

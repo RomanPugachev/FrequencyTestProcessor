@@ -120,7 +120,7 @@
                                 </HBox>
                                 <TableView fx:id="formulaTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="153.0" prefWidth="415.0">
                                     <columns>
-                                        <TableColumn fx:id="formulaStringColumn" editable="false" sortable="false" text="FORMULA" />
+                                        <TableColumn fx:id="formulaStringColumn" sortable="false" text="FORMULA" />
                                         <TableColumn fx:id="formulaIdColumn" sortable="false" text="ID_IN_FORMULA" />
                                         <TableColumn fx:id="commentToFormulaColumn" prefWidth="75.0" text="COMMENT_TO_FORMULA" />
                                     </columns>

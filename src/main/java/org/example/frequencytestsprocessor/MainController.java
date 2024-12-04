@@ -9,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -25,7 +26,9 @@ import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
+import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
@@ -153,6 +156,7 @@ public class MainController {
     @FXML
     private SplitPane processAndVisualizeSplitPane;
 
+    @Getter
     @FXML
     private ComboBox<Section> sectionComboBox;
 
@@ -165,6 +169,7 @@ public class MainController {
     @FXML
     private Menu settings;
 
+    @Getter
     @FXML
     private ComboBox<SensorDataType> typeComboBox;
 ////////////////////////////////////////////////////////
@@ -181,7 +186,7 @@ public class MainController {
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
     private MainApplication mainApplication;
-    private Refresher refresher = this.new Refresher();
+    private Refresher refresher = new Refresher(this);
 
     public void initializeServices() {
         initializeLanguageService();
@@ -282,16 +287,11 @@ public class MainController {
 
     @FXML
     public void addSensorBasedFormula() {
-        showAlertUnimplemented();
+        formulaTable.getItems().add(new SensorBasedFormula());
     }
 
     @FXML
     public void deleteFormulaFromTable() {
-        showAlertUnimplemented();
-    }
-
-    @FXML
-    private void addFormula(MouseEvent event){
         showAlertUnimplemented();
     }
 
@@ -365,6 +365,7 @@ public class MainController {
 
     private void setupWidgetsBehaviour() {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
+        availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -382,40 +383,14 @@ public class MainController {
                 availableSensorsTable.getItems().addAll(sensors);
             }
         });
-        availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         chosenSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    }
-
-    private class Refresher {
-        private void refreshOnChangeFilePath() {
-            setDefaultComboBoxes();
-            UFF58Representation currentRepresentation;
-            for (UFF58 currentUFF58 : uff) {
-                try {
-                    currentRepresentation = new UFF58Representation(currentUFF58); final Section currentSectionInRepr = currentRepresentation.section;
-                    final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;
-                    Sensor currentSensorRepresentation = currentRepresentation.sensorWithData;
-                    if (!sectionComboBox.getItems().contains(currentRepresentation.section)) {
-                        sectionComboBox.getItems().add(currentRepresentation.section);
-                    } Section currentSection = sectionComboBox.getItems().stream().filter(section -> section.equals(currentSectionInRepr)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find section by representation"));
-                    if (!currentSection.getTypes().contains(currentRepresentation.sensorDataType)) {
-                        currentSection.addType(currentRepresentation.sensorDataType);
-                    } SensorDataType currentType = currentSection.getTypes().stream().filter(type -> type.equals(currentTypeRepresentation)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find type in current section"));
-                    if (!currentType.getSensors().contains(currentRepresentation.sensorWithData)){
-                        currentType.addSensor(currentRepresentation.sensorWithData);
-                    } Sensor currentSensor = currentType.getSensors().stream().filter(sensor -> sensor.equals(currentSensorRepresentation)).findFirst().orElseThrow(() -> new RuntimeException("Couldn't find sensor"));
-                    currentSensor.mergeSensorData(currentSensorRepresentation);
-                } catch (Exception e) {
-                    print("Couldn't create representation of UFF58 dataset, because:\n" + e.getMessage());
-                }
-            }
-        }
-
-        private void setDefaultComboBoxes() {
-            sectionComboBox.getItems().clear();
-            sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
-            sectionComboBox.setValue(sectionComboBox.getItems().getFirst());
-            typeComboBox.setValue(typeComboBox.getItems().getFirst());
-        }
+        formulaStringColumn.setCellValueFactory(new PropertyValueFactory<>("formulaString"));
+        formulaStringColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+//        formulaStringColumn.setOnEditCommit();
+        formulaIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        formulaIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
+        commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        formulaTable.getItems().add(new SensorBasedFormula());
     }
 }

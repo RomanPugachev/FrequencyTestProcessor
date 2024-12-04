@@ -97,7 +97,7 @@
                                                 </ContextMenu>
                                             </contextMenu>
                                         </TableView>
-                                        <TableView fx:id="chosenSensorsTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
+                                        <TableView fx:id="chosenSensorsTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" onKeyPressed="#handleChosenSensorsTableKeyPressed" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="sensorNameColumn" editable="false" sortable="false" text="CHOSEN_SENSOR" />
                                                 <TableColumn fx:id="sensorIdColumn" sortable="false" text="ID_IN_FORMULA" />
@@ -111,43 +111,43 @@
                                  <contextMenu>
                                     <ContextMenu fx:id="chosenSensorsTableContextMenu">
                                       <items>
-                                        <MenuItem fx:id="deleteChosenSensorsMenuItem" mnemonicParsing="false" text="DEFAULT_DELETE_SENSOR" />
+                                        <MenuItem fx:id="deleteChosenSensorsMenuItem" mnemonicParsing="false" onAction="#removeChosenSensors" text="DEFAULT_DELETE_SENSOR" />
                                       </items>
                                     </ContextMenu>
                                  </contextMenu>
                                         </TableView>
                                     </children>
                                 </HBox>
-                        <TableView fx:id="formulaTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="153.0" prefWidth="415.0">
-                           <columns>
-                              <TableColumn fx:id="formulaStringColumn" editable="false" sortable="false" text="FORMULA" />
-                              <TableColumn fx:id="formulaIdColumn" sortable="false" text="ID_IN_FORMULA" />
-                              <TableColumn fx:id="commentToFormulaColumn" prefWidth="75.0" text="COMMENT_TO_FORMULA" />
-                           </columns>
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <contextMenu>
-                              <ContextMenu fx:id="formulasContextMenu">
-                                 <items>
-                                    <MenuItem fx:id="formulaAdditionAnalithicalMenuItem" mnemonicParsing="false" text="DEFAULT_ADD_FORMULA_ANALYTHICAL" />
-                                    <MenuItem fx:id="formulaAdditionSensorMenuItem" mnemonicParsing="false" text="DEFAULT_ADD_FORMULA_SENSOR" />
-                                    <MenuItem fx:id="deleteFormulaMenuItem" mnemonicParsing="false" text="DEFAULT_DELETE_FORMULA" />
-                                 </items>
-                              </ContextMenu>
-                           </contextMenu>
-                        </TableView>
-                        <Button fx:id="performCalculationsButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <VBox.margin>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                           </VBox.margin>
-                        </Button>
+                                <TableView fx:id="formulaTable" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="153.0" prefWidth="415.0">
+                                    <columns>
+                                        <TableColumn fx:id="formulaStringColumn" editable="false" sortable="false" text="FORMULA" />
+                                        <TableColumn fx:id="formulaIdColumn" sortable="false" text="ID_IN_FORMULA" />
+                                        <TableColumn fx:id="commentToFormulaColumn" prefWidth="75.0" text="COMMENT_TO_FORMULA" />
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                    <contextMenu>
+                                        <ContextMenu fx:id="formulasContextMenu">
+                                            <items>
+                                                <MenuItem fx:id="formulaAdditionAnalithicalMenuItem" mnemonicParsing="false" onAction="#addAnalythicalFormula" text="DEFAULT_ADD_FORMULA_ANALYTHICAL" />
+                                                <MenuItem fx:id="formulaAdditionSensorMenuItem" mnemonicParsing="false" onAction="#addSensorBasedFormula" text="DEFAULT_ADD_FORMULA_SENSOR" />
+                                                <MenuItem fx:id="deleteFormulaMenuItem" mnemonicParsing="false" onAction="#deleteFormulaFromTable" text="DEFAULT_DELETE_FORMULA" />
+                                            </items>
+                                        </ContextMenu>
+                                    </contextMenu>
+                                </TableView>
+                                <Button fx:id="performCalculationsButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" onMouseClicked="#performCalculations" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                    <VBox.margin>
+                                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                    </VBox.margin>
+                                </Button>
                             </children>
                         </VBox>
                         <AnchorPane fx:id="graphsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />

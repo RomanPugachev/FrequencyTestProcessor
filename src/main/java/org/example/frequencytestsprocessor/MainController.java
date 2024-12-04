@@ -240,11 +240,7 @@ public class MainController {
             this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
             refresher.refreshOnChangeFilePath();
         } else if (chosenFile != null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("Ошибка открытия файла");
-            alert.setContentText("Попробуйте открыть файл формата .unv");
-            alert.showAndWait();
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
         }
     }
 
@@ -252,6 +248,13 @@ public class MainController {
     private void handleAvailableSensorsTableKeyPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
             addAvailableSensorsToChosen();
+        }
+    }
+
+    @FXML
+    private void handleChosenSensorsTableKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.DELETE){
+            removeChosenSensors();
         }
     }
 
@@ -266,13 +269,44 @@ public class MainController {
         }
     }
 
+    @FXML
+    private void removeChosenSensors() {
+        ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
+        chosenSensorsTable.getItems().removeAll(selectedItems);
+    }
+
+    @FXML
+    private void addAnalythicalFormula() {
+        showAlertUnimplemented();
+    }
+
+    @FXML
+    public void addSensorBasedFormula() {
+        showAlertUnimplemented();
+    }
+
+    @FXML
+    public void deleteFormulaFromTable() {
+        showAlertUnimplemented();
+    }
+
+    @FXML
+    private void addFormula(MouseEvent event){
+        showAlertUnimplemented();
+    }
+
+    @FXML
+    private void performCalculations(MouseEvent event) {
+        showAlertUnimplemented();
+    }
+
 
     public void loadImages(){
         try {
             Image image = mainApplication.getImage("images/" + "package.jpg");
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(25);
-            imageView.setFitHeight(25);
+            imageView.setFitWidth(20);
+            imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
             fileDialogButton.setGraphic(imageView);
 
@@ -283,7 +317,6 @@ public class MainController {
 
     @FXML
     void initialize() {
-//        Добавляем меню бар к таблицам и добавляем редактор формул
         assert addAvailableSensorsMenuItem != null : "fx:id=\"addAvailableSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsColumn != null : "fx:id=\"availableSensorsColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -334,15 +367,6 @@ public class MainController {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
-        chosenSensorsTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.DELETE){
-                    ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
-                    chosenSensorsTable.getItems().removeAll(selectedItems);
-                }
-            }
-        });
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());

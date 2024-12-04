@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.commons;
 
+import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -22,6 +23,16 @@ public class CommonMethods {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл с данными");
         return fileChooser.showOpenDialog(new Stage());
+    }
+    public static void showAlert(String title, String header, String content){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+    public static void showAlertUnimplemented(){
+        showAlert("Ошибка", "Ошибка произведения рассчета", "Пока что функция произведения рассчёта не реализована");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();

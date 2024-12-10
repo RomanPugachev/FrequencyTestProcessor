@@ -27,6 +27,7 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
+import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
 import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
@@ -187,6 +188,8 @@ public class MainController {
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
     private MainApplication mainApplication;
     private Refresher refresher = new Refresher(this);
+    @Getter
+    private IdManager idManager = new IdManager(this);
 
     public void initializeServices() {
         initializeLanguageService();
@@ -266,12 +269,10 @@ public class MainController {
     @FXML
     private void addAvailableSensorsToChosen() {
         ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
-        List<String> existingIds = chosenSensorsTable.getItems().stream().map((s) -> ((SensorProxyForTable) s).getStringId()).collect(Collectors.toList());
         for (Sensor item : items) {
-            String newId = generateId(existingIds);
-            existingIds.add(newId);
-            chosenSensorsTable.getItems().add(new SensorProxyForTable(item, newId));
+            chosenSensorsTable.getItems().add((SensorProxyForTable) idManager.manage(new SensorProxyForTable(item)));
         }
+        refresher.refreshIdsInTables();
     }
 
     @FXML
@@ -367,7 +368,7 @@ public class MainController {
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
-        sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("stringId"));
+        sensorIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         sectionComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 ObservableList<SensorDataType> sensorDataTypes = FXCollections.observableArrayList(newValue.getTypes());

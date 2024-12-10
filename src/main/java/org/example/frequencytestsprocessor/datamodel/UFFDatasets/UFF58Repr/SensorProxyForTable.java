@@ -1,17 +1,19 @@
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.Map;
 
-public class SensorProxyForTable extends Sensor {
+public class SensorProxyForTable extends Sensor implements IdManager.HasId {
     @Getter
-    private String stringId;
+    @Setter
+    private String id;
     private Sensor originalSensor;
 
-    public SensorProxyForTable(Sensor originalSensor, String stringId) {
+    public SensorProxyForTable(Sensor originalSensor) {
         this.originalSensor = originalSensor;
-        this.stringId = stringId;
     }
 
     @Override

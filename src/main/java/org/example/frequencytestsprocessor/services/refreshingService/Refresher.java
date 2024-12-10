@@ -51,4 +51,8 @@ public class Refresher {
         sectionComboBox.setValue(sectionComboBox.getItems().getFirst());
         typeComboBox.setValue(typeComboBox.getItems().getFirst());
     }
+
+    public void refreshIdsInTables(){
+        mainController.getIdManager().refreshAllIds();
+    }
 }

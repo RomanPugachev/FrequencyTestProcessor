@@ -68,33 +68,7 @@ public class CommonMethods {
         SYSTEM
     }
 
-    public static String generateId (List<String> sensorsIDs) {
-        long minId = Long.MAX_VALUE;
-        long maxId = Long.MIN_VALUE;
-        Long numRows = (long) sensorsIDs.size();
-        if (numRows.equals(0L)) return "F0";
-        Set<Long> existingNums = new HashSet<>();
-        Pattern regexPattern = Pattern.compile("^F\\d+$");
-        // Searching for existing indexes
-        for (String s : sensorsIDs) {
-            if (regexPattern.matcher(s).matches()) {
-                Long curNum = Long.parseLong(s.substring(1));
-                existingNums.add(curNum);
-                minId = Math.min(minId, curNum);
-                maxId = Math.max(maxId, curNum);
-            }
-        }
-        // Generating new index
-        if (minId > 0L) {
-            return "F0";
-        } else {
-            Long newId = minId + 1L;
-            while (existingNums.contains(newId)) {
-                newId++;
-            }
-            return "F" + newId;
-        }
-    }
+
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";
 //        String pathJava = "C:\\Temp\\test_uff.uff";

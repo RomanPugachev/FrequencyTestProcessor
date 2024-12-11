@@ -2,10 +2,11 @@ package org.example.frequencytestsprocessor.datamodel.formula;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 @Getter
 @Setter
-public abstract class Formula {
+public abstract class Formula implements IdManager.HasId{
     protected String formulaString;
     protected String id;
     protected String comment;
@@ -23,17 +24,16 @@ public abstract class Formula {
         comment = "";
         this.formulaType = FormulaType.UNKNOWN;
     }
-    public Formula(String formulaString, String id, String comment) {
+    public Formula(String formulaString, String comment) {
         this.formulaString = formulaString;
-        this.id = id;
         this.comment = comment;
         this.formulaType = FormulaType.UNKNOWN;
     }
-    public Formula(String formulaString, String id, String comment, FormulaType formulaType) {
+    public Formula(String formulaString, String comment, FormulaType formulaType) {
         this.formulaString = formulaString;
-        this.id = id;
         this.comment = comment;
         this.formulaType = formulaType;
     }
+    public abstract boolean validate(String formulaString);
 
 }

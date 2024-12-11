@@ -291,13 +291,16 @@ public class MainController {
 
     @FXML
     public void addSensorBasedFormula() {
-        formulaTable.getItems().add(new SensorBasedFormula());
+        formulaTable.getItems().add((SensorBasedFormula) idManager.addSlave(new SensorBasedFormula()));
     }
 
     @FXML
     public void deleteFormulaFromTable() {
-        showAlertUnimplemented();
-    }
+        ObservableList<Formula> selectedItems = formulaTable.getSelectionModel().getSelectedItems();
+        selectedItems.stream().forEach((form) -> {
+            idManager.removeSlave((IdManager.HasId) form);
+        });
+        formulaTable.getItems().removeAll(selectedItems);    }
 
     @FXML
     private void performCalculations(MouseEvent event) {
@@ -388,12 +391,26 @@ public class MainController {
             }
         });
         chosenSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        formulaTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         formulaStringColumn.setCellValueFactory(new PropertyValueFactory<>("formulaString"));
         formulaStringColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-//        formulaStringColumn.setOnEditCommit();
+        formulaStringColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Formula, String>>() {
+            @Override
+            public void handle(TableColumn.CellEditEvent<Formula, String> event) {
+                Formula editingFormula = event.getRowValue();
+                if (editingFormula.validate(event.getNewValue())) {
+                    editingFormula.setFormulaString(event.getNewValue());
+                } else {
+                    editingFormula.setFormulaString(event.getOldValue());
+                    event.getTableView().refresh();
+                }
+            }
+        });
         formulaIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         formulaIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        formulaIdColumn.setOnEditCommit(event -> idManager.handleIdUpdate().handle(event));
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
     }
 }

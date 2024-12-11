@@ -1,10 +1,15 @@
 package org.example.frequencytestsprocessor.services.idManagement;
 
+import javafx.event.EventHandler;
+import javafx.scene.control.TableColumn;
 import org.example.frequencytestsprocessor.MainController;
+import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static org.example.frequencytestsprocessor.commons.CommonMethods.showAlertIdAlreadyExists;
 
 public class IdManager {
     private final MainController mainController;
@@ -13,7 +18,7 @@ public class IdManager {
     private final List<String> forbiddenChars = new ArrayList<String>();
 
     {
-        Collections.addAll(forbiddenChars,"?", "-", "+", "/", "*", "=", "(", ")");
+        Collections.addAll(forbiddenChars, "?", "-", "+", "/", "*", "=", "(", ")");
         initializeValdatationConditions();
     }
 
@@ -35,8 +40,17 @@ public class IdManager {
         return slave;
     }
 
+    public void removeSlave(HasId slave) {
+        slaves.remove(slave);
+    }
+
+    public void removeSlaves(Collection<HasId> slaves) {
+        this.slaves.removeAll(slaves);
+    }
+
     public interface HasId {
         String getId();
+
         void setId(String id);
     }
 
@@ -44,18 +58,19 @@ public class IdManager {
         if (validateId(slave)) return;
         List<String> existingValidIds = new ArrayList<>(slaves.size());
         slaves.forEach(cur -> {
-            if (validateId(cur)){
+            if (validateId(cur)) {
                 existingValidIds.add(cur.getId());
             }
         });
         slave.setId(generateId(existingValidIds));
     }
+
     /* Main function for managing all ids at in one call */
     public void refreshAllIds() {
         List<String> existingValidIds = new ArrayList<>(slaves.size());
         List<HasId> slavesToGetNewId = new ArrayList<>(slaves.size());
         slaves.forEach(slave -> {
-            if (validateId(slave)){
+            if (validateId(slave)) {
                 existingValidIds.add(slave.getId());
             } else slavesToGetNewId.add(slave);
         });
@@ -63,6 +78,30 @@ public class IdManager {
             var newId = generateId(existingValidIds);
             slave.setId(newId);
             existingValidIds.add(newId);
+        });
+    }
+
+    public EventHandler<TableColumn.CellEditEvent<?, String>> handleIdUpdate(){
+        return new EventHandler<TableColumn.CellEditEvent<?, String>>() {
+            @Override
+            public void handle(TableColumn.CellEditEvent<?, String> event) {
+                HasId editingHasId = (HasId) event.getRowValue();
+                if (IdManager.this.validateIdUpdate(editingHasId, event.getNewValue())) {
+                    editingHasId.setId(event.getNewValue());
+                } else {
+                    editingHasId.setId(event.getOldValue());
+                    event.getTableView().refresh();
+                }
+            }
+        };
+    }
+    public boolean validateIdUpdate(HasId slave, String newId) {
+        if (!(validators.stream().allMatch(validator -> validator.test(newId)))) return false;
+        return slaves.stream().allMatch(cur -> {
+            boolean allGoodCondition = cur.getId() != newId || cur == slave;
+            if (!allGoodCondition) {
+                showAlertIdAlreadyExists("Элемент с таким id уже существует");
+            } return allGoodCondition;
         });
     }
     
@@ -99,11 +138,5 @@ public class IdManager {
         return validators.stream().allMatch(validator -> validator.test(slave.getId()));
     }
 
-    public void removeSlave(HasId slave) {
-        slaves.remove(slave);
-    }
 
-    public void removeSlaves(Collection<HasId> slaves) {
-        this.slaves.removeAll(slaves);
-    }
 }

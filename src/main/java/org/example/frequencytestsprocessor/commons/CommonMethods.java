@@ -31,8 +31,12 @@ public class CommonMethods {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    public static void showAlertIdAlreadyExists(String detailedMessage){
+       showAlert("Ошибка", "Ошибка повторения существующего элемента", detailedMessage);
+    }
     public static void showAlertUnimplemented(){
-        showAlert("Ошибка", "Ошибка произведения рассчета", "Пока что функция произведения рассчёта не реализована");
+        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();

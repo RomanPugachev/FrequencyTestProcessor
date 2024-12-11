@@ -173,8 +173,8 @@ public class MainController {
     @Getter
     @FXML
     private ComboBox<SensorDataType> typeComboBox;
-////////////////////////////////////////////////////////
-/// Common static objects //////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// Common static objects //////////////////////////////
     @Getter
     public static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -270,15 +270,18 @@ public class MainController {
     private void addAvailableSensorsToChosen() {
         ObservableList<Sensor> items = availableSensorsTable.getSelectionModel().getSelectedItems();
         for (Sensor item : items) {
-            chosenSensorsTable.getItems().add((SensorProxyForTable) idManager.manage(new SensorProxyForTable(item)));
+            chosenSensorsTable.getItems().add((SensorProxyForTable) idManager.addSlave(new SensorProxyForTable(item)));
         }
-        refresher.refreshIdsInTables();
     }
 
     @FXML
     private void removeChosenSensors() {
         ObservableList<Sensor> selectedItems = chosenSensorsTable.getSelectionModel().getSelectedItems();
+        selectedItems.stream().forEach((sens) -> {
+            idManager.removeSlave((IdManager.HasId) sens);
+        });
         chosenSensorsTable.getItems().removeAll(selectedItems);
+
     }
 
     @FXML
@@ -392,6 +395,5 @@ public class MainController {
         formulaIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        formulaTable.getItems().add(new SensorBasedFormula());
     }
 }

@@ -7,17 +7,17 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class IdManager {
-    private MainController mainController;
+    private final MainController mainController;
     private final List<HasId> slaves = new ArrayList<>();
     private final List<Predicate<String>> validators = new ArrayList<>();
     private final List<String> forbiddenChars = new ArrayList<String>();
 
     {
         Collections.addAll(forbiddenChars,"?", "-", "+", "/", "*", "=", "(", ")");
-        initializeValConditions();
+        initializeValdatationConditions();
     }
 
-    private void initializeValConditions() {
+    private void initializeValdatationConditions() {
         Predicate<String> notEmptyNotNull = id -> id != null && !id.isEmpty();
         Predicate<String> notContainsForbiddenChars = id -> !forbiddenChars.stream().anyMatch(id::contains);
         Predicate<String> startsWithLetter = id -> Character.isLetter(id.charAt(0));
@@ -29,8 +29,9 @@ public class IdManager {
         this.mainController = mainController;
     }
 
-    public HasId manage(HasId slave) {
+    public HasId addSlave(HasId slave) {
         slaves.add(slave);
+        refreshOneId(slave);
         return slave;
     }
 
@@ -39,6 +40,16 @@ public class IdManager {
         void setId(String id);
     }
 
+    public void refreshOneId(HasId slave) {
+        if (validateId(slave)) return;
+        List<String> existingValidIds = new ArrayList<>(slaves.size());
+        slaves.forEach(cur -> {
+            if (validateId(cur)){
+                existingValidIds.add(cur.getId());
+            }
+        });
+        slave.setId(generateId(existingValidIds));
+    }
     /* Main function for managing all ids at in one call */
     public void refreshAllIds() {
         List<String> existingValidIds = new ArrayList<>(slaves.size());
@@ -86,5 +97,13 @@ public class IdManager {
 
     private boolean validateId(HasId slave) {
         return validators.stream().allMatch(validator -> validator.test(slave.getId()));
+    }
+
+    public void removeSlave(HasId slave) {
+        slaves.remove(slave);
+    }
+
+    public void removeSlaves(Collection<HasId> slaves) {
+        this.slaves.removeAll(slaves);
     }
 }

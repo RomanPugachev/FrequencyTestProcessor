@@ -45,7 +45,6 @@ public class Refresher {
         var sectionComboBox = mainController.getSectionComboBox();
         var typeComboBox = mainController.getTypeComboBox();
 
-
         sectionComboBox.getItems().clear();
         sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
         sectionComboBox.setValue(sectionComboBox.getItems().getFirst());

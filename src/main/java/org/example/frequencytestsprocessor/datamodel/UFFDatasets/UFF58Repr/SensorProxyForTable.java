@@ -1,11 +1,15 @@
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.Map;
 
+@ToString
+@EqualsAndHashCode
 public class SensorProxyForTable extends Sensor implements IdManager.HasId {
     @Getter
     @Setter

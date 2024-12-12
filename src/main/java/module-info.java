@@ -18,4 +18,6 @@ module org.example.frequencytestsprocessor {
     opens org.example.frequencytestsprocessor.commons to javafx.fxml;
     opens org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr to com.fasterxml.jackson.databind, javafx.fxml, javafx.base;
     opens org.example.frequencytestsprocessor.datamodel.formula to javafx.base, javafx.fxml, com.fasterxml.jackson.databind;
+    exports org.example.frequencytestsprocessor.controllers;
+    opens org.example.frequencytestsprocessor.controllers to javafx.fxml;
 }

@@ -6,7 +6,7 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
 
-import static org.example.frequencytestsprocessor.MainController.objectMapper;
+import static org.example.frequencytestsprocessor.controllers.MainController.objectMapper;
 
 public class UFF58 extends UFFDataset {
         public int binary;

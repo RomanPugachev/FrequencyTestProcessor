@@ -3,7 +3,7 @@ package org.example.frequencytestsprocessor.datamodel.UFFDatasets;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;
 
-import static org.example.frequencytestsprocessor.MainController.objectMapper;
+import static org.example.frequencytestsprocessor.controllers.MainController.objectMapper;
 
 public class UFF164 extends UFFDataset{
         @JsonProperty("units_code")

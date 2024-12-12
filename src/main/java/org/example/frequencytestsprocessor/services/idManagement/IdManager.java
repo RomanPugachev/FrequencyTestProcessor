@@ -2,8 +2,7 @@ package org.example.frequencytestsprocessor.services.idManagement;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn;
-import org.example.frequencytestsprocessor.MainController;
-import org.example.frequencytestsprocessor.datamodel.formula.Formula;
+import org.example.frequencytestsprocessor.controllers.MainController;
 
 import java.util.*;
 import java.util.function.Predicate;

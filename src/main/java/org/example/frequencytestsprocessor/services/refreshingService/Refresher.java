@@ -1,7 +1,7 @@
 package org.example.frequencytestsprocessor.services.refreshingService;
 
 import lombok.AllArgsConstructor;
-import org.example.frequencytestsprocessor.MainController;
+import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;

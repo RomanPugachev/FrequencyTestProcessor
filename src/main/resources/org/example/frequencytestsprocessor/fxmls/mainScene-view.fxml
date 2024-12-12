@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="mainAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="100.0" minWidth="100.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="659.0" prefWidth="837.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.MainController">
+<AnchorPane fx:id="mainAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="100.0" minWidth="100.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="659.0" prefWidth="837.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.controllers.MainController">
     <children>
         <MenuBar fx:id="mainMenuBar" layoutY="2.0" nodeOrientation="LEFT_TO_RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <menus>
@@ -140,7 +140,7 @@
                                         </ContextMenu>
                                     </contextMenu>
                                 </TableView>
-                                <Button fx:id="performCalculationsButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" onMouseClicked="#performCalculations" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
+                                <Button fx:id="callPerformCalculationsDialogButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" onMouseClicked="#callPerformCalculationsDialog" prefWidth="445.0" text="DEFAULT_PERFORM_CALCULATIONS" VBox.vgrow="SOMETIMES">
                                     <opaqueInsets>
                                         <Insets />
                                     </opaqueInsets>

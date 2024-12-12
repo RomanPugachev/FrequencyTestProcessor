@@ -1,13 +1,9 @@
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
-import static org.example.frequencytestsprocessor.MainController.objectMapper;
+import static org.example.frequencytestsprocessor.controllers.MainController.objectMapper;
 
 public class UFF151 extends UFFDataset {
         @JsonProperty("model_name")

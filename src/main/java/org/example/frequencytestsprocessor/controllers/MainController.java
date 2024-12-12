@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -308,15 +307,25 @@ public class MainController {
         Scene tempScene = null;
         try {
             tempScene = new Scene(tempLoader.load());
+            PerformingCalculationsDialogController tempController = tempLoader.getController();
+            tempController.setDialogCommitHandler(() -> {
+                // Here will be handled dialog parameters properly
+                performCalculations();
+            });
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();
         }
         Stage tempStage = new Stage();
+        tempStage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("images/calculator(not_free).jpg")));
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
         tempStage.showAndWait();
-//        calculator.calculate();
+
+    }
+
+    private void performCalculations() {
+        showAlertUnimplemented();
     }
 
 

@@ -195,7 +195,7 @@ public class MainController {
     }
 
     public void initializeLanguageService() {
-        languageNotifier = new LanguageNotifier();
+        languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/mainApplicationLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
@@ -312,6 +312,7 @@ public class MainController {
                 // Here will be handled dialog parameters properly
                 performCalculations();
             });
+            tempController.initializeServices(currentLanguage);
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();
@@ -320,6 +321,13 @@ public class MainController {
         tempStage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("images/calculator(not_free).jpg")));
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
+        tempStage.setTitle(
+                new String(languageNotifier.getLanaguagePropertyService().
+                        getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
+                        .getBytes(StandardCharsets.ISO_8859_1),
+                        StandardCharsets.UTF_8
+                )
+        );
         tempStage.showAndWait();
 
     }

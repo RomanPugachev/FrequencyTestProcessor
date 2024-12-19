@@ -47,6 +47,9 @@
                      <HBox.margin>
                         <Insets left="10.0" right="30.0" />
                      </HBox.margin>
+                     <tooltip>
+                        <Tooltip fx:id="ignoreWarningsCheckBoxTooltip" text="Empty Tooltip" />
+                     </tooltip>
                   </CheckBox>
                </children>
             </HBox>

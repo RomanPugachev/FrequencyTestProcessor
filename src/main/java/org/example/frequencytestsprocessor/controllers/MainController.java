@@ -308,11 +308,11 @@ public class MainController {
         try {
             tempScene = new Scene(tempLoader.load());
             PerformingCalculationsDialogController tempController = tempLoader.getController();
-            tempController.setDialogCommitHandler(() -> {
+            tempController.setDialogCommitHandler((chosenRuns, showErrors) -> {
                 // Here will be handled dialog parameters properly
-                performCalculations();
+                performCalculations(chosenRuns, showErrors);
             });
-            tempController.initializeServices(currentLanguage);
+            tempController.initializeServices(currentLanguage, getSharedRuns());
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();
@@ -332,7 +332,7 @@ public class MainController {
 
     }
 
-    private void performCalculations() {
+    private void performCalculations(List<Long> chosenRuns, boolean showErrors) {
         showAlertUnimplemented();
     }
 
@@ -441,5 +441,14 @@ public class MainController {
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
+    }
+
+    private List<Long> getSharedRuns() {
+        var items = chosenSensorsTable.getItems();
+        if (items.size() > 0) {
+            Set<Long> sharedRuns =items.getFirst().getData().keySet();
+            items.forEach(sens -> sharedRuns.retainAll(sens.getData().keySet()));
+            return sharedRuns.stream().toList();
+        } else { return new ArrayList<>(); }
     }
 }

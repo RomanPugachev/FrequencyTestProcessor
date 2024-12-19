@@ -2,8 +2,10 @@ package org.example.frequencytestsprocessor.controllers;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -11,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
@@ -50,6 +53,9 @@ public class PerformingCalculationsDialogController {
     private CheckBox ignoreWarningsCheckBox;
 
     @FXML
+    private Tooltip ignoreWarningsCheckBoxTooltip;
+
+    @FXML
     private Label insertRunsForCalculationLabel;
 
     @FXML
@@ -74,8 +80,11 @@ public class PerformingCalculationsDialogController {
     // Common application parameters
     private LanguageNotifier languageNotifier;
 
-    public void initializeServices(String currentLanguage) {
+    public void initializeServices(String currentLanguage, List<? extends Number> sharedRuns) {
         initializeLanguageService(currentLanguage);
+        availableRunsText.setText(availableRunsText.getText() + sharedRuns.stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
+
+        setupWidgetsBehaviour();
     }
     private void initializeLanguageService(String currentLanguage) {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/calculationsFileDialogLanguage.properties");
@@ -121,6 +130,7 @@ public class PerformingCalculationsDialogController {
         assert confirmationHBox != null : "fx:id=\"confirmationHBox\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
         assert controlHBox != null : "fx:id=\"controlHBox\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
         assert ignoreWarningsCheckBox != null : "fx:id=\"ignoreWarningsCheckBox\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
+        assert ignoreWarningsCheckBoxTooltip != null : "fx:id=\"ignoreWarningsCheckBoxTooltip\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
         assert insertRunsForCalculationLabel != null : "fx:id=\"insertRunsForCalculationLabel\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
         assert insertRunsForCalculationLabelTooltip != null : "fx:id=\"insertRunsForCalculationLabelTooltip\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
@@ -129,11 +139,30 @@ public class PerformingCalculationsDialogController {
         assert textFlowHbox != null : "fx:id=\"textFlowHbox\" was not injected: check your FXML file 'performing_calculations_dialog.fxml'.";
     }
 
+    private void setupWidgetsBehaviour(){
+        cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
+        List<String> incorrectItems = new ArrayList<>();
+        confirmButton.setOnMouseClicked(event -> {
+            Set<String> incorrectItems = new HashSet<>();
+            List<Long> chosenRuns = extractRuns(runsForCalculationTextField.getText(), incorrectItems);
+            dialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));
+        });
+    }
+
+    private List<Long> extractRuns(String sourceText, Set<String> incorrectItems) {
+        var temp = Arrays.stream(sourceText.replaceAll(" ", "").split(","))
+                .map(item -> {
+
+                });
+        return new ArrayList<>();
+    }
+
+    private List<Long> extractFromItem()
 
     @FunctionalInterface
     public interface DialogCommitHandler {
         // Here will be the method that will be called when the user clicks the "Commit" button.
-        void handleCommit();
+        void handleCommit(List<Long> chosenRuns, boolean showErrors);
     }
 
 }

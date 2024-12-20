@@ -332,7 +332,7 @@ public class MainController {
 
     }
 
-    private void performCalculations(List<Long> chosenRuns, boolean showErrors) {
+    private void performCalculations(Collection<Long> chosenRuns, boolean showErrors) {
         showAlertUnimplemented();
     }
 

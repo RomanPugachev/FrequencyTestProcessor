@@ -141,28 +141,30 @@ public class PerformingCalculationsDialogController {
 
     private void setupWidgetsBehaviour(){
         cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
-        List<String> incorrectItems = new ArrayList<>();
+        Set<String> incorrectItems = new HashSet<>();
         confirmButton.setOnMouseClicked(event -> {
-            Set<String> incorrectItems = new HashSet<>();
-            List<Long> chosenRuns = extractRuns(runsForCalculationTextField.getText(), incorrectItems);
+            Set<Long> chosenRuns = (Set<Long>) extractRuns(runsForCalculationTextField.getText(), incorrectItems);
             dialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));
+
         });
     }
 
-    private List<Long> extractRuns(String sourceText, Set<String> incorrectItems) {
-        var temp = Arrays.stream(sourceText.replaceAll(" ", "").split(","))
-                .map(item -> {
-
-                });
-        return new ArrayList<>();
+    private Collection<Long> extractRuns(String sourceText, Set<String> incorrectItems) {
+        Set<Long> extractedRuns = new HashSet<>();
+        Arrays.stream(sourceText.replaceAll(" ", "").split(","))
+                .forEach(item -> extractFromItem(item, incorrectItems, extractedRuns));
+        return extractedRuns;
     }
 
-    private List<Long> extractFromItem()
+    private void extractFromItem(String item, Set<String> incorrectItems, Set<Long> extractedRuns) {
+        String[] tmp = item.split('-');
+        continue there
+    }
 
     @FunctionalInterface
     public interface DialogCommitHandler {
         // Here will be the method that will be called when the user clicks the "Commit" button.
-        void handleCommit(List<Long> chosenRuns, boolean showErrors);
+        void handleCommit(Collection<Long> chosenRuns, boolean showErrors);
     }
 
 }

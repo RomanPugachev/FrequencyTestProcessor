@@ -53,7 +53,7 @@ public class IdManager {
         void setId(String id);
     }
 
-    public void refreshOneId(HasId slave) {
+    private void refreshOneId(HasId slave) {
         if (validateId(slave)) return;
         List<String> existingValidIds = new ArrayList<>(slaves.size());
         slaves.forEach(cur -> {
@@ -94,7 +94,7 @@ public class IdManager {
             }
         };
     }
-    public boolean validateIdUpdate(HasId slave, String newId) {
+    private boolean validateIdUpdate(HasId slave, String newId) {
         if (!(validators.stream().allMatch(validator -> validator.test(newId)))) return false;
         return slaves.stream().allMatch(cur -> {
             boolean allGoodCondition = cur.getId() != newId || cur == slave;

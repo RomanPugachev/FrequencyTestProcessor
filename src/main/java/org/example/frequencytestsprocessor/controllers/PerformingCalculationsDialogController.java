@@ -20,6 +20,7 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Senso
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
+import static org.example.frequencytestsprocessor.commons.CommonMethods.showAlert;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 public class PerformingCalculationsDialogController {
@@ -73,16 +74,18 @@ public class PerformingCalculationsDialogController {
     @FXML
     private HBox textFlowHbox;
 
-    // Common parameters
+    // Common parameters and objects
     @Setter
     private DialogCommitHandler dialogCommitHandler;
 
-    // Common application parameters
     private LanguageNotifier languageNotifier;
+
+    List<? extends Number> sharedRuns;
 
     public void initializeServices(String currentLanguage, List<? extends Number> sharedRuns) {
         initializeLanguageService(currentLanguage);
-        availableRunsText.setText(availableRunsText.getText() + sharedRuns.stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
+        this.sharedRuns = sharedRuns;
+        availableRunsText.setText(availableRunsText.getText() + this.sharedRuns.stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
 
         setupWidgetsBehaviour();
     }
@@ -141,24 +144,53 @@ public class PerformingCalculationsDialogController {
 
     private void setupWidgetsBehaviour(){
         cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
-        Set<String> incorrectItems = new HashSet<>();
         confirmButton.setOnMouseClicked(event -> {
+            Map<String, String> incorrectItems = new HashMap<>();
             Set<Long> chosenRuns = (Set<Long>) extractRuns(runsForCalculationTextField.getText(), incorrectItems);
+            if (!(ignoreWarningsCheckBox.isSelected()) || incorrectItems.size() < 1) { // TODO: don't call error notificaiton without errors
+                showAlert("Error", "Errors in extracting runs",
+                        incorrectItems.keySet().stream().map(k -> k + ":\n" + incorrectItems.get(k)).collect(Collectors.joining("\n\n"))); }
             dialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));
-
         });
     }
 
-    private Collection<Long> extractRuns(String sourceText, Set<String> incorrectItems) {
+    private Collection<Long> extractRuns(String sourceText, Map<String, String> incorrectItems) {
         Set<Long> extractedRuns = new HashSet<>();
         Arrays.stream(sourceText.replaceAll(" ", "").split(","))
                 .forEach(item -> extractFromItem(item, incorrectItems, extractedRuns));
         return extractedRuns;
     }
 
-    private void extractFromItem(String item, Set<String> incorrectItems, Set<Long> extractedRuns) {
-        String[] tmp = item.split('-');
-        continue there
+    private void extractFromItem(String item, Map<String,String> incorrectItems, Set<Long> extractedRuns) {
+        String[] tmp = item.split("-");
+        if (tmp.length == 1) {
+            try {
+                Long firstLimit = Long.valueOf(tmp[0]);
+                if (sharedRuns.contains(firstLimit)) {
+                    extractedRuns.add(firstLimit);
+                }
+                else {
+                    incorrectItems.put(item, "Run, which you add in calculations must be included in list of shared." +
+                            firstLimit++ + "is not included in it.");
+                }
+            } catch (Exception e) { incorrectItems.put(item, "Insert only digit symbols as value for Run number"); }
+        } else if (tmp.length == 2) {
+            try {
+                Long firstLimit = Long.valueOf(tmp[0]), secondLimit = Long.valueOf(tmp[1]);
+                if (secondLimit < firstLimit) { incorrectItems.put(item, "Higher limit of Run entry can't be less then lower limit"); return; }
+                while (firstLimit < secondLimit) {
+                    if (sharedRuns.contains(firstLimit)) {
+                        extractedRuns.add(firstLimit++);
+                    }
+                    else {
+                        incorrectItems.put(item, "Run, which you add in calculations must be included in list of shared." +
+                                firstLimit++ + "is not included in it.");
+                    }
+                }
+            } catch (Exception e) { incorrectItems.put(item, "Insert only digit symbols as value for Run number"); }
+        } else{
+            incorrectItems.put(item, "Possibly, you added extra \"-\" sign in runs");
+        }
     }
 
     @FunctionalInterface

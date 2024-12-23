@@ -333,6 +333,7 @@ public class MainController {
     }
 
     private void performCalculations(Collection<Long> chosenRuns, boolean showErrors) {
+        System.out.println("Here are chosenRuns:" + chosenRuns);
         showAlertUnimplemented();
     }
 

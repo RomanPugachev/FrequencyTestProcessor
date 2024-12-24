@@ -7,11 +7,13 @@ public enum Operators {
     MINUS("-"),
     MULTIPY("*"),
     DIVIDE("/");
-    TODO : implement caluculation performance
+
     @Getter
     private String symbolicRepresentation;
 
     Operators (String symbolicRepresentation) {
         this.symbolicRepresentation = symbolicRepresentation;
     }
+
+
 }

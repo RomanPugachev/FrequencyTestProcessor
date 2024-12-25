@@ -26,7 +26,6 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
-import org.example.frequencytestsprocessor.services.calculationService.FormulaManager;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
@@ -189,7 +188,6 @@ public class MainController {
     private Refresher refresher = new Refresher(this);
     @Getter
     private IdManager idManager = new IdManager(this);
-    private FormulaManager formulaManager = new FormulaManager(this);
     private Calculator calculator = new Calculator(this);
 
     public void initializeServices() {

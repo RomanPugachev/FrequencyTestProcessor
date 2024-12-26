@@ -37,6 +37,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -220,6 +221,7 @@ public class MainController {
                 )
         );
         currentLanguage = RU;
+        calculator.setFormulaTable(formulaTable);
         updateLanguage();
     }
 
@@ -312,7 +314,7 @@ public class MainController {
             PerformingCalculationsDialogController tempController = tempLoader.getController();
             tempController.setDialogCommitHandler((chosenRuns, showErrors) -> {
                 // Here will be handled dialog parameters properly
-                performCalculations(chosenRuns, showErrors);
+                if (showErrors) performCalculations(chosenRuns); else performOnlyPossibleCalculations(chosenRuns);
             });
             tempController.initializeServices(currentLanguage, getSharedRuns());
         } catch (IOException e) {
@@ -334,11 +336,18 @@ public class MainController {
 
     }
 
-    private void performCalculations(Collection<Long> chosenRuns, boolean showErrors) {
-        List<String> idSequence = calculator.getCalculationIdSequence();
+    private void performCalculations(Collection<Long> chosenRuns) {
+        formulaTable.getItems().forEach(formula -> {
+            formula.validate(formula.getFormulaString());
+        });
+        List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
         for (Long runId : chosenRuns) {
-            SensorBasedFormula formula
+            for (String id : idSequence) {
+                calculator.calculate(runId, id);
+            }
         }
+    }
+    private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();
     }
 
@@ -452,7 +461,8 @@ public class MainController {
     private List<Long> getSharedRuns() {
         var items = chosenSensorsTable.getItems();
         if (items.size() > 0) {
-            Set<Long> sharedRuns =items.getFirst().getData().keySet();
+            Set<Long> sharedRuns=new HashSet<>();
+            items.getFirst().getData().keySet().forEach(sharedRuns::add);
             items.forEach(sens -> sharedRuns.retainAll(sens.getData().keySet()));
             return sharedRuns.stream().toList();
         } else { return new ArrayList<>(); }

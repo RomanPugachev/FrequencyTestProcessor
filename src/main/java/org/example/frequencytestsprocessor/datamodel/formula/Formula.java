@@ -2,15 +2,20 @@ package org.example.frequencytestsprocessor.datamodel.formula;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 @Getter
-@Setter
 public abstract class Formula implements IdManager.HasId{
     protected String formulaString;
+    @Setter
     protected String id;
+    @Setter
     protected String comment;
+    @Setter
     protected FormulaType formulaType;
+    @Setter
+    private RepresentableDataset dataset;
 
     public enum FormulaType {
         ANALYTICAL,
@@ -35,5 +40,6 @@ public abstract class Formula implements IdManager.HasId{
         this.formulaType = formulaType;
     }
     public abstract boolean validate(String formulaString);
-
+    public abstract void setFormulaString(String formulaString);
+    public abstract RepresentableDataset getDataset(Long runNumber);
 }

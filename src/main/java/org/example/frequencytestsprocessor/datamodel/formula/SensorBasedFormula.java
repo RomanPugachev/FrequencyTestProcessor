@@ -13,13 +13,15 @@ public class SensorBasedFormula extends Formula {
 
     List<Token> tokensList;
 
-    @Getter
-    private RepresentableDataset dataset;
-
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
-        super("Some formula string", "This is test formula", FormulaType.SENSOR_BASED);
+        super("1", "This is test formula", FormulaType.SENSOR_BASED);
+        updateInformation();
+    }
+
+    public void setFormulaString(String formulaString) {
+        this.formulaString = formulaString;
         updateInformation();
     }
 
@@ -48,13 +50,18 @@ public class SensorBasedFormula extends Formula {
         return dependentIds;
     }
 
-    public RepresentableDataset calculate() {
+    public RepresentableDataset getDataset(Long runNumber) {
+        throw new UnsupportedOperationException("Not implemented yet");
+        // TODO: IMPLEMENT THIS METHOD
+
+        //        return this.calculate(runNumber);
+    }
+    /*
+    public RepresentableDataset calculate(Long runNumber) {
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
-
         Stack<Object> stack = new Stack<>();
-
         for (Token token : rpnTokens) {
             switch (token.getType()) {
                 case NUMBER:
@@ -113,7 +120,7 @@ public class SensorBasedFormula extends Formula {
             }
         }
         throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
-    }
+    }*/
 
     public static class Lexer {
         public static List<Token> tokenize(String input) {

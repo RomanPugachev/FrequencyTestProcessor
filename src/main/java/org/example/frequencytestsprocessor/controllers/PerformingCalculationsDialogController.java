@@ -147,7 +147,7 @@ public class PerformingCalculationsDialogController {
         confirmButton.setOnMouseClicked(event -> {
             Map<String, String> incorrectItems = new HashMap<>();
             Set<Long> chosenRuns = (Set<Long>) extractRuns(runsForCalculationTextField.getText(), incorrectItems);
-            if (!(ignoreWarningsCheckBox.isSelected()) || incorrectItems.size() < 1) { // TODO: don't call error notificaiton without errors
+            if (!(ignoreWarningsCheckBox.isSelected()) && incorrectItems.size() >= 1) {
                 showAlert("Error", "Errors in extracting runs",
                         incorrectItems.keySet().stream().map(k -> k + ":\n" + incorrectItems.get(k)).collect(Collectors.joining("\n\n"))); }
             dialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));

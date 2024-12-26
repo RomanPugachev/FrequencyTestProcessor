@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
@@ -189,6 +190,7 @@ public class MainController {
     @Getter
     private IdManager idManager = new IdManager(this);
     private Calculator calculator = new Calculator(this);
+    private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
 
     public void initializeServices() {
         initializeLanguageService();
@@ -333,7 +335,10 @@ public class MainController {
     }
 
     private void performCalculations(Collection<Long> chosenRuns, boolean showErrors) {
-        List<String> idSequence = formulaManager.getCalculationIdSequence();
+        List<String> idSequence = calculator.getCalculationIdSequence();
+        for (Long runId : chosenRuns) {
+            SensorBasedFormula formula
+        }
         showAlertUnimplemented();
     }
 

@@ -31,6 +31,13 @@ public class CommonMethods {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    public static void showSuccess(String title, String header, String content){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
 
     public static void showAlertIdAlreadyExists(String detailedMessage){
        showAlert("Ошибка", "Ошибка повторения существующего элемента", detailedMessage);

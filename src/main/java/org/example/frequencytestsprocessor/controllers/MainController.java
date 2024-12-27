@@ -340,12 +340,18 @@ public class MainController {
         formulaTable.getItems().forEach(formula -> {
             formula.validate(formula.getFormulaString());
         });
+        if (chosenRuns.size() < 1) {
+            showAlert("Ошибка", "Ошибка", "Не выбраны запуски для расчета");
+            return;
+        }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
+
         for (Long runId : chosenRuns) {
             for (String id : idSequence) {
                 calculator.calculate(runId, id);
             }
         }
+        showSuccess("Success", "Success", "Calculations performed successfully");
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();

@@ -11,8 +11,8 @@ import java.util.List;
 public class FRF {
     @Getter
     @Setter
-    private List<Double> frequency;
+    private List<Double> frequencies;
     @Getter
     @Setter
-    private List<Complex> complex;
+    private List<Complex> complexValues;
 }

@@ -1,8 +1,11 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
+import javafx.scene.control.TableView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
@@ -52,12 +55,9 @@ public class SensorBasedFormula extends Formula {
 
     public RepresentableDataset getDataset(Long runNumber) {
         throw new UnsupportedOperationException("Not implemented yet");
-        // TODO: IMPLEMENT THIS METHOD
-
-        //        return this.calculate(runNumber);
     }
-    /*
-    public RepresentableDataset calculate(Long runNumber) {
+
+    public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Map.Entry<String, FRF>> calculatedFRFs) {
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -68,7 +68,23 @@ public class SensorBasedFormula extends Formula {
                     stack.push(Double.parseDouble(token.getValue()));
                     break;
                 case IDENTIFIER:
-                    stack.push(new MyObject(Double.parseDouble(token.getValue()))); // Example casting logic
+                    // TODO: Handle the case where the identifier is not a valid FRF ID
+                    try {
+                        String id = (String) token.getValue();
+                        if (calculatedFRFs.containsKey(runNumber)) {
+                            Map.Entry<String, FRF> frfEntry = calculatedFRFs.get(runNumber);
+                            String frfId = frfEntry.getKey();
+                            FRF frf = frfEntry.getValue();
+                            if (frf.getDependentIds().contains(id)) {
+                                stack.push(frf);
+                            } else {
+                                throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
+                        }
+                    }
+                    stack.push(); // Example casting logic
                     break;
                 case OPERATOR:
                     if (stack.size() < 2) throw new IllegalArgumentException("Invalid formula.");

@@ -21,8 +21,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.tuple.Pair;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
@@ -83,6 +85,7 @@ public class MainController {
     private Label chosenFileLabel;
 
     @FXML
+    @Getter
     private TableView<Sensor> chosenSensorsTable;
 
     @FXML
@@ -345,13 +348,15 @@ public class MainController {
             return;
         }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
-
+        Map<Long, Map.Entry<String, FRF>> calculatedFRFs = new HashMap<>();
         for (Long runId : chosenRuns) {
+            List<Double> frequencies = calculator.getFrequencies(runId);
             for (String id : idSequence) {
-                calculator.calculate(runId, id);
+                calculatedFRFs.put(runId, new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
             }
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
+        System.out.println(calculatedFRFs);
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();

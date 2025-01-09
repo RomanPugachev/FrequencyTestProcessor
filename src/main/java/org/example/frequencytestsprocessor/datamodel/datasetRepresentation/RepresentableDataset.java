@@ -5,7 +5,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-public abstract class RepresentableDataset {
+public abstract class RepresentableDataset implements Canvas2DPrintable{
     @Getter
     @Setter
     private String datasetId;

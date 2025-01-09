@@ -3,14 +3,20 @@ package org.example.frequencytestsprocessor.services.calculationService;
 import javafx.scene.control.TableView;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.NotImplementedException;
 import org.example.frequencytestsprocessor.controllers.MainController;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class Calculator {
     private final MainController mainController;
@@ -43,21 +49,29 @@ public class Calculator {
         return calculationIdSequence;
     }
 
-    public RepresentableDataset calculate(Long runId, String currentId) {
-        SensorBasedFormula formula = (SensorBasedFormula) formulaTable.getItems().stream().filter(f -> f.getId().equals(currentId)).findFirst().get();
-        try {
-            RepresentableDataset dataset = formula.getDataset();
-            return dataset;
-        } catch (Exception e) {
-            return new RepresentableDataset() {
-                @Override
-                public String getDatasetId() {
-                    return super.getDatasetId();
-                }
-            };
+    public List<Double> getFrequencies(Long runId) {
+        Stream<Sensor> sensors = mainController.getChosenSensorsTable().getItems().stream();
+        List<Double> frequencies = sensors.map(s -> s.getData().get(runId).getFrequencies()).findFirst().get();
+        sensors.forEach(s -> {
+            if (!frequencies.equals(s.getData().get(runId).getFrequencies())) {
+                throw new RuntimeException("Frequencies are not equal");
+            }
+        });
+        return new ArrayList<>(frequencies);
+    }
+
+    public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Map.Entry<String, FRF>> calculatedFRFs) {
+        Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(currentId)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + currentId));
+        FRF calculatedFrf = null;
+        if (curentFormula instanceof SensorBasedFormula) {
+            calculatedFrf = ((SensorBasedFormula) curentFormula).calculate(runId, mainController.getChosenSensorsTable(), calculatedFRFs);
+        } else if (curentFormula instanceof AnalyticalFormula) {
+            throw new NotImplementedException("This formula type calculation is not implemented yet");
+        } else {
+            throw new RuntimeException("Unknown formula type");
         }
-
-
+        if (calculatedFrf != null) return calculatedFrf;
+        else throw new RuntimeException("Failed to calculate FRF");
     }
 
     public Calculator(MainController mainController) {

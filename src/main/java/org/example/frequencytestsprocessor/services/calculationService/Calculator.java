@@ -12,10 +12,7 @@ import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Calculator {
@@ -60,7 +57,7 @@ public class Calculator {
         return new ArrayList<>(frequencies);
     }
 
-    public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Map.Entry<String, FRF>> calculatedFRFs) {
+    public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(currentId)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + currentId));
         FRF calculatedFrf = null;
         if (curentFormula instanceof SensorBasedFormula) {

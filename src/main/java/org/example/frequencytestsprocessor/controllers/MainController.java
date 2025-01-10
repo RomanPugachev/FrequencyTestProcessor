@@ -348,11 +348,12 @@ public class MainController {
             return;
         }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
-        Map<Long, Map.Entry<String, FRF>> calculatedFRFs = new HashMap<>();
+        Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs = new HashMap<>();
         for (Long runId : chosenRuns) {
             List<Double> frequencies = calculator.getFrequencies(runId);
+            calculatedFRFs.put(runId, new HashSet<>());
             for (String id : idSequence) {
-                calculatedFRFs.put(runId, new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
+                    calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
             }
         }
         showSuccess("Success", "Success", "Calculations performed successfully");

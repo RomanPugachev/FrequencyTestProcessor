@@ -57,7 +57,7 @@ public class SensorBasedFormula extends Formula {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Map.Entry<String, FRF>> calculatedFRFs) {
+    public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -68,23 +68,19 @@ public class SensorBasedFormula extends Formula {
                     stack.push(Double.parseDouble(token.getValue()));
                     break;
                 case IDENTIFIER:
-                    // TODO: Handle the case where the identifier is not a valid FRF ID
                     try {
                         String id = (String) token.getValue();
                         if (calculatedFRFs.containsKey(runNumber)) {
-                            Map.Entry<String, FRF> frfEntry = calculatedFRFs.get(runNumber);
-                            String frfId = frfEntry.getKey();
-                            FRF frf = frfEntry.getValue();
-                            if (frf.getDependentIds().contains(id)) {
-                                stack.push(frf);
-                            } else {
-                                throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
-                            }
+                            Set<Map.Entry<String, FRF>> FRFEntriesInRun = calculatedFRFs.get(runNumber);
+                            FRF currentFRF = FRFEntriesInRun.stream().
+                                    filter(entry -> entry.getKey().equals(id)).findFirst().orElseThrow().getValue();
+                            stack.push(currentFRF);
                         } else {
                             throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
                         }
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
                     }
-                    stack.push(); // Example casting logic
                     break;
                 case OPERATOR:
                     if (stack.size() < 2) throw new IllegalArgumentException("Invalid formula.");
@@ -108,9 +104,9 @@ public class SensorBasedFormula extends Formula {
 
     private Object applyOperator(String operator, Object a, Object b) {
         // Example logic: Adjust as per MyObject operations
-        if (a instanceof MyObject && b instanceof MyObject) {
-            double valueA = ((MyObject) a).getValue();
-            double valueB = ((MyObject) b).getValue();
+        if (a instanceof FRF && b instanceof FRF) {
+            FRF valueA = (FRF) a;
+            FRF valueB = (FRF) b;
             switch (operator) {
                 case "+":
                     return new MyObject(valueA + valueB);

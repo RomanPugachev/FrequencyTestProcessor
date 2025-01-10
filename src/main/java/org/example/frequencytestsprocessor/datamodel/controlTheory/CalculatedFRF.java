@@ -25,6 +25,10 @@ public class CalculatedFRF implements FRF {
         return result;
     }
 
+    public static CalculatedFRF extractionResult(FRF frf1, FRF frf2){
+        // TODO: implement this function
+    }
+
     @Override
     public List<Double> getXData() {
         return complexValues.stream().map(Complex::getReal).toList();

@@ -26,7 +26,34 @@ public class CalculatedFRF implements FRF {
     }
 
     public static CalculatedFRF extractionResult(FRF frf1, FRF frf2){
+        CalculatedFRF result = new CalculatedFRF();
+        result.setFrequencies(frf1.getFrequencies());
+        List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        for (int i = 0; i < frf1.getFrequencies().size(); i++) {
+            resultComplexValues.add(Complex.extractionResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
+        }
+        return result;
+    }
+
+    public static CalculatedFRF multiplicationResult(FRF frf1, FRF frf2){
+        CalculatedFRF result = new CalculatedFRF();
+        result.setFrequencies(frf1.getFrequencies());
+        List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        for (int i = 0; i < frf1.getFrequencies().size(); i++) {
+            resultComplexValues.add(Complex.multiplicationResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
+        }
+        return result;
+    }
+
+    public static CalculatedFRF divisionResult(FRF frf1, FRF frf2){
         // TODO: implement this function
+        CalculatedFRF result = new CalculatedFRF();
+        result.setFrequencies(frf1.getFrequencies());
+        List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        for (int i = 0; i < frf1.getFrequencies().size(); i++) {
+            resultComplexValues.add(Complex.divisionResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
+        }
+        return result;
     }
 
     @Override

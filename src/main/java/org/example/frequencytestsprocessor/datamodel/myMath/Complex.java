@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
 public class Complex implements Cloneable{
     private double real;
     private double imag;
@@ -14,6 +15,7 @@ public class Complex implements Cloneable{
         this.real = complex.real;
         this.imag = complex.imag;
     }
+
     @Override
     public Complex clone() {
         Complex cloneComplex;
@@ -27,9 +29,34 @@ public class Complex implements Cloneable{
 
     public static Complex additionResult(Complex c1, Complex c2) {
         Complex result = new Complex();
-        result.real = c1.real + c2.real;
+        result.setReal(c1.getReal() + c2.getReal());
         result.setImag(c1.getImag() + c2.getImag());
         return result;
+    }
+
+    public static Complex extractionResult(Complex c1, Complex c2) {
+        Complex result = new Complex();
+        result.setReal(c1.getReal() - c2.getReal());
+        result.setImag(c1.getImag() - c2.getImag());
+        return result;
+    }
+
+    public static Complex multiplicationResult(Complex c1, Complex c2) {
+        Complex result = new Complex();
+        result.setReal(c1.getReal() * c2.getReal() - c1.getImag() * c2.getImag());
+        result.setImag(c1.getImag() * c2.getReal() + c1.getReal() * c2.getImag());
+        return result;
+    }
+
+    public static Complex divisionResult(Complex c1, Complex c2) {
+        Complex result = new Complex();
+        Complex conjugatedDivisor = Complex.getConjugated(c2);
+        // TODO: implement method
+        return result;
+    }
+
+    public static Complex getConjugated(Complex c){
+        return new Complex(c.getReal(), -c.getImag());
     }
 
     protected boolean canEqual(final Object other) {

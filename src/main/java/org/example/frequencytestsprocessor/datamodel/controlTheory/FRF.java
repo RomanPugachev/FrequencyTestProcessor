@@ -8,7 +8,6 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
 
-
 public interface FRF extends Canvas2DPrintable {
     List<Double> getFrequencies();
     void setFrequencies(List<Double> frequencies);

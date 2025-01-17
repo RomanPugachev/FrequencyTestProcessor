@@ -49,14 +49,21 @@ public class Complex implements Cloneable{
     }
 
     public static Complex divisionResult(Complex c1, Complex c2) {
-        Complex result = new Complex();
-        Complex conjugatedDivisor = Complex.getConjugated(c2);
-        // TODO: implement method
-        return result;
+        if (c2.getReal() == 0 && c2.getImag() == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        if (c2.getImag() == 0) {
+            return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
+        }
+        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getModuleAsComplex(c2));
     }
 
     public static Complex getConjugated(Complex c){
         return new Complex(c.getReal(), -c.getImag());
+    }
+
+    public static Complex getModuleAsComplex(Complex c) {
+        return new Complex(Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag()), 0);
     }
 
     protected boolean canEqual(final Object other) {

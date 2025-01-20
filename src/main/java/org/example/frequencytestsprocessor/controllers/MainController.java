@@ -7,6 +7,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -29,6 +30,7 @@ import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Repre
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
+import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
@@ -48,20 +50,14 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 public class MainController {
 
 ////Objects of interface//////////////
-    @FXML
-    private ResourceBundle resources;
+@FXML
+private ResourceBundle resources;
 
     @FXML
     private URL location;
 
     @FXML
     private MenuItem addAvailableSensorsMenuItem;
-
-    @FXML
-    private MenuItem formulaAdditionAnalithicalMenuItem;
-
-    @FXML
-    private MenuItem formulaAdditionSensorMenuItem;
 
     @FXML
     private TableColumn<Sensor, String> availableSensorsColumn;
@@ -71,6 +67,9 @@ public class MainController {
 
     @FXML
     private ContextMenu availableSensorsTableContextMenu;
+
+    @FXML
+    private Button callPerformCalculationsDialogButton;
 
     @FXML
     private Button changeLanguageButton;
@@ -84,12 +83,15 @@ public class MainController {
     @FXML
     private Label chosenFileLabel;
 
-    @FXML
     @Getter
+    @FXML
     private TableView<Sensor> chosenSensorsTable;
 
     @FXML
     private ContextMenu chosenSensorsTableContextMenu;
+
+    @FXML
+    private Button clearGraphsButton;
 
     @FXML
     private MenuItem close;
@@ -107,18 +109,6 @@ public class MainController {
     private MenuItem deleteFormulaMenuItem;
 
     @FXML
-    private TableColumn<Formula, String> formulaIdColumn;
-
-    @FXML
-    private TableColumn<Formula, String> formulaStringColumn;
-
-    @FXML
-    private TableView<Formula> formulaTable;
-
-    @FXML
-    private ContextMenu formulasContextMenu;
-
-    @FXML
     private HBox dummyHBox;
 
     @FXML
@@ -131,10 +121,35 @@ public class MainController {
     private Button fileDialogButton;
 
     @FXML
-    private AnchorPane graphsAnchorPane;
+    private MenuItem formulaAdditionAnalithicalMenuItem;
 
     @FXML
-    private TableColumn<Sensor, String> sensorIdColumn;
+    private MenuItem formulaAdditionSensorMenuItem;
+
+    @FXML
+    private TableColumn<Formula, String> formulaIdColumn;
+
+    @FXML
+    private TableColumn<Formula, String> formulaStringColumn;
+
+    @FXML
+    private TableView<Formula> formulaTable;
+
+    @FXML
+    private ContextMenu formulasContextMenu;
+
+    @FXML
+    private ToolBar graphToolBar;
+
+    @FXML
+    private AnchorPane graphsAnchorPane;
+
+    @Getter
+    @FXML
+    private Canvas graphsCanvas;
+
+    @FXML
+    private VBox graphsVBox;
 
     @FXML
     private Menu languageSettings;
@@ -155,14 +170,14 @@ public class MainController {
     private VBox mainVBox;
 
     @FXML
-    private Button callPerformCalculationsDialogButton;
-
-    @FXML
     private SplitPane processAndVisualizeSplitPane;
 
     @Getter
     @FXML
     private ComboBox<Section> sectionComboBox;
+
+    @FXML
+    private TableColumn<Section, String> sensorIdColumn;
 
     @FXML
     private TableColumn<?, ?> sensorNameColumn;
@@ -194,6 +209,7 @@ public class MainController {
     @Getter
     private IdManager idManager = new IdManager(this);
     private Calculator calculator = new Calculator(this);
+    private GraphsService graphsService = new GraphsService(this);
     private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
 
     public void initializeServices() {
@@ -226,6 +242,7 @@ public class MainController {
         currentLanguage = RU;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
+        graphsService.generateExample(10, 1);
     }
 
     @FXML
@@ -353,8 +370,9 @@ public class MainController {
             List<Double> frequencies = calculator.getFrequencies(runId);
             calculatedFRFs.put(runId, new HashSet<>());
             for (String id : idSequence) {
-                    calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
+                calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
             }
+
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
@@ -380,46 +398,50 @@ public class MainController {
 
     @FXML
     void initialize() {
-        assert addAvailableSensorsMenuItem != null : "fx:id=\"addAvailableSensorsMenuItem\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert availableSensorsColumn != null : "fx:id=\"availableSensorsColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert availableSensorsTableContextMenu != null : "fx:id=\"availableSensorsTableContextMenu\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert chosenSensorsTable != null : "fx:id=\"chosenSensorsTable\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert chosenSensorsTableContextMenu != null : "fx:id=\"chosenSensorsTableContextMenu\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert close != null : "fx:id=\"close\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert commentToFormulaColumn != null : "fx:id=\"commentToFormulaColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert deleteChosenSensorsMenuItem != null : "fx:id=\"deleteChosenSensorsMenuItem\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulaAdditionSensorMenuItem != null : "fx:id=\"formulaAdditionSensorMenuItem\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulaIdColumn != null : "fx:id=\"formulaIdColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulaStringColumn != null : "fx:id=\"formulaStringColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulaTable != null : "fx:id=\"formulaTable\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert formulasContextMenu != null : "fx:id=\"formulasContextMenu\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert mainMenuBar != null : "fx:id=\"mainMenuBar\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert callPerformCalculationsDialogButton != null : "fx:id=\"callPerformCalculationsDialogButton\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert sensorNameColumn != null : "fx:id=\"sensorNameColumn\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
-        assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'fxmls/mainScene-view.fxml'.";
+        assert addAvailableSensorsMenuItem != null : "fx:id=\"addAvailableSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert availableSensorsColumn != null : "fx:id=\"availableSensorsColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert availableSensorsTableContextMenu != null : "fx:id=\"availableSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert callPerformCalculationsDialogButton != null : "fx:id=\"callPerformCalculationsDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chosenSensorsTable != null : "fx:id=\"chosenSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert chosenSensorsTableContextMenu != null : "fx:id=\"chosenSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert clearGraphsButton != null : "fx:id=\"clearGraphsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert close != null : "fx:id=\"close\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert commentToFormulaColumn != null : "fx:id=\"commentToFormulaColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert deleteChosenSensorsMenuItem != null : "fx:id=\"deleteChosenSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaAdditionSensorMenuItem != null : "fx:id=\"formulaAdditionSensorMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaIdColumn != null : "fx:id=\"formulaIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaStringColumn != null : "fx:id=\"formulaStringColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulaTable != null : "fx:id=\"formulaTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert formulasContextMenu != null : "fx:id=\"formulasContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsCanvas != null : "fx:id=\"graphsCanvas\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert mainMenuBar != null : "fx:id=\"mainMenuBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorNameColumn != null : "fx:id=\"sensorNameColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
 
         initializeServices();
         setupWidgetsBehaviour();

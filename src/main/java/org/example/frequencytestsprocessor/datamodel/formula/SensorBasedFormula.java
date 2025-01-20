@@ -11,7 +11,7 @@ import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.*;
 import java.util.function.Predicate;
-
+// TODO: implement calculating particular formula
 public class SensorBasedFormula extends Formula {
 
     List<Token> tokensList;
@@ -58,6 +58,9 @@ public class SensorBasedFormula extends Formula {
     }
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
+        // TODO: implement calculation
+        if (true) return null;
+        else if(true) throw new UnsupportedOperationException("Not implemented yet");
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -99,40 +102,42 @@ public class SensorBasedFormula extends Formula {
         }
 
         if (stack.size() != 1) throw new IllegalArgumentException("Invalid formula.");
-        return (RepresentableDataset) stack.pop(); // Example conversion to dataset
+        return (FRF) stack.pop(); // Example conversion to dataset
     }
 
     private Object applyOperator(String operator, Object a, Object b) {
+        throw new UnsupportedOperationException("Not implemented yet");
         // Example logic: Adjust as per MyObject operations
-        if (a instanceof FRF && b instanceof FRF) {
-            FRF valueA = (FRF) a;
-            FRF valueB = (FRF) b;
-            switch (operator) {
-                case "+":
-                    return new MyObject(valueA + valueB);
-                case "-":
-                    return new MyObject(valueA - valueB);
-                case "*":
-                    return new MyObject(valueA * valueB);
-                case "/":
-                    return new MyObject(valueA / valueB);
-            }
-        }
-        throw new IllegalArgumentException("Unsupported operator or operand types.");
+//        if (a instanceof FRF && b instanceof FRF) {
+//            FRF valueA = (FRF) a;
+//            FRF valueB = (FRF) b;
+//            switch (operator) {
+//                case "+":
+//                    return new MyObject(valueA + valueB);
+//                case "-":
+//                    return new MyObject(valueA - valueB);
+//                case "*":
+//                    return new MyObject(valueA * valueB);
+//                case "/":
+//                    return new MyObject(valueA / valueB);
+//            }
+//        }
+//        throw new IllegalArgumentException("Unsupported operator or operand types.");
     }
 
     private Object applyFunction(String function, Object operand) {
-        if (operand instanceof MyObject) {
-            MyObject obj = (MyObject) operand;
-            switch (function.toLowerCase()) {
-                case "integrate":
-                    return obj.integrate();
-                case "differentiate":
-                    return obj.differentiate();
-            }
-        }
-        throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
-    }*/
+        throw new UnsupportedOperationException("Not implemented yet");
+//        if (operand instanceof MyObject) {
+//            MyObject obj = (MyObject) operand;
+//            switch (function.toLowerCase()) {
+//                case "integrate":
+//                    return obj.integrate();
+//                case "differentiate":
+//                    return obj.differentiate();
+//            }
+//        }
+//        throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
+    }
 
     public static class Lexer {
         public static List<Token> tokenize(String input) {

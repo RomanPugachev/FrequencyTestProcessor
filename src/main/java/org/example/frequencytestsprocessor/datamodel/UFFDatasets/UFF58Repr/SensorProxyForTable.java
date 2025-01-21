@@ -14,6 +14,7 @@ public class SensorProxyForTable extends Sensor implements IdManager.HasId {
     @Getter
     @Setter
     private String id;
+    @Getter
     private Sensor originalSensor;
 
     public SensorProxyForTable(Sensor originalSensor) {

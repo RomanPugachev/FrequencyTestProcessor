@@ -43,7 +43,7 @@ public class Sensor {
         } else throw new RuntimeException("Impossible to merge sensors with different names");
     }
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public class SensorData implements FRF{
+    public class SensorData implements FRF {
         @Getter
         @Setter
         private List<Double> frequencies;

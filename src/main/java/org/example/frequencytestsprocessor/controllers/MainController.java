@@ -242,7 +242,8 @@ private ResourceBundle resources;
         currentLanguage = RU;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
-        graphsService.generateExample(10, 1);
+        graphsService.initializeService();
+        graphsService.generateExample(10, 1, true);
     }
 
     @FXML
@@ -353,7 +354,6 @@ private ResourceBundle resources;
                 )
         );
         tempStage.showAndWait();
-
     }
 
     private void performCalculations(Collection<Long> chosenRuns) {
@@ -372,10 +372,11 @@ private ResourceBundle resources;
             for (String id : idSequence) {
                 calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
             }
-
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
+        FRF exampleCalculatedData = calculatedFRFs.get(chosenRuns.stream().findFirst().get()).stream().findFirst().get().getValue();
+        graphsService.plotData(exampleCalculatedData.getXData(), exampleCalculatedData.getYData(), null);
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();

@@ -5,13 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.*;
 import java.util.function.Predicate;
-// TODO: implement calculating particular formula
 public class SensorBasedFormula extends Formula {
 
     List<Token> tokensList;
@@ -73,16 +73,24 @@ public class SensorBasedFormula extends Formula {
                 case IDENTIFIER:
                     try {
                         String id = (String) token.getValue();
+                        FRF frfToPush = null;
                         if (calculatedFRFs.containsKey(runNumber)) {
                             Set<Map.Entry<String, FRF>> FRFEntriesInRun = calculatedFRFs.get(runNumber);
-                            FRF currentFRF = FRFEntriesInRun.stream().
+                            frfToPush = FRFEntriesInRun.stream().
                                     filter(entry -> entry.getKey().equals(id)).findFirst().orElseThrow().getValue();
-                            stack.push(currentFRF);
                         } else {
-                            throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
+                            Sensor foundedSensor = chosenSensorsTable.getItems().stream()
+                                    .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id))
+                                    .map(sensor -> ((SensorProxyForTable)sensor).getOriginalSensor()).findFirst().orElseGet(null);
+                            if (foundedSensor != null) {
+                                frfToPush = foundedSensor.getData().get(runNumber);
+                            }
                         }
+                        if (frfToPush != null) stack.push(frfToPush);
+                        else throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated. Formula/n------------" + formulaString
+                                + "/nSensor id: " + id);
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("Formula depends on a FRF that has not been calculated.");
+                        throw new RuntimeException("Error extracting FRF by id.", e);
                     }
                     break;
                 case OPERATOR:
@@ -106,23 +114,22 @@ public class SensorBasedFormula extends Formula {
     }
 
     private Object applyOperator(String operator, Object a, Object b) {
-        throw new UnsupportedOperationException("Not implemented yet");
-        // Example logic: Adjust as per MyObject operations
-//        if (a instanceof FRF && b instanceof FRF) {
-//            FRF valueA = (FRF) a;
-//            FRF valueB = (FRF) b;
-//            switch (operator) {
-//                case "+":
-//                    return new MyObject(valueA + valueB);
-//                case "-":
-//                    return new MyObject(valueA - valueB);
-//                case "*":
-//                    return new MyObject(valueA * valueB);
-//                case "/":
-//                    return new MyObject(valueA / valueB);
-//            }
-//        }
-//        throw new IllegalArgumentException("Unsupported operator or operand types.");
+        // TODO: implement operator logic
+        if (a instanceof FRF && b instanceof FRF) {
+            FRF valueA = (FRF) a;
+            FRF valueB = (FRF) b;
+            switch (operator) {
+                case "+":
+                    return new MyObject(valueA + valueB);
+                case "-":
+                    return new MyObject(valueA - valueB);
+                case "*":
+                    return new MyObject(valueA * valueB);
+                case "/":
+                    return new MyObject(valueA / valueB);
+            }
+        }
+        throw new IllegalArgumentException("Unsupported operator or operand types.");
     }
 
     private Object applyFunction(String function, Object operand) {

@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.CalculatedFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.*;
@@ -114,22 +116,52 @@ public class SensorBasedFormula extends Formula {
     }
 
     private Object applyOperator(String operator, Object a, Object b) {
-        // TODO: implement operator logic
-        if (a instanceof FRF && b instanceof FRF) {
-            FRF valueA = (FRF) a;
-            FRF valueB = (FRF) b;
-            switch (operator) {
-                case "+":
-                    return new MyObject(valueA + valueB);
-                case "-":
-                    return new MyObject(valueA - valueB);
-                case "*":
-                    return new MyObject(valueA * valueB);
-                case "/":
-                    return new MyObject(valueA / valueB);
-            }
+        if (a instanceof Double && b instanceof Double) {
+            return applyOperator(operator, (Double) a, (Double) b);
+        } else if (a instanceof FRF && b instanceof Double) {
+            return applyOperator(operator, (FRF) a, (Double) b);
+        } else if (a instanceof Double && b instanceof FRF) {
+            return applyOperator(operator, (Double) a, (FRF) b);
+        } else if (a instanceof FRF && b instanceof FRF) {
+            return applyOperator(operator, (FRF) a, (FRF) b);
+        } else {
+            throw new IllegalArgumentException("Unsupported operand types");
         }
-        throw new IllegalArgumentException("Unsupported operator or operand types.");
+    }
+
+    private Object applyOperator(String operator, Double a, Double b) {
+        switch (operator) {
+            case "+":
+                return a + b;
+            case "-":
+                return a - b;
+            case "*":
+                return a * b;
+            case "/":
+                return a / b;
+            case "^":
+                return Math.pow(a, b);
+            default:
+                throw new IllegalArgumentException("Unsupported operator: " + operator);
+        }
+    }
+
+    private Object applyOperator(String operator, FRF a, Double b) {
+        switch (operator) {
+            case "+":
+                return CalculatedFRF.additionResult(a, b);
+            case "-":
+                return CalculatedFRF.subtractionResult(a, b);
+            case "*":
+                // TODO: Implement multiplication on double in CalculatedFRF and in Complex
+                return CalculatedFRF.multiplicationResult(a, b);
+            case "/":
+                return CalculatedFRF.divisionResult(a, b);
+            case "^":
+                return CalculatedFRF.poweringResult(a, b);
+            default:
+                throw new IllegalArgumentException("Unsupported operator: " + operator);
+        }
     }
 
     private Object applyFunction(String function, Object operand) {
@@ -265,10 +297,14 @@ public class SensorBasedFormula extends Formula {
                 case "*":
                 case "/":
                     return 2;
+                case "^":
+                    return 3;
                 default:
                     return 0;
             }
         }
+
+
     }
 }
 //    How to parse formula and perform calculations in Java, including taking into account brackets '(', ')', some function operators, such as 'INTEGRATE', which must accept one argument in brackets? Also it is important to include opportunity to parse identifiers as thing, which can also be calculated. For example, this formula:

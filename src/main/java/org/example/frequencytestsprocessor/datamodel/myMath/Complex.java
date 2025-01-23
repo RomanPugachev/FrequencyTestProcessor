@@ -71,6 +71,13 @@ public class Complex implements Cloneable{
         return result;
     }
 
+    public static Complex multiplicationResult(Complex c, Double d) {
+        Complex result = new Complex();
+        result.setReal(c.getReal() * d);
+        result.setImag(c.getImag() * d);
+        return result;
+    }
+
     public static Complex divisionResult(Complex c1, Complex c2) {
         if (c2.getReal() == 0 && c2.getImag() == 0) {
             throw new ArithmeticException("Division by zero");
@@ -79,6 +86,16 @@ public class Complex implements Cloneable{
             return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
         }
         return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getModuleAsComplex(c2));
+    }
+
+    public static Complex divisionResult(Complex c, Double d) {
+        if (d == 0) throw new ArithmeticException("Division by zero");
+        return new Complex(c.getReal() / d, c.getImag() / d);
+    }
+
+    public static Complex divisionResult(Double d, Complex c) {
+        if (d == 0) throw new ArithmeticException("Division by zero");
+        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getModuleAsComplex(c));
     }
 
     public static Complex poweringResult(Complex c, Double n) {

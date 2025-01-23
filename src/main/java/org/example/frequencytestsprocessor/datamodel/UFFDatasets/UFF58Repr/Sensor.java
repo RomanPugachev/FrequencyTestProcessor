@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
 import lombok.*;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
@@ -17,10 +18,10 @@ public class Sensor {
     @Setter
     SensorDataType parentType;
     @Getter // run id -> data
-    private Map<Long, SensorData> data = new HashMap<>();
+    private Map<Long, DiscreteFRF> data = new HashMap<>();
     public Sensor(String sensorName, Long currentRun, List<Double> frequencies, List<Complex> complexValues) {
         this.sensorName = sensorName;
-        this.data.put(currentRun, new SensorData(frequencies, complexValues));
+        this.data.put(currentRun, new DiscreteFRF(frequencies, complexValues));
     }
 
     public Sensor addRun(Long currentRun, List<Double> frequencies, List<Complex> complexValues) {
@@ -33,30 +34,13 @@ public class Sensor {
         } if (data.containsKey(currentRun)) {
             throw new RuntimeException("currentRun already exists");
         }
-        this.data.put(currentRun, new SensorData(frequencies, complexValues));
+        this.data.put(currentRun, new DiscreteFRF(frequencies, complexValues));
         return this;
     }
     public void mergeSensorData(Sensor secondSensorWithData) {
-        Map<Long, SensorData> secondData = secondSensorWithData.data;
+        Map<Long, DiscreteFRF> secondData = secondSensorWithData.data;
         if (this.equals(secondSensorWithData)) {
-            secondData.keySet().forEach(curRunId -> this.addRun(curRunId, secondData.get(curRunId).frequencies, secondData.get(curRunId).complexValues));
+            secondData.keySet().forEach(curRunId -> this.addRun(curRunId, secondData.get(curRunId).getFrequencies(), secondData.get(curRunId).getComplexValues()));
         } else throw new RuntimeException("Impossible to merge sensors with different names");
-    }
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public class SensorData implements FRF {
-        @Getter
-        @Setter
-        private List<Double> frequencies;
-        @Getter
-        @Setter
-        private List<Complex> complexValues;
-        @Override
-        public List<Double> getXData(){
-            return complexValues.stream().map(Complex::getReal).toList();
-        }
-        @Override
-        public List<Double> getYData() {
-            return complexValues.stream().map(Complex::getImag).toList();
-        }
     }
 }

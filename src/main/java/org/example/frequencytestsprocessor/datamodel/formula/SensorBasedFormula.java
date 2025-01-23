@@ -130,52 +130,67 @@ public class SensorBasedFormula extends Formula {
     }
 
     private Object applyOperator(String operator, Double a, Double b) {
-        switch (operator) {
-            case "+":
-                return a + b;
-            case "-":
-                return a - b;
-            case "*":
-                return a * b;
-            case "/":
-                return a / b;
-            case "^":
-                return Math.pow(a, b);
-            default:
-                throw new IllegalArgumentException("Unsupported operator: " + operator);
-        }
+        return switch (operator) {
+            case "+" -> a + b;
+            case "-" -> a - b;
+            case "*" -> a * b;
+            case "/" -> a / b;
+            case "^" -> Math.pow(a, b);
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
     }
 
     private Object applyOperator(String operator, FRF a, Double b) {
+        return switch (operator) {
+            case "+" -> CalculatedFRF.additionResult(a, b);
+            case "-" -> CalculatedFRF.subtractionResult(a, b);
+            case "*" -> CalculatedFRF.multiplicationResult(a, b);
+            case "/" -> CalculatedFRF.divisionResult(a, b);
+            case "^" -> CalculatedFRF.poweringResult(a, b);
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
+    }
+
+    private Object applyOperator(String operator, Double a, FRF b) {
+        return switch (operator) {
+            case "+" -> CalculatedFRF.additionResult(a, b);
+            case "-" -> CalculatedFRF.subtractionResult(a, b);
+            case "*" -> CalculatedFRF.multiplicationResult(a, b);
+            case "/" -> CalculatedFRF.divisionResult(a, b);
+            case "^" -> throw new UnsupportedOperationException("Powering is not supported for FRF objects.");
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
+    }
+
+    private Object applyOperator(String operator, FRF a, FRF b) {
         switch (operator) {
             case "+":
                 return CalculatedFRF.additionResult(a, b);
             case "-":
                 return CalculatedFRF.subtractionResult(a, b);
             case "*":
-                // TODO: Implement multiplication on double in CalculatedFRF and in Complex
                 return CalculatedFRF.multiplicationResult(a, b);
             case "/":
                 return CalculatedFRF.divisionResult(a, b);
             case "^":
-                return CalculatedFRF.poweringResult(a, b);
+                throw new UnsupportedOperationException("Powering is not supported for FRF objects.");
             default:
                 throw new IllegalArgumentException("Unsupported operator: " + operator);
         }
     }
 
     private Object applyFunction(String function, Object operand) {
-        throw new UnsupportedOperationException("Not implemented yet");
-//        if (operand instanceof MyObject) {
-//            MyObject obj = (MyObject) operand;
-//            switch (function.toLowerCase()) {
-//                case "integrate":
-//                    return obj.integrate();
-//                case "differentiate":
-//                    return obj.differentiate();
-//            }
-//        }
-//        throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
+        // TODO: Implement the logic for applying functions to operands
+        if (operand instanceof FRF) {
+            FRF frf = (FRF) operand;
+            switch (function.toLowerCase()) {
+                case "integrate":
+                    return frf.integrate();
+                case "differentiate":
+                    return frf.differentiate();
+            }
+        }
+        throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
     }
 
     public static class Lexer {

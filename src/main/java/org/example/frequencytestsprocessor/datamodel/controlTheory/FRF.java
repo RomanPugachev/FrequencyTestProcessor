@@ -13,4 +13,14 @@ public interface FRF extends Canvas2DPrintable {
     void setFrequencies(List<Double> frequencies);
     List<Complex> getComplexValues();
     void setComplexValues(List<Complex> complexValues);
+    public FRF integrate();
+    public FRF differentiate();
+
+    default List<Double> getXData() {
+        return getComplexValues().stream().map(Complex::getReal).toList();
+    }
+
+    default List<Double> getYData() {
+        return getComplexValues().stream().map(Complex::getImag).toList();
+    }
 }

@@ -22,7 +22,6 @@ public abstract class Formula implements IdManager.HasId{
         SENSOR_BASED,
         UNKNOWN
     }
-
     public Formula() {
         formulaString = "";
         id = "";

@@ -7,15 +7,9 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-public class CalculatedFRF implements FRF {
-    private List<Double> frequencies;
-    private List<Complex> complexValues;
-
-    private CalculatedFRF(){
-        this.frequencies = new ArrayList<>();
-        this.complexValues = new ArrayList<>();
+public class CalculatedFRF extends DiscreteFRF {
+    protected CalculatedFRF(){
+        super();
     }
 
     public static CalculatedFRF ofFreqsAndComplex(List<Double> frequencies, List<Complex> complexValues) {
@@ -63,6 +57,7 @@ public class CalculatedFRF implements FRF {
         return additionResult(frf, valueForAdding);
     }
 
+
     public static CalculatedFRF subtractionResult(FRF frf1, FRF frf2){
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
@@ -89,6 +84,7 @@ public class CalculatedFRF implements FRF {
         return subtractionResult(frf, valueForExtracting, false);
     }
 
+
     public static CalculatedFRF multiplicationResult(FRF frf1, FRF frf2){
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
@@ -113,6 +109,21 @@ public class CalculatedFRF implements FRF {
         return multiplicationResult(frf, valueForMultiplying);
     }
 
+    public static CalculatedFRF multiplicationResult(FRF frf, Double valueForMultiplying) {
+        CalculatedFRF result = new CalculatedFRF();
+        result.setFrequencies(frf.getFrequencies());
+        List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        for (int i = 0; i < frf.getFrequencies().size(); i++) {
+            resultComplexValues.add(Complex.multiplicationResult(frf.getComplexValues().get(i), valueForMultiplying));
+        }
+        return result;
+    }
+
+    public static CalculatedFRF multiplicationResult(Double valueForMultiplying, FRF frf) {
+        return multiplicationResult(frf, valueForMultiplying);
+    }
+
+
     public static CalculatedFRF divisionResult(FRF frf1, FRF frf2){
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
@@ -131,6 +142,15 @@ public class CalculatedFRF implements FRF {
         return divisionResult(frf1, valueForDividing, false);
     }
 
+    public static CalculatedFRF divisionResult(FRF frf1, Double valueForDividing) {
+        return divisionResult(frf1, valueForDividing, true);
+    }
+
+    public static CalculatedFRF divisionResult(Double valueForDividing, FRF frf1) {
+        return divisionResult(frf1, valueForDividing, false);
+    }
+
+
     public static CalculatedFRF poweringResult(FRF frf, Double power) {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
@@ -141,15 +161,6 @@ public class CalculatedFRF implements FRF {
         return result;
     }
 
-    @Override
-    public List<Double> getXData() {
-        return complexValues.stream().map(Complex::getReal).toList();
-    }
-
-    @Override
-    public List<Double> getYData() {
-        return complexValues.stream().map(Complex::getImag).toList();
-    }
 
     private static CalculatedFRF subtractionResult(FRF frf, Complex valueForExtracting, boolean isFirst) {
         CalculatedFRF result = new CalculatedFRF();
@@ -184,6 +195,22 @@ public class CalculatedFRF implements FRF {
     }
 
     public static CalculatedFRF divisionResult(FRF frf, Complex valueForDividing, boolean isFirst) {
+        CalculatedFRF result = new CalculatedFRF();
+        result.setFrequencies(frf.getFrequencies());
+        List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        if (isFirst) {
+            for (int i = 0; i < frf.getFrequencies().size(); i++) {
+                resultComplexValues.add(Complex.divisionResult(frf.getComplexValues().get(i), valueForDividing));
+            }
+        } else {
+            for (int i = 0; i < frf.getFrequencies().size(); i++) {
+                resultComplexValues.add(Complex.divisionResult(valueForDividing, frf.getComplexValues().get(i)));
+            }
+        }
+        return result;
+    }
+
+    public static CalculatedFRF divisionResult(FRF frf, Double valueForDividing, boolean isFirst) {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());

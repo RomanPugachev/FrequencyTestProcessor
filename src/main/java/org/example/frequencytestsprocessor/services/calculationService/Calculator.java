@@ -28,6 +28,7 @@ public class Calculator {
         while (addedNewPossibility) {
             addedNewPossibility = false;
             for (Formula formula : formulaList) {
+                if (calculationIdSequence.contains(formula.getId())) continue;
                 if (formula instanceof AnalyticalFormula) {
                     basicIds.add(formula.getId());
                     addedNewPossibility = true;
@@ -47,8 +48,8 @@ public class Calculator {
     }
 
     public List<Double> getFrequencies(Long runId) {
-        Stream<Sensor> sensors = mainController.getChosenSensorsTable().getItems().stream();
-        List<Double> frequencies = sensors.map(s -> s.getData().get(runId).getFrequencies()).findFirst().get();
+        List<Sensor> sensors = mainController.getChosenSensorsTable().getItems();
+        List<Double> frequencies = sensors.stream().map(s -> s.getData().get(runId).getFrequencies()).findFirst().get();
         sensors.forEach(s -> {
             if (!frequencies.equals(s.getData().get(runId).getFrequencies())) {
                 throw new RuntimeException("Frequencies are not equal");

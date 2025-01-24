@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.Map;
@@ -37,7 +38,7 @@ public class SensorProxyForTable extends Sensor implements IdManager.HasId {
     }
 
     @Override
-    public Map<Long, SensorData> getData() {
+    public Map<Long, DiscreteFRF> getData() {
         return originalSensor.getData();
     }
 }

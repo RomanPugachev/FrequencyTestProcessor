@@ -23,6 +23,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf1.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.additionResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
         }
@@ -33,6 +34,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.additionResult(frf.getComplexValues().get(i), valueForAdding));
         }
@@ -47,6 +49,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.additionResult(frf.getComplexValues().get(i), valueForAdding));
         }
@@ -62,6 +65,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf1.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.subtractionResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
         }
@@ -89,6 +93,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf1.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.multiplicationResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
         }
@@ -99,6 +104,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.multiplicationResult(frf.getComplexValues().get(i), valueForMultiplying));
         }
@@ -113,6 +119,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.multiplicationResult(frf.getComplexValues().get(i), valueForMultiplying));
         }
@@ -128,6 +135,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf1.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf1.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf1.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.divisionResult(frf1.getComplexValues().get(i),frf2.getComplexValues().get(i)));
         }
@@ -155,6 +163,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < frf.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.poweringResult(frf.getComplexValues().get(i), power));
         }
@@ -166,6 +175,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         if (isFirst) {
             for (int i = 0; i < frf.getFrequencies().size(); i++) {
                 resultComplexValues.add(Complex.subtractionResult(frf.getComplexValues().get(i), valueForExtracting));
@@ -182,6 +192,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         if (isFirst) {
             for (int i = 0; i < frf.getFrequencies().size(); i++) {
                 resultComplexValues.add(Complex.subtractionResult(frf.getComplexValues().get(i), valueForExtracting));
@@ -198,6 +209,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         if (isFirst) {
             for (int i = 0; i < frf.getFrequencies().size(); i++) {
                 resultComplexValues.add(Complex.divisionResult(frf.getComplexValues().get(i), valueForDividing));
@@ -214,6 +226,7 @@ public class CalculatedFRF extends DiscreteFRF {
         CalculatedFRF result = new CalculatedFRF();
         result.setFrequencies(frf.getFrequencies());
         List<Complex> resultComplexValues = new ArrayList<>(frf.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         if (isFirst) {
             for (int i = 0; i < frf.getFrequencies().size(); i++) {
                 resultComplexValues.add(Complex.divisionResult(frf.getComplexValues().get(i), valueForDividing));

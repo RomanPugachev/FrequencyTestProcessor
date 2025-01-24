@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.RuntimeEnvironment;
 import org.apache.commons.lang3.tuple.Pair;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
@@ -265,15 +266,7 @@ private ResourceBundle resources;
     @FXML
     private void callFileDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
-        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
-                chosenFile.getAbsolutePath().endsWith(".uff"))) {
-            chosenFileLabel.setText(chosenFile.getAbsolutePath());
-            this.chosenFile = chosenFile;
-            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
-            refresher.refreshOnChangeFilePath();
-        } else if (chosenFile != null) {
-            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
-        }
+        setChosenFile(chosenFile);
     }
 
     @FXML
@@ -357,6 +350,7 @@ private ResourceBundle resources;
     }
 
     private void performCalculations(Collection<Long> chosenRuns) {
+        // TODO: debug this
         formulaTable.getItems().forEach(formula -> {
             formula.validate(formula.getFormulaString());
         });
@@ -447,6 +441,10 @@ private ResourceBundle resources;
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
+        if (System.getenv("PRELOAD_PATH") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
+            setChosenFile(preloadFile);
+        }
     }
 
     private void setupWidgetsBehaviour() {
@@ -490,7 +488,6 @@ private ResourceBundle resources;
         formulaIdColumn.setOnEditCommit(event -> idManager.handleIdUpdate().handle(event));
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
     }
 
     private List<Long> getSharedRuns() {
@@ -501,5 +498,17 @@ private ResourceBundle resources;
             items.forEach(sens -> sharedRuns.retainAll(sens.getData().keySet()));
             return sharedRuns.stream().toList();
         } else { return new ArrayList<>(); }
+    }
+
+    private void setChosenFile(File chosenFile) {
+        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
+                chosenFile.getAbsolutePath().endsWith(".uff"))) {
+            this.chosenFile = chosenFile;
+            chosenFileLabel.setText(chosenFile.getAbsolutePath());
+            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
+            refresher.refreshOnChangeFilePath();
+        } else if (chosenFile != null) {
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
+        }
     }
 }

@@ -12,6 +12,7 @@ import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 
 @AllArgsConstructor
 public class Refresher {
+    // TODO: implement correct clearing List of chosen sensors when refreshing section or type in comboBoxes
     private MainController mainController;
     public void refreshOnChangeFilePath() {
         var sectionComboBox = mainController.getSectionComboBox();

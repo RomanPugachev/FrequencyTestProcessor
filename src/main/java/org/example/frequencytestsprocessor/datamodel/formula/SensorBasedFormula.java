@@ -61,8 +61,6 @@ public class SensorBasedFormula extends Formula {
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         // TODO: implement calculation
-        if (true) return null;
-        else if(true) throw new UnsupportedOperationException("Not implemented yet");
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -76,6 +74,11 @@ public class SensorBasedFormula extends Formula {
                     try {
                         String id = (String) token.getValue();
                         FRF frfToPush = null;
+                        Sensor sensorById = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst().orElseGet(null);
+                        if (sensorById != null) {
+                            frfToPush = ((SensorProxyForTable) sensorById).getOriginalSensor().getData().get(runNumber);
+                            if (frfToPush != null) { stack.push(frfToPush); continue; }
+                        }
                         if (calculatedFRFs.containsKey(runNumber)) {
                             Set<Map.Entry<String, FRF>> FRFEntriesInRun = calculatedFRFs.get(runNumber);
                             frfToPush = FRFEntriesInRun.stream().

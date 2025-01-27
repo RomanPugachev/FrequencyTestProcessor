@@ -170,21 +170,21 @@ public class PerformingCalculationsDialogController {
                     extractedRuns.add(firstLimit);
                 }
                 else {
-                    incorrectItems.put(item, "Run, which you add in calculations must be included in list of shared." +
-                            firstLimit++ + "is not included in it.");
+                    incorrectItems.put(item, "Each chosen sensor must contain run, which you choose for calculation. " +
+                            firstLimit + "isn't included in each sensor data.");
                 }
             } catch (Exception e) { incorrectItems.put(item, "Insert only digit symbols as value for Run number"); }
         } else if (tmp.length == 2) {
             try {
                 Long firstLimit = Long.valueOf(tmp[0]), secondLimit = Long.valueOf(tmp[1]);
                 if (secondLimit < firstLimit) { incorrectItems.put(item, "Higher limit of Run entry can't be less then lower limit"); return; }
-                while (firstLimit < secondLimit) {
+                while (firstLimit <= secondLimit) {
                     if (sharedRuns.contains(firstLimit)) {
                         extractedRuns.add(firstLimit++);
                     }
                     else {
-                        incorrectItems.put(item, "Run, which you add in calculations must be included in list of shared." +
-                                firstLimit++ + "is not included in it.");
+                        incorrectItems.put(item, "Each chosen sensor must contain run, which you choose for calculation. " +
+                                firstLimit++ + "isn't included in each sensor data.");
                     }
                 }
             } catch (Exception e) { incorrectItems.put(item, "Insert only digit symbols as value for Run number"); }

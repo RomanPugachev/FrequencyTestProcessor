@@ -22,6 +22,9 @@ public class StaticStrings {
     public static final String DEFAULT = "default";
     public static final String DEFAULT_SECTION_ID = "section.default";
     public static final String DEFAULT_TYPE_ID = "type.default";
+    public static final String OTHER = "other";
+    public static final String DEFAULT_GRAPHS_SENSOR_CHOICE = "defaultGraphsSensorChoice";
+    public static final String DEFAULT_GRAPHS_RUN_CHOICE = "defaultGraphsRunChoice";
 
 
 

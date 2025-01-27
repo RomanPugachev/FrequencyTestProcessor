@@ -50,9 +50,9 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 @Setter
 public class MainController {
 
-////Objects of interface//////////////
-@FXML
-private ResourceBundle resources;
+    ////Objects of interface//////////////
+    @FXML
+    private ResourceBundle resources;
 
     @FXML
     private URL location;
@@ -116,6 +116,9 @@ private ResourceBundle resources;
     private ToolBar dummyToolBar;
 
     @FXML
+    private Button exportGraphsButton;
+
+    @FXML
     private Menu file;
 
     @FXML
@@ -139,8 +142,17 @@ private ResourceBundle resources;
     @FXML
     private ContextMenu formulasContextMenu;
 
+    @Getter
     @FXML
-    private ToolBar graphToolBar;
+    private ChoiceBox<String> graphRunChoiceBox;
+
+    @Getter
+    @FXML
+    private ChoiceBox<String> graphSensorChoiceBox;
+
+    @Getter
+    @FXML
+    private HBox graphToolBar;
 
     @FXML
     private AnchorPane graphsAnchorPane;
@@ -149,6 +161,7 @@ private ResourceBundle resources;
     @FXML
     private Canvas graphsCanvas;
 
+    @Getter
     @FXML
     private VBox graphsVBox;
 
@@ -181,7 +194,7 @@ private ResourceBundle resources;
     private TableColumn<Section, String> sensorIdColumn;
 
     @FXML
-    private TableColumn<?, ?> sensorNameColumn;
+    private TableColumn<Sensor, String> sensorNameColumn;
 
     @FXML
     private HBox sensorsChoiseHBox;
@@ -201,8 +214,10 @@ private ResourceBundle resources;
     private File chosenFile;
     @Getter
     private UFF uff;
+    private Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs;
     @Getter
     private String currentLanguage = RU;
+    @Getter
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
     private MainApplication mainApplication;
@@ -237,14 +252,19 @@ private ResourceBundle resources;
                         new LanguageObserverDecorator<>(availableSensorsTable),
                         new LanguageObserverDecorator<>(chosenSensorsTable),
                         new LanguageObserverDecorator<>(formulaTable),
-                        new LanguageObserverDecorator<>(callPerformCalculationsDialogButton)
+                        new LanguageObserverDecorator<>(callPerformCalculationsDialogButton),
+                        (languageProperties, currentLanguage) -> {
+                            changeDefaultGraphChoice(graphSensorChoiceBox, DEFAULT_GRAPHS_SENSOR_CHOICE, languageProperties, currentLanguage);
+                        },
+                        (languageProperties, currentLanguage) -> {
+                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage);
+                        }
                 )
         );
         currentLanguage = RU;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
         graphsService.initializeService();
-        graphsService.generateExample(10, 1, true);
     }
 
     @FXML
@@ -359,7 +379,7 @@ private ResourceBundle resources;
             return;
         }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
-        Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs = new HashMap<>();
+        calculatedFRFs = new HashMap<>();
         for (Long runId : chosenRuns) {
             List<Double> frequencies = calculator.getFrequencies(runId);
             calculatedFRFs.put(runId, new HashSet<>());
@@ -369,8 +389,12 @@ private ResourceBundle resources;
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
-        FRF exampleCalculatedData = calculatedFRFs.get(chosenRuns.stream().findFirst().get()).stream().findFirst().get().getValue();
-        graphsService.plotData(exampleCalculatedData.getXData(), exampleCalculatedData.getYData(), null);
+        graphRunChoiceBox.getItems().clear(); //Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
+        // TODO: implement adding of calculated FRFs in choice boxes. Implement visualization chosen options
+//        graphRunChoiceBox.getItems().addAll(calculatedFRFs.keySet());
+//        graphSensorChoiceBox.getItems().
+//        graphSensorChoiceBox.getItems().add
+//        graphSensorChoiceBox.
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();
@@ -412,6 +436,7 @@ private ResourceBundle resources;
         assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert exportGraphsButton != null : "fx:id=\"exportGraphsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -420,6 +445,8 @@ private ResourceBundle resources;
         assert formulaStringColumn != null : "fx:id=\"formulaStringColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaTable != null : "fx:id=\"formulaTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulasContextMenu != null : "fx:id=\"formulasContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphRunChoiceBox != null : "fx:id=\"graphRunChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphSensorChoiceBox != null : "fx:id=\"graphSensorChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsCanvas != null : "fx:id=\"graphsCanvas\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -488,6 +515,7 @@ private ResourceBundle resources;
         formulaIdColumn.setOnEditCommit(event -> idManager.handleIdUpdate().handle(event));
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
     }
 
     private List<Long> getSharedRuns() {
@@ -510,5 +538,17 @@ private ResourceBundle resources;
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
         }
+    }
+
+    private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage) {
+        Iterator<String> it = curentChoiceBox.getItems().iterator();
+        while (it.hasNext()) {
+            String current = it.next();
+            if (current.endsWith("...")) {
+                it.remove();
+            }
+            break;
+        }
+        curentChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + PROPERTY_ID + DOT + currentLanguage));
     }
 }

@@ -1,7 +1,11 @@
 package org.example.frequencytestsprocessor.services.graphsService;
 
+import javafx.beans.binding.Bindings;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +21,7 @@ public class GraphsService {
     private List<Map.Entry<List<Double>, List<Double>>> data;
     private List<Paint> colorPreset;
 
+
     public GraphsService(MainController mainController) {
         this.mainController = mainController;
     }
@@ -31,6 +36,15 @@ public class GraphsService {
         colorPreset.add(Paint.valueOf("green"));
         colorPreset.add(Paint.valueOf("yellow"));
         colorPreset.add(Paint.valueOf("orange"));
+
+        canvas.widthProperty().bind(mainController.getGraphsVBox().widthProperty());
+        canvas.heightProperty().bind(Bindings.createDoubleBinding(() -> {
+            return mainController.getGraphsVBox().getHeight() - mainController.getGraphToolBar().getHeight();
+        }, mainController.getGraphsVBox().heightProperty(), mainController.getGraphToolBar().heightProperty()));
+
+        canvas.widthProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
+        canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
+
     }
 
     public void plotData(List<Double> xData, List<Double> yData, Paint color) {
@@ -46,7 +60,7 @@ public class GraphsService {
         gc.stroke();
     }
 
-    public void generateExample(int numberOfPoints, int linearCoefficient, boolean connectPoints){
+    public void generateExample(int numberOfPoints, double linearCoefficient, boolean connectPoints){
         List<Double> xData = new ArrayList<>(numberOfPoints);
         List<Double> yData = new ArrayList<>(numberOfPoints);
         for (int i=0; i<numberOfPoints;i++){
@@ -86,6 +100,11 @@ public class GraphsService {
         }
         gc.closePath();
     }
+
+    private void redrawCanvas() {
+        generateExample(3, 0.1, true);
+    }
+
     private void handleMouseMoved(javafx.scene.input.MouseEvent event) {
         double mouseX = event.getX();
         double mouseY = event.getY();

@@ -9,6 +9,7 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Senso
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 @AllArgsConstructor
 public class Refresher {
@@ -45,11 +46,21 @@ public class Refresher {
     public void setDefaultComboBoxes() {
         var sectionComboBox = mainController.getSectionComboBox();
         var typeComboBox = mainController.getTypeComboBox();
+        var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
+        var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
+        var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
 
         sectionComboBox.getItems().clear();
         sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
         sectionComboBox.setValue(sectionComboBox.getItems().getFirst());
         typeComboBox.setValue(typeComboBox.getItems().getFirst());
+
+        graphSensorChoiceBox.getItems().clear();
+        graphSensorChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + mainController.getCurrentLanguage()));
+        graphSensorChoiceBox.setValue(graphSensorChoiceBox.getItems().getFirst());
+        graphRunChoiceBox.getItems().clear();
+        graphRunChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
+        graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
     }
 
     public void refreshIdsInTables(){

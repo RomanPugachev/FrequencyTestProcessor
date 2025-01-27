@@ -60,7 +60,6 @@ public class SensorBasedFormula extends Formula {
     }
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
-        // TODO: implement calculation
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -183,7 +182,6 @@ public class SensorBasedFormula extends Formula {
     }
 
     private Object applyFunction(String function, Object operand) {
-        // TODO: Implement the logic for applying functions to operands
         if (operand instanceof FRF) {
             FRF frf = (FRF) operand;
             switch (function.toLowerCase()) {

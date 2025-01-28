@@ -44,7 +44,7 @@ public class GraphsService {
 
         canvas.widthProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
-
+        initializeAxes(-1, -1, 1, 1);
     }
 
     public void plotData(List<Double> xData, List<Double> yData, Paint color) {
@@ -61,6 +61,7 @@ public class GraphsService {
     }
 
     public void generateExample(int numberOfPoints, double linearCoefficient, boolean connectPoints){
+
         List<Double> xData = new ArrayList<>(numberOfPoints);
         List<Double> yData = new ArrayList<>(numberOfPoints);
         for (int i=0; i<numberOfPoints;i++){
@@ -102,7 +103,15 @@ public class GraphsService {
     }
 
     private void redrawCanvas() {
-        generateExample(3, 0.1, true);
+        generateExample(30, 0.1, true);
+    }
+
+    private void initializeAxes(double minX, double minY, double maxX, double maxY) {
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+        gc.beginPath();
+        gc.moveTo(0, canvas.getHeight() / 2);
+        gc.lineTo(canvas.getWidth(), canvas.getHeight() / 2);
     }
 
     private void handleMouseMoved(javafx.scene.input.MouseEvent event) {

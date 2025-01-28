@@ -391,6 +391,7 @@ public class MainController {
         System.out.println(calculatedFRFs);
         graphRunChoiceBox.getItems().clear(); //Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
         // TODO: implement adding of calculated FRFs in choice boxes. Implement visualization chosen options
+        refresher.refreshGraphComboboxes(calculatedFRFs);
 //        graphRunChoiceBox.getItems().addAll(calculatedFRFs.keySet());
 //        graphSensorChoiceBox.getItems().
 //        graphSensorChoiceBox.getItems().add

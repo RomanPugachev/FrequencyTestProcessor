@@ -3,10 +3,11 @@ package org.example.frequencytestsprocessor.services.refreshingService;
 import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.UFF58Representation;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+
+import java.util.Map;
+import java.util.Set;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -46,14 +47,18 @@ public class Refresher {
     public void setDefaultComboBoxes() {
         var sectionComboBox = mainController.getSectionComboBox();
         var typeComboBox = mainController.getTypeComboBox();
-        var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
-        var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
-        var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
 
         sectionComboBox.getItems().clear();
         sectionComboBox.getItems().add(Section.DEFAULT_SECTION);
         sectionComboBox.setValue(sectionComboBox.getItems().getFirst());
         typeComboBox.setValue(typeComboBox.getItems().getFirst());
+        refreshGraphComboboxes();
+    }
+
+    public void refreshGraphComboboxes() {
+        var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
+        var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
+        var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
 
         graphSensorChoiceBox.getItems().clear();
         graphSensorChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + mainController.getCurrentLanguage()));
@@ -61,6 +66,20 @@ public class Refresher {
         graphRunChoiceBox.getItems().clear();
         graphRunChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
+    }
+
+    public void refreshGraphComboboxes(Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
+        refreshGraphComboboxes();
+        var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
+        var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
+
+        calculatedFRFs.keySet().forEach(run -> graphRunChoiceBox.getItems().add(run.toString()));
+        calculatedFRFs.get(calculatedFRFs.keySet().stream().findFirst().orElseThrow()).forEach(entry -> graphSensorChoiceBox.getItems().add(entry.getKey()));
+
+        var chosenSensorsTable = mainController.getChosenSensorsTable();
+        chosenSensorsTable.getItems().forEach(sensor -> {
+            graphSensorChoiceBox.getItems().add(sensor.getSensorName() + '"' + ((SensorProxyForTable) sensor).getId() + '"');
+        });
     }
 
     public void refreshIdsInTables(){

@@ -258,7 +258,9 @@ public class MainController {
                         },
                         (languageProperties, currentLanguage) -> {
                             changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage);
-                        }
+                        },
+                        new LanguageObserverDecorator<>(exportGraphsButton),
+                        new LanguageObserverDecorator<>(clearGraphsButton)
                 )
         );
         currentLanguage = RU;
@@ -516,7 +518,9 @@ public class MainController {
         formulaIdColumn.setOnEditCommit(event -> idManager.handleIdUpdate().handle(event));
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        graphRunChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            graphsService.drawData();
+        });
     }
 
     private List<Long> getSharedRuns() {
@@ -551,5 +555,9 @@ public class MainController {
             break;
         }
         curentChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + PROPERTY_ID + DOT + currentLanguage));
+    }
+
+    public void clearCanvas(MouseEvent event){
+        graphsService.clearGraphicsContext();
     }
 }

@@ -15,6 +15,7 @@ public abstract class Formula implements IdManager.HasId{
     @Setter
     protected FormulaType formulaType;
     @Setter
+    @Getter
     private RepresentableDataset dataset;
 
     public enum FormulaType {

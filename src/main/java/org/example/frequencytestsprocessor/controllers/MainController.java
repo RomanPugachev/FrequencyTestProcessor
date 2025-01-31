@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Canvas2DPrintable;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
@@ -43,6 +44,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -519,7 +521,12 @@ public class MainController {
         commentToFormulaColumn.setCellValueFactory(new PropertyValueFactory<>("comment"));
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         graphRunChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            graphsService.drawData();
+            System.out.println(newValue);
+            updateCanvas();
+        });
+        graphSensorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue);
+            updateCanvas();
         });
     }
 
@@ -559,5 +566,32 @@ public class MainController {
 
     public void clearCanvas(MouseEvent event){
         graphsService.clearGraphicsContext(false);
+    }
+
+    private void updateCanvas(){
+        Map<String, Canvas2DPrintable> result = new HashMap<>();
+        String run = graphRunChoiceBox.getValue();
+        String sensorStr = graphSensorChoiceBox.getValue();
+        String defaultRun = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
+        String defaultSensor = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + currentLanguage);
+        if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {
+            graphsService.updateDataSets(result, true);
+        } else {
+            //TODO: сделать проверку на наличие формулы
+            Optional<Canvas2DPrintable> dataSet = chosenSensorsTable.getItems().stream()
+                    .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(sensorStr))
+                    .map(sensor -> (Canvas2DPrintable) sensor.getData().get(run))
+                    .findFirst()
+                    .orElseGet(() -> null);
+            if (!dataSet.isPresent()) {
+                Stream<Canvas2DPrintable> tmp = formulaTable.getItems().stream()
+                        .filter(formula -> formula.getId().equals(sensorStr))
+                        .map(formula -> (Canvas2DPrintable) formula.getDataset());
+                dataSet = (tmp == null) ? null : tmp.findFirst();
+            }
+            result.put(sensorStr + " in run " + run, dataSet.orElseThrow(() -> new RuntimeException("No data found")));
+            graphsService.updateDataSets(result, true);
+        }
+
     }
 }

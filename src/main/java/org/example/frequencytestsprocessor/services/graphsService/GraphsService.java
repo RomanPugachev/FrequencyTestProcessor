@@ -81,6 +81,14 @@ public class GraphsService {
     }
 
     private void setCanvas2DPrintableDataSets(Map<String, Canvas2DPrintable> canvas2DPrintableDataSets) {
+        if (canvas2DPrintableDataSets.isEmpty()) {
+            minX = -1;
+            maxX = 1;
+            minY = -1;
+            maxY = 1;
+            this.canvas2DPrintableDataSets = canvas2DPrintableDataSets;
+            return;
+        }
         this.canvas2DPrintableDataSets = canvas2DPrintableDataSets;
         minX = Double.MAX_VALUE;
         maxX = Double.MIN_VALUE;

@@ -78,7 +78,7 @@ public class Refresher {
 
         var chosenSensorsTable = mainController.getChosenSensorsTable();
         chosenSensorsTable.getItems().forEach(sensor -> {
-            graphSensorChoiceBox.getItems().add(sensor.getSensorName() + '"' + ((SensorProxyForTable) sensor).getId() + '"');
+            graphSensorChoiceBox.getItems().add(((SensorProxyForTable) sensor).getId());
         });
     }
 

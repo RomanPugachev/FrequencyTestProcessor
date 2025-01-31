@@ -1,12 +1,16 @@
+// TODO: Debug visualization of datasets. Connect with selectors.
+
 package org.example.frequencytestsprocessor.services.graphsService;
 
 import javafx.beans.binding.Bindings;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.TextAlignment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +25,14 @@ public class GraphsService {
     private MainController mainController;
     private Canvas canvas;
     private GraphicsContext gc;
-    private Map<String, Canvas2DPrintable> canvas2DPrintableDataSets;
+    private Map<String, Canvas2DPrintable> canvas2DPrintableDataSets = new HashMap<>();
     private double minX;
     private double maxX;
     private double minY;
     private double maxY;
     private final double additionalPersentage = 0.1/2;
     private List<Paint> colorPreset;
+    private boolean showGrid=true;
 
     public GraphsService(MainController mainController) {
         this.mainController = mainController;
@@ -68,6 +73,13 @@ public class GraphsService {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
+    public void clearGraphicsContext(boolean hasFurtherProcessing) {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        if (!hasFurtherProcessing) {
+            showOnlyTextInCenter("Choose some data sets to visualize");
+        }
+    }
+
     private void setCanvas2DPrintableDataSets(Map<String, Canvas2DPrintable> canvas2DPrintableDataSets) {
         this.canvas2DPrintableDataSets = canvas2DPrintableDataSets;
         minX = Double.MAX_VALUE;
@@ -104,15 +116,40 @@ public class GraphsService {
         }
     }
 
+    public void setShowGrid(boolean showGrid) {
+        this.showGrid = showGrid;
+        redrawCanvas();
+    }
+
     private void visualizeDataSets(boolean connectPoints) {
-        clearGraphicsContext();
+        clearGraphicsContext(true);
         initializeAxes(minX, minY, maxX, maxY);
+        if (showGrid) drawGrid();
         int paintNumber = 0;
         canvas2DPrintableDataSets.values()
                 .forEach((canvas2DPrintableDataSet) -> {
                     this.plotData(canvas2DPrintableDataSet.getXData(), canvas2DPrintableDataSet.getYData(), colorPreset.get(paintNumber % colorPreset.size()), connectPoints);
                 });
     }
+
+    private void drawGrid() {
+        gc.setStroke(Paint.valueOf("gray"));
+        gc.setLineWidth(0.5);
+        double wdth = canvas.getWidth();
+        double hght = canvas.getHeight();
+        if (wdth == 0 || hght == 0) return;
+        double stepX = wdth / 10;
+        double stepY = hght / 10;
+        for (double x = 0; x <= wdth; x += stepX) {
+            gc.strokeLine(x, 0, x, hght);
+        }
+        for (double y = 9; y <= hght; y += stepY) {
+            gc.strokeLine(0, y, wdth, y);
+        }
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+    }
+
     public void generateExample(int numberOfPoints, double linearCoefficient, boolean connectPoints){
         List<Double> xData = new ArrayList<>(numberOfPoints);
         List<Double> yData = new ArrayList<>(numberOfPoints);
@@ -134,33 +171,54 @@ public class GraphsService {
         canvas2DPrintableDataSets.put("Example2", new RepresentableDataset(xData, yData) {
             @Override
             public List<Double> getXData() {
-                return xData;
+                return xData.stream().map(x -> x  - 0.3).collect(Collectors.toList());
             }
             @Override
             public List<Double> getYData() {
-                return yData.stream().map(y -> y * 2).collect(Collectors.toList());
+                return yData.stream().map(y -> y * 2 + 0.2).collect(Collectors.toList());
             }
         });
         updateDataSets(canvas2DPrintableDataSets, connectPoints);
     }
 
     private void redrawCanvas() {
-        generateExample(30, 0.1, true);
+        generateExample(3, 0.1, true);
+//        showOnlyTextInCenter("Choose some data sets to visualize");
     }
 
     private void initializeAxes(double minX, double minY, double maxX, double maxY) {
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(1);
+
+        // Draw X-axis
         gc.beginPath();
         gc.moveTo(0, canvas.getHeight() / 2);
         gc.lineTo(canvas.getWidth(), canvas.getHeight() / 2);
         gc.stroke();
         gc.closePath();
+
+        // Draw Y-axis
         gc.beginPath();
         gc.moveTo(canvas.getWidth() / 2, 0);
         gc.lineTo(canvas.getWidth() / 2, canvas.getHeight());
         gc.stroke();
         gc.closePath();
+
+        // Add labels for X-axis
+        double xStep = (maxX - minX) / 10;
+        for (int i = 0; i <= 10; i++) {
+            double x = minX + i * xStep;
+            double xPos = (i / 10.0) * canvas.getWidth();
+            gc.strokeText(String.format("%.2f", x), xPos, canvas.getHeight() / 2 + 20);
+        }
+
+        // Add labels for Y-axis
+        double yStep = (maxY - minY) / 10;
+        for (int i = 0; i <= 10; i++) {
+            double y = minY + i * yStep;
+            double yPos = canvas.getHeight() - (i / 10.0) * canvas.getHeight();
+            gc.strokeText(String.format("%.2f", y), canvas.getWidth() / 2 + 5, yPos);
+        }
     }
 
     private void plotData(List<Double> xData, List<Double> yData, Paint color, boolean connectPoints) {
@@ -170,10 +228,6 @@ public class GraphsService {
         gc.beginPath();
         double canvasWidth = canvas.getWidth();
         double canvasHeight = canvas.getHeight();
-        double minX = xData.stream().min(Double::compare).orElse(0.0);
-        double maxX = xData.stream().max(Double::compare).orElse(1.0);
-        double minY = yData.stream().min(Double::compare).orElse(0.0);
-        double maxY = yData.stream().max(Double::compare).orElse(1.0);
 
         double xRange = maxX - minX;
         double yRange = maxY - minY;
@@ -185,13 +239,13 @@ public class GraphsService {
             double x = (xData.get(i) - minX) / xRange * canvasWidth;
             double y = canvasHeight - (yData.get(i) - minY) / yRange * canvasHeight;
 
-            gc.fillOval(x - 3, y - 3, 6, 6); // Draw point
-            if(connectPoints && i > 0){
-                double prevX = (xData.get(i - 1) - minX) / xRange * canvasWidth;
-                double prevY = canvasHeight - (yData.get(i - 1) - minY) / yRange * canvasHeight;
-                gc.lineTo(x,y);
-                gc.moveTo(x,y); // ensure the path continues with line
+            if (i == 0) {
+                gc.moveTo(x, y);
+            } else {
+                gc.lineTo(x, y);
             }
+
+            gc.fillOval(x - 3, y - 3, 6, 6); // Draw point
         }
 
         if(connectPoints) {
@@ -203,5 +257,13 @@ public class GraphsService {
     private void handleMouseMoved(javafx.scene.input.MouseEvent event) {
         double mouseX = event.getX();
         double mouseY = event.getY();
+    }
+
+    private void showOnlyTextInCenter(String text) {
+        clearGraphicsContext(true);
+        gc.setFill(Color.BLACK);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText(text, canvas.getWidth() / 2, canvas.getHeight() / 2);
     }
 }

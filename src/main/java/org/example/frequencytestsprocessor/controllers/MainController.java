@@ -558,6 +558,6 @@ public class MainController {
     }
 
     public void clearCanvas(MouseEvent event){
-        graphsService.clearGraphicsContext();
+        graphsService.clearGraphicsContext(false);
     }
 }

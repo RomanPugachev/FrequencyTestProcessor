@@ -1,5 +1,3 @@
-// TODO: Debug visualization of datasets. Connect with selectors.
-
 package org.example.frequencytestsprocessor.services.graphsService;
 
 import javafx.beans.binding.Bindings;
@@ -21,6 +19,8 @@ import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Repre
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+// TODO: implement Bode diagram visualization
 public class GraphsService {
     private MainController mainController;
     private Canvas canvas;

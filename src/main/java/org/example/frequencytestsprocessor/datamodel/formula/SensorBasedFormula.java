@@ -56,6 +56,7 @@ public class SensorBasedFormula extends Formula {
     }
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
+        // TODO: Debug this case: (F2-F1)/INTEGRATE(F0)
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }

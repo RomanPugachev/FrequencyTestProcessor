@@ -9,6 +9,7 @@ import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import java.util.Map;
 import java.util.Set;
 
+import static org.example.frequencytestsprocessor.commons.CommonMethods.getDecodedProperty;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
@@ -61,10 +62,10 @@ public class Refresher {
         var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
 
         graphSensorChoiceBox.getItems().clear();
-        graphSensorChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + mainController.getCurrentLanguage()));
+        graphSensorChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphSensorChoiceBox.setValue(graphSensorChoiceBox.getItems().getFirst());
         graphRunChoiceBox.getItems().clear();
-        graphRunChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
+        graphRunChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
     }
 

@@ -3,15 +3,17 @@ package org.example.frequencytestsprocessor.commons;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.OTHER;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -52,6 +54,17 @@ public class CommonMethods {
                 System.out.println(inputStreamReader.readLine());
             }
         }
+    }
+
+    public static String getDecodedProperty(Properties lp, String FULL_PROPERTY_ID) {
+        String text = lp.getProperty(FULL_PROPERTY_ID);
+        if (text != null) {
+            byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+            return new String(bytes, StandardCharsets.UTF_8);
+        } else {
+            throw new RuntimeException("Ошибка при чтении файла с языком");
+        }
+
     }
     public static String getTextFileContent(String pathToFile) {
         try (BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(new FileInputStream(pathToFile)))){

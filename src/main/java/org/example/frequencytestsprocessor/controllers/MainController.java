@@ -374,7 +374,6 @@ public class MainController {
     }
 
     private void performCalculations(Collection<Long> chosenRuns) {
-        // TODO: debug this
         formulaTable.getItems().forEach(formula -> {
             formula.validate(formula.getFormulaString());
         });
@@ -393,13 +392,8 @@ public class MainController {
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
-        graphRunChoiceBox.getItems().clear(); //Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
-        // TODO: implement adding of calculated FRFs in choice boxes. Implement visualization chosen options
+        graphRunChoiceBox.getItems().clear(); // Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
         refresher.refreshGraphComboboxes(calculatedFRFs);
-//        graphRunChoiceBox.getItems().addAll(calculatedFRFs.keySet());
-//        graphSensorChoiceBox.getItems().
-//        graphSensorChoiceBox.getItems().add
-//        graphSensorChoiceBox.
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();
@@ -554,14 +548,18 @@ public class MainController {
 
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage) {
         Iterator<String> it = curentChoiceBox.getItems().iterator();
+        boolean chooseDefault = false;
         while (it.hasNext()) {
             String current = it.next();
             if (current.endsWith("...")) {
+                if (curentChoiceBox.getValue().equals(current)) chooseDefault = true;
                 it.remove();
+                break;
             }
-            break;
         }
-        curentChoiceBox.getItems().add(languageProperties.getProperty(OTHER + DOT + PROPERTY_ID + DOT + currentLanguage));
+        String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + PROPERTY_ID + DOT + currentLanguage);
+        curentChoiceBox.getItems().add(decodedText);
+        if (chooseDefault) curentChoiceBox.setValue(decodedText);
     }
 
     public void clearCanvas(MouseEvent event){
@@ -570,24 +568,29 @@ public class MainController {
 
     private void updateCanvas(){
         Map<String, Canvas2DPrintable> result = new HashMap<>();
-        String run = graphRunChoiceBox.getValue();
-        String sensorStr = graphSensorChoiceBox.getValue();
-        String defaultRun = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
-        String defaultSensor = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + currentLanguage);
+        Long run;
+        String sensorStr;
+        String defaultRun = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
+        String defaultSensor = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + currentLanguage);
+        try {
+            run = Long.valueOf(graphRunChoiceBox.getValue());
+            sensorStr = graphSensorChoiceBox.getValue();
+        } catch (Exception e) {
+            System.out.println("Can't update canvas as no run or sensor selected");
+            return;
+        }
         if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {
             graphsService.updateDataSets(result, true);
         } else {
-            //TODO: сделать проверку на наличие формулы
             Optional<Canvas2DPrintable> dataSet = chosenSensorsTable.getItems().stream()
                     .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(sensorStr))
                     .map(sensor -> (Canvas2DPrintable) sensor.getData().get(run))
-                    .findFirst()
-                    .orElseGet(() -> null);
+                    .findFirst();
             if (!dataSet.isPresent()) {
-                Stream<Canvas2DPrintable> tmp = formulaTable.getItems().stream()
-                        .filter(formula -> formula.getId().equals(sensorStr))
-                        .map(formula -> (Canvas2DPrintable) formula.getDataset());
-                dataSet = (tmp == null) ? null : tmp.findFirst();
+                dataSet = calculatedFRFs.get(run).stream()
+                        .filter((entry) -> entry.getKey().equals(sensorStr))
+                        .map(entry -> (Canvas2DPrintable) entry.getValue())
+                        .findFirst();
             }
             result.put(sensorStr + " in run " + run, dataSet.orElseThrow(() -> new RuntimeException("No data found")));
             graphsService.updateDataSets(result, true);

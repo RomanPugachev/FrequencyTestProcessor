@@ -15,7 +15,7 @@ public abstract class RepresentableDataset implements Canvas2DPrintable{
     private Long dataSetRunNumber;
     @Getter
     @Setter
-    private String datasetDescription;
+    private String dataSetDescription;
 
     @Getter
     protected List<Double> xData;

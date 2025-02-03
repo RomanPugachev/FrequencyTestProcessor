@@ -21,7 +21,7 @@ public class SensorBasedFormula extends Formula {
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
-        super("1", "This is test formula", FormulaType.SENSOR_BASED);
+        super("(F2-F1)/F0", "Add some comments here", FormulaType.SENSOR_BASED);
         updateInformation();
     }
 
@@ -53,10 +53,6 @@ public class SensorBasedFormula extends Formula {
             if (token.getType().equals(Token.Type.IDENTIFIER)) dependentIds.add((String) token.getValue());
         });
         return dependentIds;
-    }
-
-    public RepresentableDataset getDataset(Long runNumber) {
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
@@ -114,7 +110,7 @@ public class SensorBasedFormula extends Formula {
         }
 
         if (stack.size() != 1) throw new IllegalArgumentException("Invalid formula.");
-        return (FRF) stack.pop(); // Example conversion to dataset
+        return (FRF) stack.pop();
     }
 
     private Object applyOperator(String operator, Object a, Object b) {

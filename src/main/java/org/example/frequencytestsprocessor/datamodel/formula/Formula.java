@@ -14,9 +14,6 @@ public abstract class Formula implements IdManager.HasId{
     protected String comment;
     @Setter
     protected FormulaType formulaType;
-    @Setter
-    @Getter
-    private RepresentableDataset dataset;
 
     public enum FormulaType {
         ANALYTICAL,
@@ -41,5 +38,4 @@ public abstract class Formula implements IdManager.HasId{
     }
     public abstract boolean validate(String formulaString);
     public abstract void setFormulaString(String formulaString);
-    public abstract RepresentableDataset getDataset(Long runNumber);
 }

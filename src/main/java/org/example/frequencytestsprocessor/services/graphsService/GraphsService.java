@@ -190,7 +190,7 @@ public class GraphsService {
     }
 
     private void redrawCanvas() {
-        generateExample(3, 0.1, true);
+        visualizeDataSets(true);
 //        showOnlyTextInCenter("Choose some data sets to visualize");
     }
 

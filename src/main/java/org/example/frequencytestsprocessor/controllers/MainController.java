@@ -265,10 +265,10 @@ public class MainController {
                         (languageProperties, currentLanguage) -> {
                             changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage);
                         },
-                        (languageProperties, currentLanguage) -> {
-                            // TODO: implement refreshing language of type choice
-                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage);
-                        },
+//                        (languageProperties, currentLanguage) -> {
+//                            // TODO: implement refreshing language of type choice
+//                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage);
+//                        },
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton)
                 )

@@ -36,6 +36,7 @@ public class DiscreteFRF implements FRF{
         List<Double> frequencies = this.getFrequencies();
         result.setFrequencies(frequencies);
         List<Complex> resultComplexValues = new ArrayList<>(this.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < this.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.multiplicationResult(this.getComplexValues().get(i), new Complex(0, frequencies.get(i) * 2 * Math.PI)));
         }
@@ -48,6 +49,7 @@ public class DiscreteFRF implements FRF{
         List<Double> frequencies = this.getFrequencies();
         result.setFrequencies(frequencies);
         List<Complex> resultComplexValues = new ArrayList<>(this.getFrequencies().size());
+        result.setComplexValues(resultComplexValues);
         for (int i = 0; i < this.getFrequencies().size(); i++) {
             resultComplexValues.add(Complex.multiplicationResult(this.getComplexValues().get(i), new Complex(0, 1 / (frequencies.get(i) * 2 * Math.PI))));
         }

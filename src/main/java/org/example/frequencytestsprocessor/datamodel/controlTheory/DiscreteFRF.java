@@ -12,6 +12,13 @@ import java.util.List;
 public class DiscreteFRF implements FRF{
     private List<Double> frequencies;
     private List<Complex> complexValues;
+    private FRF.GraphType graphType = GraphType.NYQUIST;
+
+    @Override
+    public DiscreteFRF setGraphType(GraphType graphType) {
+        this.graphType = graphType;
+        return this;
+    }
 
     protected DiscreteFRF(){
         this.frequencies = new ArrayList<>();

@@ -25,6 +25,9 @@ public class StaticStrings {
     public static final String OTHER = "other";
     public static final String DEFAULT_GRAPHS_SENSOR_CHOICE = "defaultGraphsSensorChoice";
     public static final String DEFAULT_GRAPHS_RUN_CHOICE = "defaultGraphsRunChoice";
+    public static final String DEFAULT_GRAPHS_TYPE_CHOICE = "defaultGraphsTypeChoice";
+    public static final String BODE = "bode";
+    public static final String NYQUIST = "nyquist";
 
 
 

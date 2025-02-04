@@ -15,12 +15,18 @@ public interface FRF extends Canvas2DPrintable {
     void setComplexValues(List<Complex> complexValues);
     public FRF integrate();
     public FRF differentiate();
-
+    public FRF setGraphType(GraphType graphType);
     default List<Double> getXData() {
         return getComplexValues().stream().map(Complex::getReal).toList();
     }
 
     default List<Double> getYData() {
         return getComplexValues().stream().map(Complex::getImag).toList();
+    }
+
+    enum GraphType {
+        BODE_ALTITUDE,
+        BODE_PHASE,
+        NYQUIST
     }
 }

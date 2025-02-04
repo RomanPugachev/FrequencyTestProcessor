@@ -58,6 +58,7 @@ public class Refresher {
     public void refreshGraphComboboxes() {
         var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
         var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
+        var graphTypeChoiceBox = mainController.getGraphTypeChoiceBox();
         var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
 
         graphSensorChoiceBox.getItems().clear();
@@ -66,15 +67,24 @@ public class Refresher {
         graphRunChoiceBox.getItems().clear();
         graphRunChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
+        graphTypeChoiceBox.getItems().clear();
+        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + mainController.getCurrentLanguage()));
+        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
+        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT + mainController.getCurrentLanguage()));
+        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT + mainController.getCurrentLanguage()));
+
     }
 
     public void refreshGraphComboboxes(Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         refreshGraphComboboxes();
         var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
         var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
+        var graphTypeChoiceBox = mainController.getGraphTypeChoiceBox();
+
 
         calculatedFRFs.keySet().forEach(run -> graphRunChoiceBox.getItems().add(run.toString()));
         calculatedFRFs.get(calculatedFRFs.keySet().stream().findFirst().orElseThrow()).forEach(entry -> graphSensorChoiceBox.getItems().add(entry.getKey()));
+
 
         var chosenSensorsTable = mainController.getChosenSensorsTable();
         chosenSensorsTable.getItems().forEach(sensor -> {

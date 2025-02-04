@@ -156,6 +156,10 @@ public class MainController {
     @FXML
     private HBox graphToolBar;
 
+    @Getter
+    @FXML
+    private ChoiceBox<String> graphTypeChoiceBox;
+
     @FXML
     private AnchorPane graphsAnchorPane;
 
@@ -260,6 +264,10 @@ public class MainController {
                         },
                         (languageProperties, currentLanguage) -> {
                             changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage);
+                        },
+                        (languageProperties, currentLanguage) -> {
+                            // TODO: implement refreshing language of type choice
+                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage);
                         },
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton)
@@ -447,6 +455,7 @@ public class MainController {
         assert graphRunChoiceBox != null : "fx:id=\"graphRunChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphSensorChoiceBox != null : "fx:id=\"graphSensorChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphTypeChoiceBox != null : "fx:id=\"graphTypeChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsCanvas != null : "fx:id=\"graphsCanvas\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -547,6 +556,7 @@ public class MainController {
     }
 
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage) {
+        // TODO: implement refreshing language of type choice
         Iterator<String> it = curentChoiceBox.getItems().iterator();
         boolean chooseDefault = false;
         while (it.hasNext()) {

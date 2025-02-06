@@ -2,8 +2,7 @@ package org.example.frequencytestsprocessor.services.graphsService;
 
 import javafx.beans.binding.Bindings;
 import javafx.geometry.VPos;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.LineChart;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -23,8 +22,7 @@ import java.util.stream.Collectors;
 // TODO: implement Bode diagram visualization
 public class GraphsService {
     private MainController mainController;
-    private Canvas canvas;
-    private GraphicsContext gc;
+    private LineChart lineChart;
     private Map<String, Canvas2DPrintable> canvas2DPrintableDataSets = new HashMap<>();
     private double minX;
     private double maxX;
@@ -44,9 +42,8 @@ public class GraphsService {
     }
 
     public void initializeService() {
-        canvas = mainController.getGraphsCanvas();
-        gc = canvas.getGraphicsContext2D();
-        canvas.setOnMouseMoved(event -> handleMouseMoved(event));
+        lineChart = mainController.getGraphsLineChart();
+        lineChart.setOnMouseMoved(event -> handleMouseMoved(event));
         colorPreset = new ArrayList<>();
         colorPreset.add(Paint.valueOf("red"));
         colorPreset.add(Paint.valueOf("blue"));
@@ -54,27 +51,22 @@ public class GraphsService {
         colorPreset.add(Paint.valueOf("yellow"));
         colorPreset.add(Paint.valueOf("orange"));
 
-        canvas.widthProperty().bind(mainController.getGraphsVBox().widthProperty());
-        canvas.heightProperty().bind(Bindings.createDoubleBinding(() -> {
-            return mainController.getGraphsVBox().getHeight() - mainController.getGraphToolBar().getHeight();
-        }, mainController.getGraphsVBox().heightProperty(), mainController.getGraphToolBar().heightProperty()));
-
-        canvas.widthProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
-        canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
+        lineChart.widthProperty().addListener((observable, oldValue, newValue) -> redrawLineChart());
+        lineChart.heightProperty().addListener((observable, oldValue, newValue) -> redrawLineChart());
         initializeAxes(-1, -1, 1, 1);
         updateDataSets(new HashMap<>(), true);
     }
 
-    public void saveCanvasToFile(String absPath){
+    public void saveLineChartToFile(String absPath){
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public void clearGraphicsContext() {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        throw new UnsupportedOperationException("Now this function is not implemented");
     }
 
     public void clearGraphicsContext(boolean hasFurtherProcessing) {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.clearRect(0, 0, lineChart.getWidth(), lineChart.getHeight());
         if (!hasFurtherProcessing) {
             showOnlyTextInCenter("Choose some data sets to visualize");
         }
@@ -126,7 +118,7 @@ public class GraphsService {
 
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
-        redrawCanvas();
+        redrawLineChart();
     }
 
     private void visualizeDataSets(boolean connectPoints) {
@@ -141,21 +133,7 @@ public class GraphsService {
     }
 
     private void drawGrid() {
-        gc.setStroke(Paint.valueOf("gray"));
-        gc.setLineWidth(0.5);
-        double wdth = canvas.getWidth();
-        double hght = canvas.getHeight();
-        if (wdth == 0 || hght == 0) return;
-        double stepX = wdth / 10;
-        double stepY = hght / 10;
-        for (double x = 0; x <= wdth; x += stepX) {
-            gc.strokeLine(x, 0, x, hght);
-        }
-        for (double y = 9; y <= hght; y += stepY) {
-            gc.strokeLine(0, y, wdth, y);
-        }
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public void generateExample(int numberOfPoints, double linearCoefficient, boolean connectPoints){
@@ -189,77 +167,16 @@ public class GraphsService {
         updateDataSets(canvas2DPrintableDataSets, connectPoints);
     }
 
-    private void redrawCanvas() {
+    private void redrawLineChart() {
         visualizeDataSets(true);
-//        showOnlyTextInCenter("Choose some data sets to visualize");
     }
 
     private void initializeAxes(double minX, double minY, double maxX, double maxY) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-
-        // Draw X-axis
-        gc.beginPath();
-        gc.moveTo(0, canvas.getHeight() / 2);
-        gc.lineTo(canvas.getWidth(), canvas.getHeight() / 2);
-        gc.stroke();
-        gc.closePath();
-
-        // Draw Y-axis
-        gc.beginPath();
-        gc.moveTo(canvas.getWidth() / 2, 0);
-        gc.lineTo(canvas.getWidth() / 2, canvas.getHeight());
-        gc.stroke();
-        gc.closePath();
-
-        // Add labels for X-axis
-        double xStep = (maxX - minX) / 10;
-        for (int i = 0; i <= 10; i++) {
-            double x = minX + i * xStep;
-            double xPos = (i / 10.0) * canvas.getWidth();
-            gc.strokeText(String.format("%.2f", x), xPos, canvas.getHeight() / 2 + 20);
-        }
-
-        // Add labels for Y-axis
-        double yStep = (maxY - minY) / 10;
-        for (int i = 0; i <= 10; i++) {
-            double y = minY + i * yStep;
-            double yPos = canvas.getHeight() - (i / 10.0) * canvas.getHeight();
-            gc.strokeText(String.format("%.2f", y), canvas.getWidth() / 2 + 5, yPos);
-        }
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private void plotData(List<Double> xData, List<Double> yData, Paint color, boolean connectPoints) {
-        if (color == null) {
-            color = colorPreset.get(new Random().nextInt(colorPreset.size()));
-        }
-        gc.beginPath();
-        double canvasWidth = canvas.getWidth();
-        double canvasHeight = canvas.getHeight();
-
-        double xRange = maxX - minX;
-        double yRange = maxY - minY;
-
-        if (xRange == 0.0) xRange = 1.0;  // Avoid division by zero or scaling issues when all x-values the same.
-        if (yRange == 0.0) yRange = 1.0;  // Avoid division by zero or scaling issues when all y-values the same.
-
-        for (int i = 0; i < xData.size(); i++) {
-            double x = (xData.get(i) - minX) / xRange * canvasWidth;
-            double y = canvasHeight - (yData.get(i) - minY) / yRange * canvasHeight;
-
-            if (i == 0) {
-                gc.moveTo(x, y);
-            } else {
-                gc.lineTo(x, y);
-            }
-
-            gc.fillOval(x - 3, y - 3, 6, 6); // Draw point
-        }
-
-        if(connectPoints) {
-            gc.stroke();
-        }
-        gc.closePath();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private void handleMouseMoved(javafx.scene.input.MouseEvent event) {
@@ -267,11 +184,4 @@ public class GraphsService {
         double mouseY = event.getY();
     }
 
-    private void showOnlyTextInCenter(String text) {
-        clearGraphicsContext(true);
-        gc.setFill(Color.BLACK);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.fillText(text, canvas.getWidth() / 2, canvas.getHeight() / 2);
-    }
 }

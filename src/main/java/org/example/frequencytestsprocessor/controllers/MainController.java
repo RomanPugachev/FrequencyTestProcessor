@@ -7,7 +7,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -165,7 +165,7 @@ public class MainController {
 
     @Getter
     @FXML
-    private Canvas graphsCanvas;
+    private LineChart graphsLineChart;
 
     @Getter
     @FXML
@@ -267,12 +267,9 @@ public class MainController {
                         },
                         (languageProperties, currentLanguage, previousLanguage) -> {
                             changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE, languageProperties, currentLanguage, previousLanguage);
-                        },
-                        (languageProperties, currentLanguage, previousLanguage) -> {
                             changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST, languageProperties, currentLanguage, previousLanguage);
-                        },
-                        (languageProperties, currentLanguage, previousLanguage) -> {
                             changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
+
                         },
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton)
@@ -462,7 +459,7 @@ public class MainController {
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphTypeChoiceBox != null : "fx:id=\"graphTypeChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsCanvas != null : "fx:id=\"graphsCanvas\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChart != null : "fx:id=\"graphsLineChart\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -530,11 +527,11 @@ public class MainController {
         commentToFormulaColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         graphRunChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(newValue);
-            updateCanvas();
+            updateLineChart();
         });
         graphSensorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(newValue);
-            updateCanvas();
+            updateLineChart();
         });
     }
 
@@ -578,11 +575,11 @@ public class MainController {
         if (chooseDefault) curentChoiceBox.setValue(decodedText);
     }
 
-    public void clearCanvas(MouseEvent event){
+    public void clearLineChart(MouseEvent event){
         graphsService.clearGraphicsContext(false);
     }
 
-    private void updateCanvas(){
+    private void updateLineChart(){
         Map<String, Canvas2DPrintable> result = new HashMap<>();
         Long run;
         String sensorStr;
@@ -592,7 +589,7 @@ public class MainController {
             run = Long.valueOf(graphRunChoiceBox.getValue());
             sensorStr = graphSensorChoiceBox.getValue();
         } catch (Exception e) {
-            System.out.println("Can't update canvas as no run or sensor selected");
+            System.out.println("Can't update lineChart as no run or sensor selected");
             return;
         }
         if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {

@@ -1,18 +1,41 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
-@Data
-public abstract class Formula {
-    String content;
-    String id;
-    String description;
+@Getter
+public abstract class Formula implements IdManager.HasId{
+    protected String formulaString;
+    @Setter
+    protected String id;
+    @Setter
+    protected String comment;
+    @Setter
+    protected FormulaType formulaType;
 
-    FormulaType formulaType;
-//     To be continued
     public enum FormulaType {
         ANALYTICAL,
-        SENSOR_BASED
+        SENSOR_BASED,
+        UNKNOWN
     }
+    public Formula() {
+        formulaString = "";
+        id = "";
+        comment = "";
+        this.formulaType = FormulaType.UNKNOWN;
+    }
+    public Formula(String formulaString, String comment) {
+        this.formulaString = formulaString;
+        this.comment = comment;
+        this.formulaType = FormulaType.UNKNOWN;
+    }
+    public Formula(String formulaString, String comment, FormulaType formulaType) {
+        this.formulaString = formulaString;
+        this.comment = comment;
+        this.formulaType = formulaType;
+    }
+    public abstract boolean validate(String formulaString);
+    public abstract void setFormulaString(String formulaString);
 }

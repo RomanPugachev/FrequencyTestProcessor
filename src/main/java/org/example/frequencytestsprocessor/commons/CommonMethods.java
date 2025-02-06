@@ -3,15 +3,17 @@ package org.example.frequencytestsprocessor.commons;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.OTHER;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -31,8 +33,19 @@ public class CommonMethods {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    public static void showSuccess(String title, String header, String content){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    public static void showAlertIdAlreadyExists(String detailedMessage){
+       showAlert("Ошибка", "Ошибка повторения существующего элемента", detailedMessage);
+    }
     public static void showAlertUnimplemented(){
-        showAlert("Ошибка", "Ошибка произведения рассчета", "Пока что функция произведения рассчёта не реализована");
+        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();
@@ -41,6 +54,17 @@ public class CommonMethods {
                 System.out.println(inputStreamReader.readLine());
             }
         }
+    }
+
+    public static String getDecodedProperty(Properties lp, String FULL_PROPERTY_ID) {
+        String text = lp.getProperty(FULL_PROPERTY_ID);
+        if (text != null) {
+            byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+            return new String(bytes, StandardCharsets.UTF_8);
+        } else {
+            throw new RuntimeException("Ошибка при чтении файла с языком");
+        }
+
     }
     public static String getTextFileContent(String pathToFile) {
         try (BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(new FileInputStream(pathToFile)))){
@@ -68,33 +92,7 @@ public class CommonMethods {
         SYSTEM
     }
 
-    public static String generateId (List<String> sensorsIDs) {
-        long minId = Long.MAX_VALUE;
-        long maxId = Long.MIN_VALUE;
-        Long numRows = (long) sensorsIDs.size();
-        if (numRows.equals(0L)) return "F0";
-        Set<Long> existingNums = new HashSet<>();
-        Pattern regexPattern = Pattern.compile("^F\\d+$");
-        // Searching for existing indexes
-        for (String s : sensorsIDs) {
-            if (regexPattern.matcher(s).matches()) {
-                Long curNum = Long.parseLong(s.substring(1));
-                existingNums.add(curNum);
-                minId = Math.min(minId, curNum);
-                maxId = Math.max(maxId, curNum);
-            }
-        }
-        // Generating new index
-        if (minId > 0L) {
-            return "F0";
-        } else {
-            Long newId = minId + 1L;
-            while (existingNums.contains(newId)) {
-                newId++;
-            }
-            return "F" + newId;
-        }
-    }
+
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";
 //        String pathJava = "C:\\Temp\\test_uff.uff";

@@ -1,9 +1,7 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.MainController;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;

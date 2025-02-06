@@ -16,8 +16,8 @@ public class LanguageNotifier {
     @Getter
     private PropertyService lanaguagePropertyService;
 
-    {
-        lanaguagePropertyService = new PropertyService(PATH_TO_LANGUAGES);
+    public LanguageNotifier (String pathToLanguages) {
+        lanaguagePropertyService = new PropertyService(pathToLanguages);
     }
 
     public void addObserver(LanguageObserver observer) {

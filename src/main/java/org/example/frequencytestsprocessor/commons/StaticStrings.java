@@ -12,15 +12,22 @@ public class StaticStrings {
     public static final String PROPERTIES = "properties";
     public static final String MAIN_APPLICATION_NAME = "mainApplicationName";
     public static final String UFF_STATIC_STRING = "UFF";
-    public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language.properties";
+    public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language";
     public static final String PATH_OF_PYTHON_SCRIPT_FOR_UFF = "src/main/resources/org/example/frequencytestsprocessor/pythonScripts/UFFReadingUtils.py";
     public static final String BASE_UFF_TYPES_CALSS_PATH = "org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF";
+    public static final String CALCULATIONS_DIALOG_TITLE = "tempStage.calculationDialog";
     public static final String TYPES_OF_DATASETS = "typesOfDatasets";
     public static final String TO_BE_PROCESSED_DATASETS_INDICES = "toBeProcessedDatasetsIndices";
     public static final String DATASETS = "datasets";
     public static final String DEFAULT = "default";
     public static final String DEFAULT_SECTION_ID = "section.default";
     public static final String DEFAULT_TYPE_ID = "type.default";
+    public static final String OTHER = "other";
+    public static final String DEFAULT_GRAPHS_SENSOR_CHOICE = "defaultGraphsSensorChoice";
+    public static final String DEFAULT_GRAPHS_RUN_CHOICE = "defaultGraphsRunChoice";
+    public static final String DEFAULT_GRAPHS_TYPE_CHOICE = "defaultGraphsTypeChoice";
+    public static final String BODE = "bode";
+    public static final String NYQUIST = "nyquist";
 
 
 

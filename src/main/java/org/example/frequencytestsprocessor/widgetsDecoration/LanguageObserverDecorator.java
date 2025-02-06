@@ -78,6 +78,16 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
                     throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                 } break;
             }
+            case CheckBox checkBox -> {
+                text = languageProperties.getProperty(key + currentLanguage);
+                if (text != null) {
+                    byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                    String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                    ((CheckBox) widget).setText(decodedText);
+                } else {
+                    throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                } break;
+            }
             case MenuBar menuBar -> {
                 for (Menu menu : menuBar.getMenus()) {
                     updateMenu(menu, languageProperties, currentLanguage, key);

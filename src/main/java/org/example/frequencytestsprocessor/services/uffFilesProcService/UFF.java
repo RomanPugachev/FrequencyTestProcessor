@@ -6,16 +6,13 @@ import jep.Jep;
 import lombok.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.example.frequencytestsprocessor.MainController;
+import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF151;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
 
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 

@@ -247,7 +247,7 @@ public class MainController {
                         new LanguageObserverDecorator<>(chosenFileLabel),
                         SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
                         Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
-                        (languageProperties, currentLanguage) -> {
+                        (languageProperties, currentLanguage,previousLanguage) -> {
                             Section currentSection = sectionComboBox.getValue();
                             SensorDataType currentType = typeComboBox.getValue();
                             sectionComboBox.getItems().remove(currentSection);
@@ -259,16 +259,21 @@ public class MainController {
                         new LanguageObserverDecorator<>(chosenSensorsTable),
                         new LanguageObserverDecorator<>(formulaTable),
                         new LanguageObserverDecorator<>(callPerformCalculationsDialogButton),
-                        (languageProperties, currentLanguage) -> {
-                            changeDefaultGraphChoice(graphSensorChoiceBox, DEFAULT_GRAPHS_SENSOR_CHOICE, languageProperties, currentLanguage);
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            changeDefaultGraphChoice(graphSensorChoiceBox, DEFAULT_GRAPHS_SENSOR_CHOICE, languageProperties, currentLanguage,previousLanguage);
                         },
-                        (languageProperties, currentLanguage) -> {
-                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage);
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_RUN_CHOICE, languageProperties, currentLanguage, previousLanguage);
                         },
-//                        (languageProperties, currentLanguage) -> {
-//                            // TODO: implement refreshing language of type choice
-//                            changeDefaultGraphChoice(graphRunChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage);
-//                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE, languageProperties, currentLanguage, previousLanguage);
+                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST, languageProperties, currentLanguage, previousLanguage);
+                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
+                        },
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton)
                 )
@@ -555,13 +560,14 @@ public class MainController {
         }
     }
 
-    private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage) {
+    private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage, String previousLanguage) {
         // TODO: implement refreshing language of type choice
         Iterator<String> it = curentChoiceBox.getItems().iterator();
+        String previousValue = getDecodedProperty(languageProperties, OTHER + DOT + PROPERTY_ID + DOT + previousLanguage);
         boolean chooseDefault = false;
         while (it.hasNext()) {
             String current = it.next();
-            if (current.endsWith("...")) {
+            if (current.equals(previousValue)) {
                 if (curentChoiceBox.getValue().equals(current)) chooseDefault = true;
                 it.remove();
                 break;

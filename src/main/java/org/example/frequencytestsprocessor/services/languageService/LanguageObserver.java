@@ -5,5 +5,5 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 public interface LanguageObserver {
-    void updateLanguage(Properties languageProperties, String currentLanguage);
+    void updateLanguage(Properties languageProperties, String currentLanguage, String previousLanguage);
 }

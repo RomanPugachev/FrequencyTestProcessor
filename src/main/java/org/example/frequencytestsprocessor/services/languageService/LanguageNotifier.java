@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
-import static org.example.frequencytestsprocessor.commons.StaticStrings.RU;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 public class LanguageNotifier {
     private String currentLanguage = RU;
+    private String previousLanguage = EN;
     private List<LanguageObserver> observers = new ArrayList<>();
     @Getter
     private PropertyService lanaguagePropertyService;
@@ -34,11 +34,12 @@ public class LanguageNotifier {
 
     public void notifyObservers() {
         for (LanguageObserver observer : observers) {
-            observer.updateLanguage(lanaguagePropertyService.getProperties(), currentLanguage);
+            observer.updateLanguage(lanaguagePropertyService.getProperties(), currentLanguage, previousLanguage);
         }
     }
 
     public void changeLanguage(String newLanguage) {
+        previousLanguage = currentLanguage;
         currentLanguage = newLanguage;
         notifyObservers();
     }

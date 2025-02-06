@@ -93,7 +93,7 @@ public class PerformingCalculationsDialogController {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/calculationsFileDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
-                        (languageProperties, languageToSet) -> {
+                        (languageProperties, languageToSet, previousLanguage) -> {
                             String key = availableRunsText.getId() + DOT;
                             String text = languageProperties.getProperty(key + languageToSet);
                             if (text != null) {
@@ -104,7 +104,7 @@ public class PerformingCalculationsDialogController {
                                 throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                             }
                         },
-                        (languageProperties, languageToSet) -> {
+                        (languageProperties, languageToSet, previousLanguage) -> {
                             String key = insertRunsForCalculationLabelTooltip.getId() + DOT;
                             String text = languageProperties.getProperty(key + languageToSet);
                             if (text != null) {

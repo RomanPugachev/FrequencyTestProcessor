@@ -16,7 +16,7 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
     }
 
     @Override
-    public void updateLanguage(Properties languageProperties, String currentLanguage) {
+    public void updateLanguage(Properties languageProperties, String currentLanguage, String previousLanguage) {
         String key = widget.getId() + DOT;
         String text;
         switch (widget) {

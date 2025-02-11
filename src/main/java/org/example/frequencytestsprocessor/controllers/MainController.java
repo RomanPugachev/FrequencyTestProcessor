@@ -18,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -144,6 +145,9 @@ public class MainController {
     @FXML
     private ContextMenu formulasContextMenu;
 
+    @FXML
+    private Button graphPinButton;
+
     @Getter
     @FXML
     private ChoiceBox<String> graphRunChoiceBox;
@@ -165,9 +169,19 @@ public class MainController {
 
     @Getter
     @FXML
-    private LineChart graphsLineChart;
+    private LineChart<?, ?> graphsLineChartBode;
 
     @Getter
+    @FXML
+    private LineChart<?, ?> graphsLineChartBodeAmplitude;
+
+    @Getter
+    @FXML
+    private LineChart<?, ?> graphsLineChartBodePhase;
+
+    @FXML
+    private StackPane graphsStackPane;
+
     @FXML
     private VBox graphsVBox;
 
@@ -418,6 +432,11 @@ public class MainController {
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
             fileDialogButton.setGraphic(imageView);
+            imageView = new ImageView(mainApplication.getImage("images/" + "pin.png"));
+            imageView.setFitWidth(20);
+            imageView.setFitHeight(20);
+            imageView.setPreserveRatio(true);
+            graphPinButton.setGraphic(imageView);
 
         } catch (Exception e) {
             System.err.println("Error loading image: " + e.getMessage());
@@ -454,12 +473,16 @@ public class MainController {
         assert formulaStringColumn != null : "fx:id=\"formulaStringColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaTable != null : "fx:id=\"formulaTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulasContextMenu != null : "fx:id=\"formulasContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphPinButton != null : "fx:id=\"graphPinButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphRunChoiceBox != null : "fx:id=\"graphRunChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphSensorChoiceBox != null : "fx:id=\"graphSensorChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphTypeChoiceBox != null : "fx:id=\"graphTypeChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsLineChart != null : "fx:id=\"graphsLineChart\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChartBode != null : "fx:id=\"graphsLineChartBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChartBodeAmplitude != null : "fx:id=\"graphsLineChartBodeAmplitude\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChartBodePhase != null : "fx:id=\"graphsLineChartBodePhase\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsStackPane != null : "fx:id=\"graphsStackPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -576,7 +599,7 @@ public class MainController {
     }
 
     public void clearLineChart(MouseEvent event){
-        graphsService.clearGraphicsContext(false);
+        graphsService.clearCharts();
     }
 
     private void updateLineChart(){
@@ -593,7 +616,8 @@ public class MainController {
             return;
         }
         if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {
-            graphsService.updateDataSets(result, true);
+            // TODO: rework this case
+//            graphsService.updateDataSets(result);
         } else {
             Optional<Canvas2DPrintable> dataSet = chosenSensorsTable.getItems().stream()
                     .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(sensorStr))
@@ -606,7 +630,8 @@ public class MainController {
                         .findFirst();
             }
             result.put(sensorStr + " in run " + run, dataSet.orElseThrow(() -> new RuntimeException("No data found")));
-            graphsService.updateDataSets(result, true);
+            // TODO: implement this case
+//            graphsService.updateDataSets(result, true);
         }
 
     }

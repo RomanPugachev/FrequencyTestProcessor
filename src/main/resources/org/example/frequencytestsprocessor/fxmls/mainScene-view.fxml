@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
@@ -18,6 +17,7 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -183,20 +183,47 @@
                                     </ChoiceBox>
                                     <ChoiceBox fx:id="graphTypeChoiceBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
-                                          <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
+                                          <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
                                        </HBox.margin>
                                     </ChoiceBox>
+                                    <Button fx:id="graphPinButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="25.0" maxWidth="25.0" minHeight="10.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#callFileDialog" prefHeight="25.0" prefWidth="25.0" text="">
+                                       <font>
+                                          <Font size="7.5" />
+                                       </font>
+                                       <HBox.margin>
+                                          <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
+                                       </HBox.margin>
+                                    </Button>
                                  </children>
                               </HBox>
-                              <Canvas fx:id="graphsCanvas" height="200.0" width="200.0" />
-                              <LineChart>
-                                <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
-                                </xAxis>
-                                <yAxis>
-                                  <NumberAxis side="LEFT" />
-                                </yAxis>
-                              </LineChart>
+                              <StackPane fx:id="graphsStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <LineChart fx:id="graphsLineChartBodeAmplitude">
+                                       <xAxis>
+                                          <NumberAxis side="BOTTOM" />
+                                       </xAxis>
+                                       <yAxis>
+                                          <NumberAxis side="LEFT" />
+                                       </yAxis>
+                                    </LineChart>
+                                    <LineChart fx:id="graphsLineChartBodePhase">
+                                       <xAxis>
+                                          <NumberAxis side="BOTTOM" />
+                                       </xAxis>
+                                       <yAxis>
+                                          <NumberAxis side="LEFT" />
+                                       </yAxis>
+                                    </LineChart>
+                                    <LineChart fx:id="graphsLineChartBode">
+                                      <xAxis>
+                                        <NumberAxis side="BOTTOM" />
+                                      </xAxis>
+                                      <yAxis>
+                                        <NumberAxis side="LEFT" />
+                                      </yAxis>
+                                    </LineChart>
+                                 </children>
+                              </StackPane>
                            </children>
                         </VBox>
                      </children></AnchorPane>

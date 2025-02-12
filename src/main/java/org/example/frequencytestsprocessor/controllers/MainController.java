@@ -169,7 +169,7 @@ public class MainController {
 
     @Getter
     @FXML
-    private LineChart<?, ?> graphsLineChartBode;
+    private LineChart<?, ?> graphsLineChartNyquist;
 
     @Getter
     @FXML
@@ -184,6 +184,9 @@ public class MainController {
 
     @FXML
     private VBox graphsVBox;
+
+    @FXML
+    private VBox graphsVBoxtBode;
 
     @FXML
     private Menu languageSettings;
@@ -282,8 +285,7 @@ public class MainController {
                         (languageProperties, currentLanguage, previousLanguage) -> {
                             changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE, languageProperties, currentLanguage, previousLanguage);
                             changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST, languageProperties, currentLanguage, previousLanguage);
-                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
-
+//                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
                         },
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton)
@@ -479,11 +481,12 @@ public class MainController {
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphTypeChoiceBox != null : "fx:id=\"graphTypeChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsLineChartBode != null : "fx:id=\"graphsLineChartBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChartNyquist != null : "fx:id=\"graphsLineChartNyquist\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsLineChartBodeAmplitude != null : "fx:id=\"graphsLineChartBodeAmplitude\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsLineChartBodePhase != null : "fx:id=\"graphsLineChartBodePhase\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsStackPane != null : "fx:id=\"graphsStackPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsVBoxtBode != null : "fx:id=\"graphsVBoxtBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -556,6 +559,15 @@ public class MainController {
             System.out.println(newValue);
             updateLineChart();
         });
+        graphTypeChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue);
+            String graphType = "";
+            final String bode = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT +currentLanguage);
+            final String nyquist = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT +currentLanguage);
+            if (newValue.equals(bode)) graphType = BODE;
+            else if (newValue.equals(nyquist)) graphType = NYQUIST;
+            switchStackPaneLayout(graphType);
+        });
     }
 
     private List<Long> getSharedRuns() {
@@ -581,7 +593,6 @@ public class MainController {
     }
 
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage, String previousLanguage) {
-        // TODO: implement refreshing language of type choice
         Iterator<String> it = curentChoiceBox.getItems().iterator();
         String previousValue = getDecodedProperty(languageProperties, OTHER + DOT + PROPERTY_ID + DOT + previousLanguage);
         boolean chooseDefault = false;
@@ -600,6 +611,18 @@ public class MainController {
 
     public void clearLineChart(MouseEvent event){
         graphsService.clearCharts();
+    }
+
+    private void switchStackPaneLayout(String extractedTypeOfGraphs) {
+        if ("bode".equalsIgnoreCase(extractedTypeOfGraphs)) {
+            graphsVBoxtBode.setVisible(true);
+            graphsLineChartNyquist.setVisible(false);
+        } else if ("nyquist".equalsIgnoreCase(extractedTypeOfGraphs)) {
+            graphsVBoxtBode.setVisible(false);
+            graphsLineChartNyquist.setVisible(true);
+        } else {
+            System.err.println("Invalid graph type: " + extractedTypeOfGraphs);
+        }
     }
 
     private void updateLineChart(){

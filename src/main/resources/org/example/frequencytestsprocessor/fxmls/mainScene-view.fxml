@@ -198,23 +198,27 @@
                               </HBox>
                               <StackPane fx:id="graphsStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <LineChart fx:id="graphsLineChartBodeAmplitude">
-                                       <xAxis>
-                                          <NumberAxis side="BOTTOM" />
-                                       </xAxis>
-                                       <yAxis>
-                                          <NumberAxis side="LEFT" />
-                                       </yAxis>
-                                    </LineChart>
-                                    <LineChart fx:id="graphsLineChartBodePhase">
-                                       <xAxis>
-                                          <NumberAxis side="BOTTOM" />
-                                       </xAxis>
-                                       <yAxis>
-                                          <NumberAxis side="LEFT" />
-                                       </yAxis>
-                                    </LineChart>
-                                    <LineChart fx:id="graphsLineChartBode">
+                                    <VBox fx:id="graphsVBoxtBode">
+                                       <children>
+                                          <LineChart fx:id="graphsLineChartBodeAmplitude">
+                                             <xAxis>
+                                                <NumberAxis side="BOTTOM" />
+                                             </xAxis>
+                                             <yAxis>
+                                                <NumberAxis side="LEFT" />
+                                             </yAxis>
+                                          </LineChart>
+                                          <LineChart fx:id="graphsLineChartBodePhase">
+                                             <xAxis>
+                                                <NumberAxis side="BOTTOM" />
+                                             </xAxis>
+                                             <yAxis>
+                                                <NumberAxis side="LEFT" />
+                                             </yAxis>
+                                          </LineChart>
+                                       </children>
+                                    </VBox>
+                                    <LineChart fx:id="graphsLineChartNyquist">
                                       <xAxis>
                                         <NumberAxis side="BOTTOM" />
                                       </xAxis>

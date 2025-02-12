@@ -68,9 +68,10 @@ public class Refresher {
         graphRunChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().clear();
-        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + mainController.getCurrentLanguage()));
-        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
+//        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + mainController.getCurrentLanguage()));
+//        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT + mainController.getCurrentLanguage()));
+        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT + mainController.getCurrentLanguage()));
 
     }

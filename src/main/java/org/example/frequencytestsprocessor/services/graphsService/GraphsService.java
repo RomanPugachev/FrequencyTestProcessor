@@ -27,8 +27,6 @@ public class GraphsService {
     private LineChart lineChart;
     private Map<String, FRF> FRFsForVisualization = new HashMap<>();
     private Map<String, FRF> pinnedFRFs = new HashMap<>();
-    private NumberAxis xAxis;
-    private NumberAxis yAxis;
     private List<Paint> colorPreset;
 
     public GraphsService(MainController mainController) {

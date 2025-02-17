@@ -45,7 +45,7 @@ public class CommonMethods {
        showAlert("Ошибка", "Ошибка повторения существующего элемента", detailedMessage);
     }
     public static void showAlertUnimplemented(){
-        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована");
+        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована.");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();

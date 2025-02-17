@@ -112,6 +112,10 @@ public class Complex implements Cloneable{
         return new Complex(Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag()), 0);
     }
 
+    public static Double getModuleAsDouble(Complex c) {
+        return Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag());
+    }
+
     public static Double getAngle(Complex c) {
         return Math.atan2(c.getImag(), c.getReal());
     }

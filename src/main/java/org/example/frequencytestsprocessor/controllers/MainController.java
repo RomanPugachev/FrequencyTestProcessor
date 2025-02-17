@@ -169,15 +169,15 @@ public class MainController {
 
     @Getter
     @FXML
-    private LineChart<?, ?> graphsLineChartNyquist;
+    private LineChart<Number, Number> graphsLineChartNyquist;
 
     @Getter
     @FXML
-    private LineChart<?, ?> graphsLineChartBodeAmplitude;
+    private LineChart<Number, Number> graphsLineChartBodeAmplitude;
 
     @Getter
     @FXML
-    private LineChart<?, ?> graphsLineChartBodePhase;
+    private LineChart<Number, Number> graphsLineChartBodePhase;
 
     @FXML
     private StackPane graphsStackPane;
@@ -257,7 +257,7 @@ public class MainController {
 
     public void initializeLanguageService() {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/mainApplicationLanguage.properties");
-        languageNotifier.addObserver(
+        languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
                         new LanguageObserverDecorator<>(changeLanguageButton),
@@ -511,6 +511,7 @@ public class MainController {
     }
 
     private void setupWidgetsBehaviour() {
+        // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
@@ -564,7 +565,8 @@ public class MainController {
             String graphType = "";
             final String bode = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT +currentLanguage);
             final String nyquist = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT +currentLanguage);
-            if (newValue.equals(bode)) graphType = BODE;
+            if (newValue == null) graphType = BODE;
+            else if (newValue.equals(bode)) graphType = BODE;
             else if (newValue.equals(nyquist)) graphType = NYQUIST;
             switchStackPaneLayout(graphType);
         });
@@ -592,6 +594,7 @@ public class MainController {
         }
     }
 
+    // Function of changing language in graphChoiseBox
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage, String previousLanguage) {
         Iterator<String> it = curentChoiceBox.getItems().iterator();
         String previousValue = getDecodedProperty(languageProperties, OTHER + DOT + PROPERTY_ID + DOT + previousLanguage);
@@ -626,7 +629,7 @@ public class MainController {
     }
 
     private void updateLineChart(){
-        Map<String, Canvas2DPrintable> result = new HashMap<>();
+        Map<String, FRF> result = new HashMap<>();
         Long run;
         String sensorStr;
         String defaultRun = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
@@ -639,22 +642,25 @@ public class MainController {
             return;
         }
         if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {
-            // TODO: rework this case
-//            graphsService.updateDataSets(result);
+            graphsService.updateDataSets(result);
         } else {
-            Optional<Canvas2DPrintable> dataSet = chosenSensorsTable.getItems().stream()
+            Optional<FRF> dataSet = chosenSensorsTable.getItems().stream()
                     .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(sensorStr))
-                    .map(sensor -> (Canvas2DPrintable) sensor.getData().get(run))
+                    .map(sensor -> (FRF) sensor.getData().get(run))
                     .findFirst();
             if (!dataSet.isPresent()) {
                 dataSet = calculatedFRFs.get(run).stream()
                         .filter((entry) -> entry.getKey().equals(sensorStr))
-                        .map(entry -> (Canvas2DPrintable) entry.getValue())
+                        .map(entry -> (FRF) entry.getValue())
                         .findFirst();
             }
-            result.put(sensorStr + " in run " + run, dataSet.orElseThrow(() -> new RuntimeException("No data found")));
-            // TODO: implement this case
-//            graphsService.updateDataSets(result, true);
+            result.put(sensorStr + " in run " + run, dataSet
+                    .orElseThrow(() -> {
+                        showAlert("Error", "Error during extracting data by run and sensor", "No data found for run " + run + " and sensor " + sensorStr);
+                        return new RuntimeException("No data found for run " + run + " and sensor " + sensorStr);
+                    })
+            );
+            graphsService.updateDataSets(result);
         }
 
     }

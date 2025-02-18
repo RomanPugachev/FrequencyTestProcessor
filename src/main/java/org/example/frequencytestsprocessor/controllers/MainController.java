@@ -630,6 +630,18 @@ public class MainController {
 
     private void updateLineChart(){
         Map<String, FRF> result = new HashMap<>();
+        extractFRFForGraphs(result);
+        graphsService.updateDataSets(result);
+    }
+
+    @FXML
+    private void pinCurrentGraph(MouseEvent event){
+        Map<String, FRF> result = new HashMap<>();
+        extractFRFForGraphs(result);
+        graphsService.pinCurrentGraph(result);
+    }
+
+    private void extractFRFForGraphs(Map<String, FRF> result) {
         Long run;
         String sensorStr;
         String defaultRun = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
@@ -641,9 +653,7 @@ public class MainController {
             System.out.println("Can't update lineChart as no run or sensor selected");
             return;
         }
-        if (run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor)) {
-            graphsService.updateDataSets(result);
-        } else {
+        if (!(run == null || sensorStr == null || run.equals(defaultRun) || sensorStr.equals(defaultSensor))) {
             Optional<FRF> dataSet = chosenSensorsTable.getItems().stream()
                     .filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(sensorStr))
                     .map(sensor -> (FRF) sensor.getData().get(run))
@@ -660,8 +670,6 @@ public class MainController {
                         return new RuntimeException("No data found for run " + run + " and sensor " + sensorStr);
                     })
             );
-            graphsService.updateDataSets(result);
         }
-
     }
 }

@@ -186,7 +186,7 @@
                                           <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
                                        </HBox.margin>
                                     </ChoiceBox>
-                                    <Button fx:id="graphPinButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="25.0" maxWidth="25.0" minHeight="10.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#callFileDialog" prefHeight="25.0" prefWidth="25.0" text="">
+                                    <Button fx:id="graphPinButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="25.0" maxWidth="25.0" minHeight="10.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#pinCurrentGraph" prefHeight="25.0" prefWidth="25.0" text="">
                                        <font>
                                           <Font size="7.5" />
                                        </font>

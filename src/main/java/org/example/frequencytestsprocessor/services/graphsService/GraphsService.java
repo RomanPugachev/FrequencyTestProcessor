@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-// TODO: implement Bode diagram visualization
+// TODO: Implement unpinning of graph
 public class GraphsService {
     // TODO: implement showing tooltip on hovering -> https://habr.com/ru/articles/242009/
     private MainController mainController;
@@ -50,6 +50,11 @@ public class GraphsService {
         redrawGraphs();
     }
 
+    public void pinCurrentGraph(Map<String, FRF> FRFsForVisualization) {
+        pinnedFRFs.putAll(FRFsForVisualization);
+        redrawGraphs();
+    }
+
     public void initializeService() {
         graphsLineChartBodeAmplitude = mainController.getGraphsLineChartBodeAmplitude();
         graphsLineChartBodeAmplitude.setTitle("Amplidude frequency response");
@@ -63,8 +68,8 @@ public class GraphsService {
         graphsLineChartNyquist.setTitle("Nyquist diagram");
         graphsLineChartNyquist.getXAxis().setLabel("Real");
         graphsLineChartNyquist.getYAxis().setLabel("Imaginary");
+        graphsLineChartNyquist.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
         drawNyquistLimitation = false;
-//        lineChart.setOnMouseMoved(event -> handleMouseMoved(event));
         colorPreset = new ArrayList<>();
         colorPreset.add(Paint.valueOf("red"));
         colorPreset.add(Paint.valueOf("blue"));
@@ -79,40 +84,58 @@ public class GraphsService {
         graphsLineChartBodePhase.getData().clear();
         graphsLineChartNyquist.getData().clear();
     }
-    // TODO: Fix drawing Nyquist diagram; implement pinning of graphs and showing Nyquist limitation;
     private void redrawGraphs() {
         graphsLineChartBodeAmplitude.getData().clear();
         graphsLineChartBodePhase.getData().clear();
         graphsLineChartNyquist.getData().clear();
-        FRFsForVisualization.forEach((idAndRunOfFRF, FRF) -> {
-            XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series();
+        FRFsForVisualization.forEach((idAndRunOfFRF, frf) -> {
+            XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
             seriesBodeAmplitude.setName("Dataset " + idAndRunOfFRF);
-            XYChart.Series seriesBodePhase = new XYChart.Series();
-            seriesBodeAmplitude.setName("Dataset " + idAndRunOfFRF);
-            XYChart.Series seriesNyquist = new XYChart.Series();
-            seriesBodeAmplitude.setName("Dataset " + idAndRunOfFRF);
-            List<Double> currentFrequencies = FRF.getFrequencies();
-            List<Complex> currentValues = FRF.getComplexValues();
-            for (int i =0; i<currentFrequencies.size(); i++) {
-                seriesBodeAmplitude.getData().add(new XYChart.Data<>(
-                        currentFrequencies.get(i),
-                        Complex.getModuleAsDouble(currentValues.get(i)))
-                );
-                seriesBodePhase.getData().add(new XYChart.Data<>(
-                        currentFrequencies.get(i),
-                        Complex.getAngle(currentValues.get(i)))
-                );
-                seriesNyquist.getData().add(new XYChart.Data<>(
-                        currentValues.get(i).getReal(),
-                        currentValues.get(i).getImag())
-                );
-                // TODO: fix Nyquist diagram
-            }
-            graphsLineChartBodeAmplitude.getData().add(seriesBodeAmplitude);
-            graphsLineChartBodePhase.getData().add(seriesBodePhase);
-            graphsLineChartNyquist.getData().add(seriesNyquist);
-        });
+            XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
+            seriesBodePhase.setName("Dataset " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
+            seriesNyquist.setName("Dataset " + idAndRunOfFRF);
 
+            addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
+        });
+        pinnedFRFs.forEach((idAndRunOfFRF, frf) -> {
+            XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
+            seriesBodeAmplitude.setName("Pinned dataset " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
+            seriesBodePhase.setName("Pinned dataset " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
+            seriesNyquist.setName("Pinned dataset " + idAndRunOfFRF);
+
+            addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
+        });
+    }
+
+    private void addFRFSeries(FRF frf, XYChart.Series<Number, Number> seriesBodeAmplitude, XYChart.Series<Number, Number> seriesBodePhase, XYChart.Series<Number, Number> seriesNyquist) {
+        List<Double> currentFrequencies = frf.getFrequencies();
+        List<Complex> currentValues = frf.getComplexValues();
+
+        double currentReal, currentImag;
+
+        for (int i =0; i<currentFrequencies.size(); i++) {
+            currentReal = currentValues.get(i).getReal();
+            currentImag = currentValues.get(i).getImag();
+            seriesBodeAmplitude.getData().add(new XYChart.Data<>(
+                    currentFrequencies.get(i),
+                    Complex.getModuleAsDouble(currentValues.get(i)))
+            );
+            seriesBodePhase.getData().add(new XYChart.Data<>(
+                    currentFrequencies.get(i),
+                    Complex.getAngle(currentValues.get(i)))
+            );
+            seriesNyquist.getData().add(new XYChart.Data<>(
+                    currentReal,
+                    currentImag)
+            );
+        }
+
+        graphsLineChartBodeAmplitude.getData().add(seriesBodeAmplitude);
+        graphsLineChartBodePhase.getData().add(seriesBodePhase);
+        graphsLineChartNyquist.getData().add(seriesNyquist);
     }
 
     private void handleMouseMoved(javafx.scene.input.MouseEvent event) {

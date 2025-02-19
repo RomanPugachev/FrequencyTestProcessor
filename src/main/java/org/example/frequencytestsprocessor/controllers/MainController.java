@@ -30,6 +30,7 @@ import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Canvas2DPrintable;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
@@ -353,7 +354,7 @@ public class MainController {
 
     @FXML
     private void addAnalythicalFormula() {
-        showAlertUnimplemented();
+        formulaTable.getItems().add((AnalyticalFormula) idManager.addSlave(new AnalyticalFormula()));
     }
 
     @FXML

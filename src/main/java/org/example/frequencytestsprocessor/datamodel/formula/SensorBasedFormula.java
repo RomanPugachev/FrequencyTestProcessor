@@ -209,7 +209,7 @@ public class SensorBasedFormula extends Formula {
                     buffer.setLength(0);
                 } else if (ch == '(' || ch == ')') {
                     tokens.add(new Token(Token.Type.PARENTHESIS, String.valueOf(ch)));
-                } else if ("+-*/".indexOf(ch) >= 0) {
+                } else if ("+-*/^".indexOf(ch) >= 0) {
                     tokens.add(new Token(Token.Type.OPERATOR, String.valueOf(ch)));
                 } else if (Character.isLetter(ch)) {
                     buffer.append(ch);

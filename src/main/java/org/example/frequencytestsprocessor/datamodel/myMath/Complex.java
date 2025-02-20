@@ -85,7 +85,7 @@ public class Complex implements Cloneable{
         if (c2.getImag() == 0) {
             return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
         }
-        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getModuleAsComplex(c2));
+        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsComplex(c2));
     }
 
     public static Complex divisionResult(Complex c, Double d) {
@@ -95,7 +95,7 @@ public class Complex implements Cloneable{
 
     public static Complex divisionResult(Double d, Complex c) {
         if (d == 0) throw new ArithmeticException("Division by zero");
-        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getModuleAsComplex(c));
+        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsComplex(c));
     }
 
     public static Complex poweringResult(Complex c, Double n) {
@@ -114,6 +114,14 @@ public class Complex implements Cloneable{
 
     public static Double getModuleAsDouble(Complex c) {
         return Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag());
+    }
+
+    public static Complex getSquaredModuleAsComplex(Complex c) {
+        return new Complex(c.getReal() * c.getReal() + c.getImag() * c.getImag(), 0);
+    }
+
+    public static Double getSquaredModuleAsDouble(Complex c) {
+        return c.getReal() * c.getReal() + c.getImag() * c.getImag();
     }
 
     public static Double getAngle(Complex c) {

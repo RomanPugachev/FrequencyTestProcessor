@@ -18,7 +18,7 @@ public class AnalyticalFormula extends Formula{
     private List<AnalyticalFormula.Token> rpnTokens;
 
     public AnalyticalFormula() {
-        super("1", "This is test analytical formula", FormulaType.ANALYTICAL);
+        super("(1 + S^2)/(1 + S^3) + S", "This is test analytical formula", FormulaType.ANALYTICAL);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class AnalyticalFormula extends Formula{
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    // TODO: debug and  lexer
+    // TODO: debug and continue lexer code
     public static class Lexer {
         public static List<AnalyticalFormula.Token> tokenize(String input) {
             List<AnalyticalFormula.Token> tokens = new ArrayList<>();
@@ -73,7 +73,8 @@ public class AnalyticalFormula extends Formula{
                     if ("integrate".equalsIgnoreCase(word) || "differentiate".equalsIgnoreCase(word)) {
                         tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.FUNCTION, word));
                     } else {
-                        tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.IDENTIFIER, word));
+                        // TODO: continure here
+//                        tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.IDENTIFIER, word));
                     }
                     buffer.setLength(0);
                 } else {

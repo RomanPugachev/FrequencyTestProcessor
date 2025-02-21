@@ -30,7 +30,7 @@ public class Calculator {
             for (Formula formula : formulaList) {
                 if (calculationIdSequence.contains(formula.getId())) continue;
                 if (formula instanceof AnalyticalFormula) {
-                    basicIds.add(formula.getId());
+                    calculationIdSequence.add(formula.getId());
                     addedNewPossibility = true;
                     numberOfPosbileCalculations++;
                     continue;
@@ -58,17 +58,18 @@ public class Calculator {
         return new ArrayList<>(frequencies);
     }
 
+    // TODO: debug calculation of analytical formulas multiple times
     public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(currentId)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + currentId));
-        FRF calculatedFrf = null;
+        FRF frf = null;
         if (curentFormula instanceof SensorBasedFormula) {
-            calculatedFrf = ((SensorBasedFormula) curentFormula).calculate(runId, mainController.getChosenSensorsTable(), calculatedFRFs);
+            frf = ((SensorBasedFormula) curentFormula).calculate(runId, mainController.getChosenSensorsTable(), calculatedFRFs);
         } else if (curentFormula instanceof AnalyticalFormula) {
-            throw new NotImplementedException("This formula type calculation is not implemented yet");
+            frf = ((AnalyticalFormula) curentFormula).extractFRFByFrequencies(frequencies);
         } else {
             throw new RuntimeException("Unknown formula type");
         }
-        if (calculatedFrf != null) return calculatedFrf;
+        if (frf != null) return frf;
         else throw new RuntimeException("Failed to calculate FRF");
     }
 

@@ -2,11 +2,16 @@ package org.example.frequencytestsprocessor.datamodel.formula;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.CalculatedFRF;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula.Token.Type.S;
 
@@ -16,6 +21,8 @@ public class AnalyticalFormula extends Formula{
     List<AnalyticalFormula.Token> tokensList;
 
     private List<AnalyticalFormula.Token> rpnTokens;
+    private static final List<String> supportedFunctionsStrings = List.of("integrate", "differentiate");
+    private static final Predicate<String> functionCondition = supportedFunctionsStrings::contains;
 
     public AnalyticalFormula() {
         super("(1 + S^2)/(1 + S^3) + S", "This is test analytical formula", FormulaType.ANALYTICAL);
@@ -33,16 +40,131 @@ public class AnalyticalFormula extends Formula{
     }
 
     public boolean validate(String formulaString) {
-        // TODO: Implement validation logic
-
-        return true;
+        // Simple validation logic
+        System.out.println("Validating formula: " + formulaString);
+        try {
+            AnalyticalFormula.Lexer.tokenize(formulaString); // Check for tokenization errors
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Validation failed: " + e.getMessage());
+            return false;
+        }
     }
 
-    public RepresentableDataset getDataset(Long runNumber) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public FRF extractFRFByFrequencies(List<Double> frequencies) {
+        if (rpnTokens == null) {
+            throw new IllegalStateException("Formula has not been parsed to RPN.");
+        }
+        Stack<Object> stack = new Stack<>();
+        for (AnalyticalFormula.Token token : rpnTokens) {
+            switch (token.getType()) {
+                case NUMBER:
+                    stack.push(Double.parseDouble(token.getValue()));
+                    break;
+                case S:
+                    List<Complex> complexes = new ArrayList<>();
+                    for (Double frequency : frequencies) {
+                        complexes.add(new Complex(0, 2 * Math.PI * frequency));
+                    }
+                    stack.push(new DiscreteFRF(frequencies, complexes));
+                    break;
+                case OPERATOR:
+                    if (stack.size() < 2) throw new IllegalArgumentException("Invalid formula.");
+                    Object b = stack.pop();
+                    Object a = stack.pop();
+                    stack.push(applyOperator(token.getValue(), a, b));
+                    break;
+                case FUNCTION:
+                    if (stack.isEmpty()) throw new IllegalArgumentException("Invalid formula.");
+                    Object operand = stack.pop();
+                    stack.push(applyFunction(token.getValue(), operand));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected token type: " + token.getType());
+            }
+        }
+
+        if (stack.size() != 1) throw new IllegalArgumentException("Invalid formula.");
+        return (FRF) stack.pop();
     }
 
-    // TODO: debug and continue lexer code
+    private Object applyOperator(String operator, Object a, Object b) {
+        if (a instanceof Double && b instanceof Double) {
+            return applyOperator(operator, (Double) a, (Double) b);
+        } else if (a instanceof FRF && b instanceof Double) {
+            return applyOperator(operator, (FRF) a, (Double) b);
+        } else if (a instanceof Double && b instanceof FRF) {
+            return applyOperator(operator, (Double) a, (FRF) b);
+        } else if (a instanceof FRF && b instanceof FRF) {
+            return applyOperator(operator, (FRF) a, (FRF) b);
+        } else {
+            throw new IllegalArgumentException("Unsupported operand types");
+        }
+    }
+
+    private Object applyOperator(String operator, Double a, Double b) {
+        return switch (operator) {
+            case "+" -> a + b;
+            case "-" -> a - b;
+            case "*" -> a * b;
+            case "/" -> a / b;
+            case "^" -> Math.pow(a, b);
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
+    }
+
+    private Object applyOperator(String operator, FRF a, Double b) {
+        return switch (operator) {
+            case "+" -> CalculatedFRF.additionResult(a, b);
+            case "-" -> CalculatedFRF.subtractionResult(a, b);
+            case "*" -> CalculatedFRF.multiplicationResult(a, b);
+            case "/" -> CalculatedFRF.divisionResult(a, b);
+            case "^" -> CalculatedFRF.poweringResult(a, b);
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
+    }
+
+    private Object applyOperator(String operator, Double a, FRF b) {
+        return switch (operator) {
+            case "+" -> CalculatedFRF.additionResult(a, b);
+            case "-" -> CalculatedFRF.subtractionResult(a, b);
+            case "*" -> CalculatedFRF.multiplicationResult(a, b);
+            case "/" -> CalculatedFRF.divisionResult(a, b);
+            case "^" -> throw new UnsupportedOperationException("Powering is not supported for FRF objects.");
+            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+        };
+    }
+
+    private Object applyOperator(String operator, FRF a, FRF b) {
+        switch (operator) {
+            case "+":
+                return CalculatedFRF.additionResult(a, b);
+            case "-":
+                return CalculatedFRF.subtractionResult(a, b);
+            case "*":
+                return CalculatedFRF.multiplicationResult(a, b);
+            case "/":
+                return CalculatedFRF.divisionResult(a, b);
+            case "^":
+                throw new UnsupportedOperationException("Powering is not supported for FRF objects.");
+            default:
+                throw new IllegalArgumentException("Unsupported operator: " + operator);
+        }
+    }
+
+    private Object applyFunction(String function, Object operand) {
+        if (operand instanceof FRF) {
+            FRF frf = (FRF) operand;
+            switch (function.toLowerCase()) {
+                case "integrate":
+                    return frf.integrate();
+                case "differentiate":
+                    return frf.differentiate();
+            }
+        }
+        throw new IllegalArgumentException("Function " + function + " can only be applied to MyObject instances.");
+    }
+
     public static class Lexer {
         public static List<AnalyticalFormula.Token> tokenize(String input) {
             List<AnalyticalFormula.Token> tokens = new ArrayList<>();
@@ -62,7 +184,7 @@ public class AnalyticalFormula extends Formula{
                     buffer.setLength(0);
                 } else if (ch == '(' || ch == ')') {
                     tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.PARENTHESIS, String.valueOf(ch)));
-                } else if ("+-*/".indexOf(ch) >= 0) {
+                } else if ("+-*/^".indexOf(ch) >= 0) {
                     tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.OPERATOR, String.valueOf(ch)));
                 } else if (Character.isLetter(ch)) {
                     buffer.append(ch);
@@ -70,11 +192,12 @@ public class AnalyticalFormula extends Formula{
                         buffer.append(input.charAt(++i));
                     }
                     String word = buffer.toString();
-                    if ("integrate".equalsIgnoreCase(word) || "differentiate".equalsIgnoreCase(word)) {
+                    if (word.equalsIgnoreCase("S")) {
+                        tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.S, word));
+                    } else if  (functionCondition.test(word)) {
                         tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.FUNCTION, word));
                     } else {
-                        // TODO: continure here
-//                        tokens.add(new AnalyticalFormula.Token(AnalyticalFormula.Token.Type.IDENTIFIER, word));
+                        throw new IllegalArgumentException("Unexpected char sequence: " + word + ";\nString values must be 'S' or In ananlytical formula string values must be ");
                     }
                     buffer.setLength(0);
                 } else {

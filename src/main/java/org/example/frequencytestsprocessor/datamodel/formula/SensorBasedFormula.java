@@ -319,6 +319,3 @@ public class SensorBasedFormula extends Formula {
 
     }
 }
-//    How to parse formula and perform calculations in Java, including taking into account brackets '(', ')', some function operators, such as 'INTEGRATE', which must accept one argument in brackets? Also it is important to include opportunity to parse identifiers as thing, which can also be calculated. For example, this formula:
-//INTEGRATE(DIFFERENTIATE(F0) - 2) / (-2) must be parsed and performed validly. Suppose, that using 'F0' I mean some identifier, which represents my object with data, which allows to be summed, devided, ITEGRATEd etc. with similar object or number.
-//Please, provide algorythm, which will allow me to perform calculations

@@ -26,6 +26,7 @@ public class AnalyticalFormula extends Formula{
 
     public AnalyticalFormula() {
         super("(1 + S^2)/(1 + S^3) + S", "This is test analytical formula", FormulaType.ANALYTICAL);
+        updateInformation();
     }
 
     @Override

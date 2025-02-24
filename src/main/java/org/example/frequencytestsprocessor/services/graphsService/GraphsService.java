@@ -3,6 +3,7 @@ package org.example.frequencytestsprocessor.services.graphsService;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -136,10 +137,37 @@ public class GraphsService {
         graphsLineChartBodeAmplitude.getData().add(seriesBodeAmplitude);
         graphsLineChartBodePhase.getData().add(seriesBodePhase);
         graphsLineChartNyquist.getData().add(seriesNyquist);
+
+        // TODO: add drag and drop
+        applyDragAndDrop(seriesBodeAmplitude, graphsLineChartBodeAmplitude.getXAxis(), graphsLineChartBodeAmplitude.getYAxis());
+        applyDragAndDrop(seriesBodePhase, graphsLineChartBodePhase.getXAxis(), graphsLineChartBodePhase.getYAxis());
+        applyDragAndDrop(seriesNyquist, graphsLineChartNyquist.getXAxis(), graphsLineChartNyquist.getYAxis());
     }
 
-    private void handleMouseMoved(javafx.scene.input.MouseEvent event) {
-        double mouseX = event.getX();
-        double mouseY = event.getY();
+    private void applyDragAndDrop(XYChart.Series<Number, Number> series, NumberAxis xAxis, NumberAxis yAxis) {
+        for (XYChart.Data<Number, Number> data : series.getData()) {
+            Node node = data.getNode();
+
+            // Ensure the node exists.  Sometimes it takes a rendering cycle for it to be created.
+            if (node != null) {
+                makeDraggable(node, data, xAxis, yAxis);
+            } else {
+                // If node is null, defer the setup until it exists using a Platform.runLater() call.
+                // This happens during initial setup if the chart renders before all data points
+                javafx.application.Platform.runLater(() -> {
+                    Node dataNode = data.getNode();  //Try to get the node again
+                    if(dataNode != null) {
+                        makeDraggable(dataNode, data, xAxis, yAxis);
+                    } else {
+                        System.err.println("Could not get data node for " + data); //Print Error if even after deferring, the node isn't found
+                    }
+                });
+            }
+
+
+            // Add a Tooltip to display the data values
+            Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
+            Tooltip.install(node, tooltip);
+        }
     }
 }

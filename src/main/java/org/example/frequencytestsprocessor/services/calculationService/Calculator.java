@@ -33,11 +33,13 @@ public class Calculator {
                     calculationIdSequence.add(formula.getId());
                     addedNewPossibility = true;
                     numberOfPosbileCalculations++;
-                    continue;
-                } else if (formula instanceof SensorBasedFormula && ((SensorBasedFormula)formula).getDependentIds().stream().allMatch(basicIds::contains)) {
-                    calculationIdSequence.add(formula.getId());
-                    numberOfPosbileCalculations++;
-                    addedNewPossibility = true;
+                } else if (formula instanceof SensorBasedFormula) {
+                    Set<String> depIds = ((SensorBasedFormula) formula).getDependentIds();
+                    if (depIds.stream().allMatch(id -> basicIds.contains(id) || calculationIdSequence.contains(id))) {
+                        calculationIdSequence.add(formula.getId());
+                        numberOfPosbileCalculations++;
+                        addedNewPossibility = true;
+                    }
                 }
             }
         }
@@ -58,7 +60,6 @@ public class Calculator {
         return new ArrayList<>(frequencies);
     }
 
-    // TODO: debug calculation of analytical formulas multiple times
     public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(currentId)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + currentId));
         FRF frf = null;

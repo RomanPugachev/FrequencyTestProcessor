@@ -639,6 +639,12 @@ public class MainController {
     private void pinCurrentGraph(MouseEvent event){
         Map<String, FRF> result = new HashMap<>();
         extractFRFForGraphs(result);
+        Map<String, FRF> pinnedFRFs = graphsService.getPinnedFRFs();
+        Set<String> keys = result.keySet().stream().filter(pinnedFRFs::containsKey).collect(Collectors.toSet());
+        keys.forEach(key -> {
+            pinnedFRFs.remove(key);
+            result.remove(key);
+        });
         graphsService.pinCurrentGraph(result);
     }
 

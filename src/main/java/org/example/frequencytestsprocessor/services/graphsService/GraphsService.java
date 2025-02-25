@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.services.graphsService;
 
+import javafx.animation.ScaleTransition;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.VPos;
@@ -7,11 +8,13 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class GraphsService {
     private MainController mainController;
     private LineChart lineChart;
     private Map<String, FRF> FRFsForVisualization = new HashMap<>();
+    @Getter
     private Map<String, FRF> pinnedFRFs = new HashMap<>();
     private List<Paint> colorPreset;
     private boolean drawNyquistLimitation;
@@ -139,9 +143,9 @@ public class GraphsService {
         graphsLineChartNyquist.getData().add(seriesNyquist);
 
         // TODO: add drag and drop
-        applyDragAndDrop(seriesBodeAmplitude, graphsLineChartBodeAmplitude.getXAxis(), graphsLineChartBodeAmplitude.getYAxis());
-        applyDragAndDrop(seriesBodePhase, graphsLineChartBodePhase.getXAxis(), graphsLineChartBodePhase.getYAxis());
-        applyDragAndDrop(seriesNyquist, graphsLineChartNyquist.getXAxis(), graphsLineChartNyquist.getYAxis());
+        applyDragAndDrop(seriesBodeAmplitude, (NumberAxis) graphsLineChartBodeAmplitude.getXAxis(), (NumberAxis) graphsLineChartBodeAmplitude.getYAxis());
+        applyDragAndDrop(seriesBodePhase, (NumberAxis) graphsLineChartBodePhase.getXAxis(), (NumberAxis) graphsLineChartBodePhase.getYAxis());
+        applyDragAndDrop(seriesNyquist, (NumberAxis) graphsLineChartNyquist.getXAxis(), (NumberAxis) graphsLineChartNyquist.getYAxis());
     }
 
     private void applyDragAndDrop(XYChart.Series<Number, Number> series, NumberAxis xAxis, NumberAxis yAxis) {
@@ -166,8 +170,96 @@ public class GraphsService {
 
 
             // Add a Tooltip to display the data values
-            Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
-            Tooltip.install(node, tooltip);
+            // Tooltip will now be handled inside makeDraggable
         }
+    }
+
+    private void makeDraggable(Node node, XYChart.Data<Number, Number> data, NumberAxis xAxis, NumberAxis yAxis) {
+        final double[] dragDelta = new double[2];  // use an array to store deltas
+        final double originalNodeSize = 6; //  or whatever the default size is
+        final double hoverScaleFactor = 1.5; // How much to scale up on hover
+        final Duration animationDuration = Duration.millis(100); // Animation speed
+
+        // Use ScaleTransition for smooth size changes
+        ScaleTransition hoverScaleUp = new ScaleTransition(animationDuration, node);
+        hoverScaleUp.setFromX(1.0);
+        hoverScaleUp.setFromY(1.0);
+        hoverScaleUp.setToX(hoverScaleFactor);
+        hoverScaleUp.setToY(hoverScaleFactor);
+
+
+        ScaleTransition hoverScaleDown = new ScaleTransition(animationDuration, node);
+        hoverScaleDown.setFromX(hoverScaleFactor);
+        hoverScaleDown.setFromY(hoverScaleFactor);
+        hoverScaleDown.setToX(1.0);
+        hoverScaleDown.setToY(1.0);
+
+        // Create and install the tooltip
+        Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
+        Tooltip.install(node, tooltip);
+
+        node.setOnMousePressed(event -> {
+            graphsLineChartBodeAmplitude.setAnimated(false);
+            graphsLineChartBodePhase.setAnimated(false);
+            graphsLineChartNyquist.setAnimated(false);
+
+            dragDelta[0] = node.getLayoutX() - event.getSceneX();
+            dragDelta[1] = node.getLayoutY() - event.getSceneY();
+            node.setCursor(javafx.scene.Cursor.MOVE);
+
+            hoverScaleUp.stop();
+            hoverScaleDown.stop();
+
+            //  Ensure the node is at its normal size before starting a drag
+            node.setScaleX(1.0);
+            node.setScaleY(1.0);
+        });
+
+        node.setOnMouseReleased(event -> {
+            node.setCursor(javafx.scene.Cursor.HAND);
+            graphsLineChartBodeAmplitude.setAnimated(true);
+            graphsLineChartBodePhase.setAnimated(true);
+            graphsLineChartNyquist.setAnimated(true);
+
+        });
+
+        node.setOnMouseDragged(event -> {
+            double newX = event.getSceneX() + dragDelta[0];
+            double newY = event.getSceneY() + dragDelta[1];
+
+            // Clamp the new X and Y positions to the chart's bounds.
+            double xLowerBound = xAxis.getLowerBound();
+            double xUpperBound = xAxis.getUpperBound();
+            double yLowerBound = yAxis.getLowerBound();
+            double yUpperBound = yAxis.getUpperBound();
+
+            double xValue = xAxis.getValueForDisplay(newX).doubleValue();
+            double yValue = yAxis.getValueForDisplay(newY).doubleValue();
+
+            if (xValue >= xLowerBound && xValue <= xUpperBound &&
+                    yValue >= yLowerBound && yValue <= yUpperBound) {
+
+                data.setXValue(xValue);
+                data.setYValue(yValue);
+
+                //Force the chart to update, otherwise dragged location isn't correct.
+                xAxis.requestAxisLayout();
+                yAxis.requestAxisLayout();
+            }
+        });
+
+        node.setOnMouseEntered(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.HAND);
+                hoverScaleUp.play();
+            }
+        });
+
+        node.setOnMouseExited(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.DEFAULT);
+                hoverScaleDown.play();
+            }
+        });
     }
 }

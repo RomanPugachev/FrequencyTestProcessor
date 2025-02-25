@@ -19,7 +19,7 @@ public class Calculator {
     private final MainController mainController;
     @Setter
     private TableView<Formula> formulaTable;
-
+    TODO implement calculations based on other foumulas
     public List<String> getCalculationIdSequence(List<String> basicIds){
         List<String> calculationIdSequence = new ArrayList<>();
         boolean addedNewPossibility = true;

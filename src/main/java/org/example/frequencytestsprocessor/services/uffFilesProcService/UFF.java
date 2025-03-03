@@ -8,8 +8,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 
 

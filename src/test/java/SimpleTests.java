@@ -2,7 +2,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFFDataset;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.BASE_UFF_TYPES_CALSS_PATH;

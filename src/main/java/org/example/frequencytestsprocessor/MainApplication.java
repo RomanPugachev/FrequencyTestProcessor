@@ -16,6 +16,7 @@ public class MainApplication extends Application {
         FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("fxmls/mainScene-view.fxml"));
         Parent root = loader.load();
 
+//        TODO: improve following scheme https://drawsql.app/teams/sss-81/diagrams/ftp-scheme
         MainController controller = loader.getController();
         controller.setMainStage(stage);
         controller.setMainApplication(this);

@@ -1,25 +1,21 @@
 package org.example.frequencytestsprocessor.services.calculationService;
 
 import javafx.scene.control.TableView;
-import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.NotImplementedException;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class Calculator {
     private final MainController mainController;
     @Setter
     private TableView<Formula> formulaTable;
-    TODO implement calculations based on other foumulas
+//    TODO implement calculations based on other foumulas. suport time data
     public List<String> getCalculationIdSequence(List<String> basicIds){
         List<String> calculationIdSequence = new ArrayList<>();
         boolean addedNewPossibility = true;

@@ -1,11 +1,9 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr;
 
-import lombok.*;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 
@@ -58,7 +56,7 @@ public class UFF58Representation {
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
 
 import lombok.*;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;

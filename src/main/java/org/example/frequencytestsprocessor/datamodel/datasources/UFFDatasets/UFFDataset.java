@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets;
+package org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets;
 
 import lombok.Getter;
 import lombok.Setter;

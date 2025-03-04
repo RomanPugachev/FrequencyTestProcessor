@@ -10,7 +10,6 @@ import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import java.util.Map;
 
 @ToString
-@EqualsAndHashCode
 public class SensorProxyForTable extends Sensor implements IdManager.HasId {
     @Getter
     @Setter

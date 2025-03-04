@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 
 @EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 public class UFF implements Iterable<UFF58> {
     @Getter

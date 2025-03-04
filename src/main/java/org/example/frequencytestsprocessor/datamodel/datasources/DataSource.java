@@ -15,7 +15,8 @@ public class DataSource {
     private Long sourceId;
     @Getter
     private String sourceName;
-
+    @Getter
+    private DataSourceType dataSourceType;
 
     public enum DataSourceType {
         UFF,

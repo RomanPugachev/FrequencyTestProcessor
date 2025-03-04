@@ -2,12 +2,14 @@ module org.example.frequencytestsprocessor {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.desktop;
+    requires java.naming;
     requires static lombok;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires jep;
     requires org.apache.commons.lang3;
     requires jakarta.persistence;
+    requires org.hibernate.orm.core;
 
     opens org.example.frequencytestsprocessor to javafx.fxml;
     exports org.example.frequencytestsprocessor;

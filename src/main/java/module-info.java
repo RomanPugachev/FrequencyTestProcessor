@@ -10,6 +10,7 @@ module org.example.frequencytestsprocessor {
     requires org.apache.commons.lang3;
     requires jakarta.persistence;
     requires org.hibernate.orm.core;
+    requires jakarta.transaction;
 
     opens org.example.frequencytestsprocessor to javafx.fxml;
     exports org.example.frequencytestsprocessor;

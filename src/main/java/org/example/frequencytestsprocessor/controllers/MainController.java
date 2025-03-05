@@ -582,6 +582,7 @@ public class MainController {
         } else { return new ArrayList<>(); }
     }
 
+    // TODO: change loading data pipeline
     private void setChosenFile(File chosenFile) {
         if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {

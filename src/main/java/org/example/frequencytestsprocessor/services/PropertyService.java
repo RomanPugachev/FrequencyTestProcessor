@@ -16,7 +16,7 @@ public class PropertyService {
         try (InputStream is = PropertyService.class.getResourceAsStream(pathToFile)) {
             properties.load(is);
         } catch (IOException e) {
-            System.out.println("Не удалось считать файл configuration.properties");
+            System.out.println("Couldn't read file by address " + pathToFile);
             return null;
         }
         return properties;

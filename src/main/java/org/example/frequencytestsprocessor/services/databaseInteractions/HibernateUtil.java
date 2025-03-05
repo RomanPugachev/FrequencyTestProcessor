@@ -5,9 +5,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-public class HibernateUtil {
 
-    private static final SessionFactory sessionFactory;
+public class HibernateUtil {
+    private static SessionFactory sessionFactoryinstance;
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -15,7 +15,8 @@ public class HibernateUtil {
                     .configure("hibernate.properties") // Loads hibernate.properties from classpath
                     .build();
             MetadataSources sources = new MetadataSources(registry);
-            sources.addAnnotatedClass(DataSource.class);
+            sources.addAnnotatedClass(DataSource.class)
+                    .addAnnotatedClass();
             return sources.buildMetadata().buildSessionFactory();
         } catch (Throwable ex) {
             System.err.println("Initial SessionFactory creation failed." + ex);
@@ -23,12 +24,11 @@ public class HibernateUtil {
         }
     }
 
-    static {
-        sessionFactory = buildSessionFactory();
-    }
-
     public static SessionFactory getSessionFactory() {
-        return sessionFactory;
+        if (sessionFactoryinstance == null) {
+            sessionFactoryinstance = buildSessionFactory();
+        }
+        return sessionFactoryinstance;
     }
 
     public static void shutdown() {

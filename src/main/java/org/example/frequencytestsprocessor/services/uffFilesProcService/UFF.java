@@ -2,12 +2,17 @@ package org.example.frequencytestsprocessor.services.uffFilesProcService;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jep.Jep;
 import lombok.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
+import org.example.frequencytestsprocessor.datamodel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
@@ -23,20 +28,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Entity
+@Table(name = "uffFiles")
 @EqualsAndHashCode
 @AllArgsConstructor
-public class UFF implements Iterable<UFF58> {
+public class UFF extends DataSource implements Iterable<UFF58> {
     @Getter
+    @Transient
     private List<Long> toBeProcessedDatasetsIndices;
     @Getter
     @Setter
     private List<Long> typesOfDatasets;
     @Getter
     @Setter
+    @Join
     private List<UFFDataset> datasets;
 
-    private UFF() {
+    public UFF() {
         typesOfDatasets = null;
         datasets = null;
     }

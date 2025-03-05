@@ -6,16 +6,18 @@ import lombok.Getter;
 
 
 // TODO: implement DataSource and contunue implementing the rest of the data model
-@Table(name="source")
 @Entity
+@Table(name="sources")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class DataSource {
     @Id
     @GeneratedValue
-    @Column(name = "sourceId", nullable = false)
     private Long sourceId;
     @Getter
+    @Column(nullable = false)
     private String sourceName;
     @Getter
+    @Enumerated(EnumType.STRING)
     private DataSourceType dataSourceType;
 
     public enum DataSourceType {

@@ -38,7 +38,7 @@ import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
-import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.uff.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;

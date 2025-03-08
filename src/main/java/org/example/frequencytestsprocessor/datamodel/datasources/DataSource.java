@@ -18,10 +18,17 @@ public class DataSource {
     private String sourceName;
     @Getter
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false)
     private DataSourceType dataSourceType;
 
+    public DataSource() {}
+
+    public DataSource(String sourceName, DataSourceType dataSourceType) {
+        this.sourceName = sourceName;
+        this.dataSourceType = dataSourceType;
+    }
     public enum DataSourceType {
         UFF,
-        TIMESERIES,
+        TIMESERIES
     }
 }

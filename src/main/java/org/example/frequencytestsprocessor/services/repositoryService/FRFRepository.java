@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.services.databaseInteractions;
+package org.example.frequencytestsprocessor.services.repositoryService;
 
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.hibernate.SessionFactory;

@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.services.databaseInteractions;
+package org.example.frequencytestsprocessor.services.repositoryService;
 
 import org.example.frequencytestsprocessor.datamodel.datasources.DataSource;
 import org.hibernate.SessionFactory;

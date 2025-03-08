@@ -1,9 +1,8 @@
-package org.example.frequencytestsprocessor.services.uffFilesProcService;
+package org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.uff;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jep.Jep;
@@ -29,13 +28,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "uffFiles")
+@Table(name = "uffSources")
 @EqualsAndHashCode
 @AllArgsConstructor
 public class UFF extends DataSource implements Iterable<UFF58> {
-    @Getter
-    @Transient
-    private List<Long> toBeProcessedDatasetsIndices;
     @Getter
     @Setter
     private List<Long> typesOfDatasets;

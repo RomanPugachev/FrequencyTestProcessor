@@ -15,13 +15,17 @@ module org.example.frequencytestsprocessor {
     opens org.example.frequencytestsprocessor to javafx.fxml;
     exports org.example.frequencytestsprocessor;
     exports org.example.frequencytestsprocessor.commons;
-    exports org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets;
+    exports org.example.frequencytestsprocessor.datamodel.UFFDatasets;
     exports org.example.frequencytestsprocessor.services.idManagement;
-    opens org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets to javafx.fxml, com.fasterxml.jackson.databind;
+    opens org.example.frequencytestsprocessor.datamodel.UFFDatasets to javafx.fxml, com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.datamodel.myMath to com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.commons to javafx.fxml;
-    opens org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr to com.fasterxml.jackson.databind, javafx.fxml, javafx.base;
+    opens org.example.frequencytestsprocessor.datamodel.UFF58Repr to com.fasterxml.jackson.databind, javafx.fxml, javafx.base;
     opens org.example.frequencytestsprocessor.datamodel.formula to javafx.base, javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor.controllers;
     opens org.example.frequencytestsprocessor.controllers to javafx.fxml;
+    opens org.example.frequencytestsprocessor.datamodel.datasources.uffSources to com.fasterxml.jackson.databind, javafx.fxml;
+    exports org.example.frequencytestsprocessor.datamodel.datasources.uffSources;
+    opens org.example.frequencytestsprocessor.datamodel.datasources to com.fasterxml.jackson.databind, javafx.fxml;
+    exports org.example.frequencytestsprocessor.datamodel.datasources;
 }

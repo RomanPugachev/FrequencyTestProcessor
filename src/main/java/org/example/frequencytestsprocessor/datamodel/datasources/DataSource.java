@@ -3,32 +3,36 @@ package org.example.frequencytestsprocessor.datamodel.datasources;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 
 // TODO: implement DataSource and contunue implementing the rest of the data model
 @Entity
 @Table(name="sources")
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "source_type", discriminatorType = DiscriminatorType.STRING)
 public class DataSource {
     @Id
     @GeneratedValue
     private Long sourceId;
     @Getter
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String sourceName;
-    @Getter
-    @Enumerated(EnumType.STRING)
+
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private DataSourceType dataSourceType;
+    private LocalDateTime loadDate;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime lastUpdate;
 
     public DataSource() {}
 
-    public DataSource(String sourceName, DataSourceType dataSourceType) {
+    public DataSource(String sourceName) {
         this.sourceName = sourceName;
-        this.dataSourceType = dataSourceType;
-    }
-    public enum DataSourceType {
-        UFF,
-        TIMESERIES
     }
 }

@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets;
+package org.example.frequencytestsprocessor.datamodel.UFFDatasets;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;

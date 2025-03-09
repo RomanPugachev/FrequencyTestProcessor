@@ -3,7 +3,7 @@ package org.example.frequencytestsprocessor.services.calculationService;
 import javafx.scene.control.TableView;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;

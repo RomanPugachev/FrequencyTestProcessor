@@ -1,6 +1,6 @@
-package org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
@@ -21,9 +21,9 @@ public class UFF58Representation {
             print("Warning: can't extract run id from this id4 dataset value --->>> " + uff58.id4);
         }
         if (typeString.equals("Harmonic")) typeString += "Spectrum";
-        sensorWithData = new Sensor(sensorWithDataString, runId,
-                List.copyOf(uff58.x),
-                uff58.data.stream().map(Complex::clone).toList());
+//        sensorWithData = new Sensor(sensorWithDataString, runId,
+//                List.copyOf(uff58.x),
+//                uff58.data.stream().map(Complex::clone).toList());
         sensorDataType = new SensorDataType(typeString);
         section = new Section(sectionString);
     }
@@ -56,7 +56,7 @@ public class UFF58Representation {
 package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
 
 import lombok.*;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;

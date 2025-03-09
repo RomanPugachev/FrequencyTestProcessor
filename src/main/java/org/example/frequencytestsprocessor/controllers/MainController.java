@@ -26,10 +26,10 @@ import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.Section;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.SensorDataType;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.UFF58Repr.SensorProxyForTable;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
@@ -38,7 +38,7 @@ import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFFDatasets.uff.UFF;
+import org.example.frequencytestsprocessor.datamodel.datasources.UFF;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;
@@ -588,7 +588,7 @@ public class MainController {
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {
             this.chosenFile = chosenFile;
             chosenFileLabel.setText(chosenFile.getAbsolutePath());
-            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
+//            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
             refresher.refreshOnChangeFilePath();
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");

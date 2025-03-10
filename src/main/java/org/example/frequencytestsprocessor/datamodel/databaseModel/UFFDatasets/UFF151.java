@@ -1,10 +1,20 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets;
+package org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 
 import static org.example.frequencytestsprocessor.controllers.MainController.objectMapper;
 
+@Entity
+@Table(name = "uff151")
+@DiscriminatorValue(value = "151")
+@Getter
+@Setter
 public class UFF151 extends UFFDataset {
         @JsonProperty("model_name")
         public String modelName;

@@ -3,6 +3,7 @@ package org.example.frequencytestsprocessor.commons;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 
 import java.io.*;
@@ -84,6 +85,32 @@ public class CommonMethods {
         } else if (pathFrom == PathFrom.JAVA || pathFrom ==PathFrom.SYSTEM){
             return pathToFile.replace("\\", "\\\\");
         } else throw new RuntimeException("Unsupported pathFrom value");
+    }
+
+    public static String convertComplexListToString(List<Complex> complexList) {
+        if (complexList == null || complexList.isEmpty()) return "";
+        return complexList.stream()
+                .map(Complex::toString) // Convert each Complex to string
+                .collect(Collectors.joining(";")); // Join using semicolon
+    }
+
+    public static List<Complex> convertStringToComplexList(String complexesString) {
+        if (complexesString == null || complexesString.isEmpty()) return List.of();
+        return Arrays.stream(complexesString.split(";"))
+                .map(Complex::fromString) // Convert each string to Complex
+                .collect(Collectors.toList());
+    }
+
+    public static String convertListOfDoubleToString(List<Double> doubles) {
+        return doubles.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+    }
+
+    public static List<Double> convertStringToListOfDouble(String doublesString) {
+        return Arrays.stream(doublesString.split(";"))
+                .map(Double::valueOf)
+                .toList();
     }
 
     public static enum PathFrom {

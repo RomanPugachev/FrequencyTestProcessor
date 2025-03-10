@@ -1,9 +1,6 @@
 package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
-
-import java.util.List;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 

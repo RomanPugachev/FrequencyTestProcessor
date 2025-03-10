@@ -6,18 +6,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.example.frequencytestsprocessor.commons.CommonMethods.convertListOfDoubleToString;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.convertStringToListOfDouble;
+
 public class DoubleListConverter implements AttributeConverter<List<Double>, String> {
     @Override
     public String convertToDatabaseColumn(List<Double> attribute) {
-        return attribute.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining(";"));
+        return convertListOfDoubleToString(attribute);
     }
 
     @Override
     public List<Double> convertToEntityAttribute(String dbData) {
-        return Arrays.stream(dbData.split(";"))
-                .map(Double::valueOf)
-                .toList();
+        return convertStringToListOfDouble(dbData);
     }
 }

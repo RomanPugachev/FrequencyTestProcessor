@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.datasources;
+package org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
 
 
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name="sources")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "source_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "sourceType", discriminatorType = DiscriminatorType.STRING)
 public class DataSource {
     @Id
     @GeneratedValue

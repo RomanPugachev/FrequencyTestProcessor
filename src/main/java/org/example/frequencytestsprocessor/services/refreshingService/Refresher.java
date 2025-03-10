@@ -3,7 +3,7 @@ package org.example.frequencytestsprocessor.services.refreshingService;
 import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.*;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 
 import java.util.Map;

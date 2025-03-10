@@ -1,6 +1,6 @@
 package org.example.frequencytestsprocessor.services.repositoryService;
 
-import org.example.frequencytestsprocessor.datamodel.datasources.DataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;

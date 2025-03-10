@@ -1,25 +1,7 @@
 package org.example.frequencytestsprocessor.services.repositoryService;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jep.Jep;
-import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFFDataset;
-import org.example.frequencytestsprocessor.datamodel.datasources.UFF;
-import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 import org.hibernate.SessionFactory;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
-import static org.example.frequencytestsprocessor.commons.StaticStrings.BASE_UFF_TYPES_CALSS_PATH;
-import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_OF_PYTHON_SCRIPT_FOR_UFF;
 
 public class FRFRepository {
     private MainController mainController;

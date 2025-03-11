@@ -342,9 +342,21 @@ public class MainController {
     }
 
     @FXML
-    private void callFileDialog(MouseEvent event) {
+    private void getUffFromDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
         setChosenFile(chosenFile);
+    }
+
+    @FXML
+    private void saveUFFSourceFromFileDialog(MouseEvent event) {
+        File chosenFile = getFileFromDialog();
+
+        showAlertUnimplemented();
+    }
+
+    @FXML
+    private void saveTimeSeriesSourceFromFileDialog(MouseEvent event) {
+        showAlertUnimplemented();
     }
 
     @FXML

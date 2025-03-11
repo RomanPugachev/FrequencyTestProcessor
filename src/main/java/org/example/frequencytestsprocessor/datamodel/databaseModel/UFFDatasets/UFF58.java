@@ -110,11 +110,11 @@ public class UFF58 extends UFFDataset implements FRFProvider {
     @JsonProperty("x")
     @Convert(converter = DoubleListConverter.class)
     @Column(nullable = false)
-    private String frequencies;
+    private List<Double> frequencies;
     @JsonProperty("data")
     @Convert(converter = ComplexListConverter.class)
     @Column(nullable = false)
-    private String complexValues;
+    private List<Complex> complexValues;
     @Embedded
     @Transient
     private RawFrequencyData rawFrequencyData = loadRawFrequencyData();

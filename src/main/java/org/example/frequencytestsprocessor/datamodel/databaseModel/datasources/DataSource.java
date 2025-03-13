@@ -20,7 +20,7 @@ public class DataSource {
     private Long sourceId;
     @Getter
     @Column(nullable = false, unique = true)
-    private String sourceName;
+    private String sourceAddress;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -32,7 +32,7 @@ public class DataSource {
 
     public DataSource() {}
 
-    public DataSource(String sourceName) {
-        this.sourceName = sourceName;
+    public DataSource(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
     }
 }

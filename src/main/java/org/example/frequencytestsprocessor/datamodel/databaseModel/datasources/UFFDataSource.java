@@ -21,13 +21,14 @@ import java.util.List;
 @EqualsAndHashCode
 @AllArgsConstructor
 @DiscriminatorValue("UFF")
-public class UFF extends DataSource {
+public class UFFDataSource extends DataSource {
     @Getter
     @Setter
     @OneToMany(orphanRemoval = true)
     private List<UFFDataset> datasets;
 
-    public UFF() {super();}
+    public UFFDataSource() {super();}
+    public UFFDataSource(String sourceAddress) {super(sourceAddress);}
 
     protected static byte[] getPythonOutputByteArray(String UFFPath) {
         Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();

@@ -3,7 +3,7 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
 
 @Entity
 @Table(name = "uffDatasets")
@@ -12,7 +12,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.U
 public class UFFDataset {
     @ManyToOne
     @JoinColumn(name = "sourceId", insertable = false, updatable = false)
-    private UFF parentUFF;
+    private UFFDataSource parentUFF;
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class UFFDataset {
 
     public UFFDataset() {}
 
-    public UFFDataset(UFF parentUFF) {
+    public UFFDataset(UFFDataSource parentUFF) {
         this.parentUFF = parentUFF;
     }
 }

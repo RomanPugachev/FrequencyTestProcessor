@@ -38,7 +38,7 @@ import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;
@@ -264,7 +264,7 @@ public class MainController {
     // Common application parameters
     private File chosenFile;
     @Getter
-    private UFF uff;
+    private UFFDataSource uff;
     private Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs;
     @Getter
     private String currentLanguage = RU;

@@ -5,19 +5,17 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 
 public class HibernateUtil {
-    private static SessionFactory sessionFactoryinstance;
+    private static SessionFactory sessionFactoryInstance;
 
     private static SessionFactory buildSessionFactory() {
         try {
-            StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-                    .configure("hibernate.properties") // Loads hibernate.properties from classpath
-                    .build();
-            MetadataSources sources = new MetadataSources(registry);
-            sources.addAnnotatedClass(DataSource.class)
-                    .addAnnotatedClass();
-            return sources.buildMetadata().buildSessionFactory();
+            Configuration configuration = new Configuration()
+                    .configure("hibernate.properties")
+                    .addPackage("org.example.frequencytestsprocessor.datamodel.databaseModel");
+            return configuration.buildSessionFactory();
         } catch (Throwable ex) {
             System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
@@ -25,10 +23,10 @@ public class HibernateUtil {
     }
 
     public static SessionFactory getSessionFactory() {
-        if (sessionFactoryinstance == null) {
-            sessionFactoryinstance = buildSessionFactory();
+        if (sessionFactoryInstance == null) {
+            sessionFactoryInstance = buildSessionFactory();
         }
-        return sessionFactoryinstance;
+        return sessionFactoryInstance;
     }
 
     public static void shutdown() {

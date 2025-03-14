@@ -24,7 +24,8 @@ import java.util.List;
 public class UFFDataSource extends DataSource {
     @Getter
     @Setter
-    @OneToMany(orphanRemoval = true)
+    @JoinColumn(foreignKey = @ForeignKey(name = "datasetId"))
+    @OneToMany(mappedBy = "parentUFF", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UFFDataset> datasets;
 
     public UFFDataSource() {super();}
@@ -41,7 +42,7 @@ public class UFFDataSource extends DataSource {
     @Override
     public String toString() {
          return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                 .append("source_file", getSourceName())
+                 .append("source_file", getSourceAddress())
                  .append(DATASETS, datasets)
                  .toString();
     }

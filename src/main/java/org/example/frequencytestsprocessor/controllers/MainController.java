@@ -39,6 +39,7 @@ import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
+import org.example.frequencytestsprocessor.services.repositoryService.FRFRepository;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;
@@ -113,6 +114,9 @@ public class MainController {
     private TreeTableColumn<?, ?> datasetsTreeTableColumn;
 
     @FXML
+    private TreeTableView<?> datasetsTreeTableView;
+
+    @FXML
     private MenuItem deleteChosenSensorsMenuItem;
 
     @FXML
@@ -129,9 +133,6 @@ public class MainController {
 
     @FXML
     private Menu file;
-
-    @FXML
-    private Button fileDialogButton;
 
     @FXML
     private MenuItem formulaAdditionAnalithicalMenuItem;
@@ -248,10 +249,10 @@ public class MainController {
     private HBox sourceAndDatasetsChoiseHBox;
 
     @FXML
-    private TreeTableView<?> sourcesAndDatasetsTreeTableView;
+    private TreeTableColumn<UFFDataSource, String> sourcesTreeTableColumn;
 
     @FXML
-    private TreeTableColumn<?, ?> sourcesTreeTableColumn;
+    private TreeTableView<UFFDataSource> sourcesTreeTableView;
 
     @Getter
     @FXML
@@ -262,9 +263,6 @@ public class MainController {
     public static ObjectMapper objectMapper = new ObjectMapper();
 
     // Common application parameters
-    private File chosenFile;
-    @Getter
-    private UFFDataSource uff;
     private Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs;
     @Getter
     private String currentLanguage = RU;
@@ -277,10 +275,12 @@ public class MainController {
     private IdManager idManager = new IdManager(this);
     private Calculator calculator = new Calculator(this);
     private GraphsService graphsService = new GraphsService(this);
+    private FRFRepository frfRepository = FRFRepository.getRepository();
     private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
 
     public void initializeServices() {
         initializeLanguageService();
+        FRFRepository.setInstMainController(this);
     }
 
     public void initializeLanguageService() {
@@ -342,17 +342,11 @@ public class MainController {
     }
 
     @FXML
-    private void getUffFromDialog(MouseEvent event) {
-        File chosenFile = getFileFromDialog();
-        setChosenFile(chosenFile);
-    }
-
-    @FXML
     private void saveUFFSourceFromFileDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
-
-        showAlertUnimplemented();
+        saveUFFSourceFromFile(chosenFile);
     }
+
 
     @FXML
     private void saveTimeSeriesSourceFromFileDialog(MouseEvent event) {
@@ -473,7 +467,8 @@ public class MainController {
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
-            fileDialogButton.setGraphic(imageView);
+            loadTimeDataButton.setGraphic(imageView);
+            loadUFFSourceButton.setGraphic(imageView);
             imageView = new ImageView(mainApplication.getImage("images/" + "pin.png"));
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
@@ -504,13 +499,13 @@ public class MainController {
         assert dataBaseInteractionVBox != null : "fx:id=\"dataBaseInteractionVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert datasetsTreeTableColumn != null : "fx:id=\"datasetsTreeTableColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert datasetsTreeTableView != null : "fx:id=\"datasetsTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert deleteChosenSensorsMenuItem != null : "fx:id=\"deleteChosenSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert exportGraphsButton != null : "fx:id=\"exportGraphsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaAdditionSensorMenuItem != null : "fx:id=\"formulaAdditionSensorMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaIdColumn != null : "fx:id=\"formulaIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -546,8 +541,8 @@ public class MainController {
         assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sourceAndDatasetsChoiseHBox != null : "fx:id=\"sourceAndDatasetsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert sourcesAndDatasetsTreeTableView != null : "fx:id=\"sourcesAndDatasetsTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sourcesTreeTableColumn != null : "fx:id=\"sourcesTreeTableColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sourcesTreeTableView != null : "fx:id=\"sourcesTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
 
         initializeServices();
@@ -555,7 +550,7 @@ public class MainController {
         refresher.setDefaultComboBoxes();
         if (System.getenv("PRELOAD_PATH") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-            setChosenFile(preloadFile);
+            saveUFFSourceFromFile(preloadFile);
         }
     }
 
@@ -631,19 +626,6 @@ public class MainController {
         } else { return new ArrayList<>(); }
     }
 
-    // TODO: change loading data pipeline
-    private void setChosenFile(File chosenFile) {
-        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
-                chosenFile.getAbsolutePath().endsWith(".uff"))) {
-            this.chosenFile = chosenFile;
-            chosenFileLabel.setText(chosenFile.getAbsolutePath());
-//            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
-            refresher.refreshOnChangeFilePath();
-        } else if (chosenFile != null) {
-            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
-        }
-    }
-
     // Function of changing language in graphChoiseBox
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage, String previousLanguage) {
         Iterator<String> it = curentChoiceBox.getItems().iterator();
@@ -660,6 +642,21 @@ public class MainController {
         String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + PROPERTY_ID + DOT + currentLanguage);
         curentChoiceBox.getItems().add(decodedText);
         if (chooseDefault) curentChoiceBox.setValue(decodedText);
+    }
+
+    private void saveUFFSourceFromFile(File chosenFile) {
+        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
+                chosenFile.getAbsolutePath().endsWith(".uff"))) {
+            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath());
+            sourcesTreeTableView.setShowRoot(false);
+            TreeItem<UFFDataSource> root = sourcesTreeTableView.getRoot();
+            // TODO implement selecting of recently uploaded source
+            root.setExpanded(true);
+            root.getChildren().add(new TreeItem<>(savedSource));
+            refresher.refreshUIOnSourceChange(savedSource);
+        } else if (chosenFile != null) {
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
+        }
     }
 
     public void clearLineChart(MouseEvent event){

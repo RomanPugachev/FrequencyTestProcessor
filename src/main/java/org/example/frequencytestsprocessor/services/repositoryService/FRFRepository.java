@@ -10,6 +10,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.U
 import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -31,7 +32,7 @@ public class FRFRepository {
 
     private SessionFactory sessionFactory;
 
-    public FRFRepository getRepository() {
+    public static FRFRepository getRepository() {
         if (frfRepositoryInstace == null) {
             frfRepositoryInstace = new FRFRepository();
             frfRepositoryInstace.sessionFactory = HibernateUtil.getSessionFactory();
@@ -41,8 +42,9 @@ public class FRFRepository {
 
 //    TODO: add following methods to repository:
     public UFFDataSource saveUFFSource(String fileAddress) {
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.getTransaction();
+            transaction = session.getTransaction();
             UFFDataSource resultUFF = new UFFDataSource(fileAddress);
             ObjectMapper objectMapper = MainController.getObjectMapper();
             //Read data with Python
@@ -81,10 +83,31 @@ public class FRFRepository {
                     }
                 }
             } catch (Exception e) {
+                transaction.rollback();
                 throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
             }
+            session.persist(resultUFF);
+            transaction.commit();
             return resultUFF;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error saving UNV file: " + e.getMessage(), e);
         }
+    }
+
+    public UFFDataSource getUFFSource(String fileAddress) {
+        UFFDataSource uffSource = null;
+        try (Session session = sessionFactory.openSession()) {
+            String hql = "FROM UFFDataSource WHERE sourceAddress = :fileAddress";
+            Query<UFFDataSource> query = session.createQuery(hql, UFFDataSource.class);
+            query.setParameter("fileAddress", fileAddress);
+            uffSource = query.uniqueResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting UNV file: " + e.getMessage(), e);
+        }
+        return uffSource;
     }
 
     public void saveFRF(String frf) {

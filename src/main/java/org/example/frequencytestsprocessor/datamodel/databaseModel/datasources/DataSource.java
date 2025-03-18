@@ -9,7 +9,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 
-// TODO: implement DataSource and contunue implementing the rest of the data model
 @Entity
 @Table(name="sources")
 @Inheritance(strategy = InheritanceType.JOINED)

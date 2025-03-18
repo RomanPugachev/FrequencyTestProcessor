@@ -142,7 +142,6 @@ public class GraphsService {
         graphsLineChartBodePhase.getData().add(seriesBodePhase);
         graphsLineChartNyquist.getData().add(seriesNyquist);
 
-        // TODO: add drag and drop
         applyDragAndDrop(seriesBodeAmplitude, (NumberAxis) graphsLineChartBodeAmplitude.getXAxis(), (NumberAxis) graphsLineChartBodeAmplitude.getYAxis());
         applyDragAndDrop(seriesBodePhase, (NumberAxis) graphsLineChartBodePhase.getXAxis(), (NumberAxis) graphsLineChartBodePhase.getYAxis());
         applyDragAndDrop(seriesNyquist, (NumberAxis) graphsLineChartNyquist.getXAxis(), (NumberAxis) graphsLineChartNyquist.getYAxis());

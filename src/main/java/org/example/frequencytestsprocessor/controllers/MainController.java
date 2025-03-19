@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
@@ -249,10 +250,10 @@ public class MainController {
     private HBox sourceAndDatasetsChoiseHBox;
 
     @FXML
-    private TreeTableColumn<UFFDataSource, String> sourcesTreeTableColumn;
+    private TreeTableColumn<DataSource, String> sourcesTreeTableColumn;
 
     @FXML
-    private TreeTableView<UFFDataSource> sourcesTreeTableView;
+    private TreeTableView<DataSource> sourcesTreeTableView;
 
     @Getter
     @FXML
@@ -269,6 +270,7 @@ public class MainController {
     @Getter
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
+    @Getter
     private MainApplication mainApplication;
     private Refresher refresher = new Refresher(this);
     @Getter
@@ -556,6 +558,22 @@ public class MainController {
 
     private void setupWidgetsBehaviour() {
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
+        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                DataSource selectedDataSource = newValue.getValue();
+                if (selectedDataSource instanceof UFFDataSource) {
+                    UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
+
+                    // Set label which represents current source for calculations
+                    chosenFileLabel.setText(uffSource.getSourceAddress());
+
+                    // Delegate further updates to Refresher
+                    refresher.refreshOnChangeChosenUFFSource(uffSource);
+                } else if (true) {
+                    showAlertUnimplemented();
+                }
+            }
+        });
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
@@ -649,11 +667,13 @@ public class MainController {
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {
             UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath());
             sourcesTreeTableView.setShowRoot(false);
-            TreeItem<UFFDataSource> root = sourcesTreeTableView.getRoot();
+            TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
+            TreeItem<DataSource> item = new TreeItem<>(savedSource);
             // TODO implement selecting of recently uploaded source
             root.setExpanded(true);
-            root.getChildren().add(new TreeItem<>(savedSource));
-            refresher.refreshUIOnSourceChange(savedSource);
+            root.getChildren().add(item);
+            sourcesTreeTableView.getSelectionModel().select(item);
+//            refresher.refreshUIOnSourceChange(savedSource);
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
         }

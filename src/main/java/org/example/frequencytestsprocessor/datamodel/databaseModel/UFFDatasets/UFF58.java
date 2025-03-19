@@ -22,9 +22,11 @@ import static org.example.frequencytestsprocessor.controllers.MainController.obj
 @Setter
 public class UFF58 extends UFFDataset implements FRFProvider {
     private int binary;
+    @Getter
     private String id1;
     private String id2;
     private String id3;
+    @Getter
     private String id4;
     private String id5;
     @JsonProperty("func_type")

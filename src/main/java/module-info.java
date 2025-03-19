@@ -24,7 +24,7 @@ module org.example.frequencytestsprocessor {
     opens org.example.frequencytestsprocessor.datamodel.formula to javafx.base, javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor.controllers;
     opens org.example.frequencytestsprocessor.controllers to javafx.fxml;
-    opens org.example.frequencytestsprocessor.datamodel.datasources.uffSources to com.fasterxml.jackson.databind, javafx.fxml;
+//    opens org.example.frequencytestsprocessor.datamodel.datasources.uffSources to com.fasterxml.jackson.databind, javafx.fxml;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.datasources to com.fasterxml.jackson.databind, javafx.fxml;
 }

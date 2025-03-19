@@ -35,7 +35,6 @@ public class FRFRepository {
     public static FRFRepository getRepository() {
         if (frfRepositoryInstace == null) {
             frfRepositoryInstace = new FRFRepository();
-            frfRepositoryInstace.sessionFactory = HibernateUtil.getSessionFactory();
         }
         return frfRepositoryInstace;
     }

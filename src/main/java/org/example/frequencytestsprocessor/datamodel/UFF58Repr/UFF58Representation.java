@@ -1,6 +1,9 @@
 package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
+
+import java.util.List;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 
@@ -11,16 +14,16 @@ public class UFF58Representation {
     public Sensor sensorWithData;
     public Long runId;
     public UFF58Representation(UFF58 uff58) {
-        String[] typeAndSensorStr = uff58.id1.split(" ");
-        String sectionString = extractSectionName(uff58.id4), typeString = typeAndSensorStr[0], sensorWithDataString = typeAndSensorStr[typeAndSensorStr.length - 1];
-        runId = extractRunId(uff58.id4);
+        String[] typeAndSensorStr = uff58.getId1().split(" ");
+        String sectionString = extractSectionName(uff58.getId4()), typeString = typeAndSensorStr[0], sensorWithDataString = typeAndSensorStr[typeAndSensorStr.length - 1];
+        runId = extractRunId(uff58.getId4());
         if (runId == null) {
-            print("Warning: can't extract run id from this id4 dataset value --->>> " + uff58.id4);
+            print("Warning: can't extract run id from this id4 dataset value --->>> " + uff58.getId4());
         }
         if (typeString.equals("Harmonic")) typeString += "Spectrum";
-//        sensorWithData = new Sensor(sensorWithDataString, runId,
-//                List.copyOf(uff58.x),
-//                uff58.data.stream().map(Complex::clone).toList());
+        sensorWithData = new Sensor(sensorWithDataString, runId,
+                List.copyOf(uff58.getFrequencies()),
+                uff58.getComplexValues().stream().map(Complex::clone).toList());
         sensorDataType = new SensorDataType(typeString);
         section = new Section(sectionString);
     }

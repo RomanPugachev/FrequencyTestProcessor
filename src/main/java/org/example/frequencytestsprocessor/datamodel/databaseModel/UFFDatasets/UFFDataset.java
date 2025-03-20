@@ -14,6 +14,7 @@ public class UFFDataset {
     @Getter
     @Setter
     protected String type;
+    @Setter
     @ManyToOne
     @JoinColumn(name = "sourceId", insertable = false, updatable = false)
     private UFFDataSource parentUFF;

@@ -55,7 +55,6 @@ public class FRFRepository {
                 List<Long> datasetTypes = Arrays.stream(line.trim().split(" "))
                         .map(Long::valueOf)
                         .collect(Collectors.toList());
-                List<UFFDataset> datasets = new ArrayList<>(datasetTypes.size());
                 // Read and parse JSON data for each type
                 for (int datasetTypeId = 0; datasetTypeId < datasetTypes.size(); datasetTypeId++) {
                     int timeout = 10;
@@ -76,7 +75,8 @@ public class FRFRepository {
                     try {
                         Class<?> uffClass = Class.forName(BASE_UFF_TYPES_CALSS_PATH + datasetType);
                         UFFDataset uffData = (UFFDataset) objectMapper.readValue(line, uffClass);
-                        datasets.add(uffData);
+                        session.persist(uffData);
+                        resultUFF.addUFFDataset(uffData);
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException("Unsupported type of dataset: " + datasetType + "\n" + e.getMessage(), e);
                     }

@@ -15,6 +15,7 @@ import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +34,13 @@ public class UFFDataSource extends DataSource implements Iterable<UFF58> {
     public UFFDataSource() {super();}
     public UFFDataSource(String sourceAddress) {super(sourceAddress);}
 
+    public void addUFFDataset(UFFDataset dataset) {
+        if (datasets == null) {
+            datasets = new ArrayList<>();
+        }
+        datasets.add(dataset);
+        dataset.setParentUFF(this);
+    }
 
     public Iterator<UFF58> iterator() {
         return datasets.stream()

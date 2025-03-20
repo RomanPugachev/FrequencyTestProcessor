@@ -1,6 +1,7 @@
 package org.example.frequencytestsprocessor.services.repositoryService;
 
 import org.example.frequencytestsprocessor.MainApplication;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF151;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -21,8 +22,10 @@ public class HibernateUtil {
             }
 
             // Creating the SessionFactory from properties and created classes
+            // TODO: fix configuration
             Configuration configuration = new Configuration()
                     .setProperties(properties)
+                    .addAnnotatedClass(UFF151.class)
                     .addPackage("org.example.frequencytestsprocessor.datamodel.databaseModel");
             return configuration.buildSessionFactory();
         } catch (Throwable ex) {

@@ -4,6 +4,9 @@ import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF151;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import jakarta.persistence.Entity;
 
 import java.util.Properties;
 
@@ -23,10 +26,12 @@ public class HibernateUtil {
 
             // Creating the SessionFactory from properties and created classes
             // TODO: fix configuration
-            Configuration configuration = new Configuration()
-                    .setProperties(properties)
-                    .addAnnotatedClass(UFF151.class)
-                    .addPackage("org.example.frequencytestsprocessor.datamodel.databaseModel");
+            Reflections reflections = new Reflections("org.example.frequencytestsprocessor.datamodel.databaseModel", Scanners.TypesAnnotated);
+
+            Configuration configuration = new Configuration().setProperties(properties);
+            for (Class<?> clazz : reflections.getTypesAnnotatedWith(Entity.class)) {
+                configuration.addAnnotatedClass(clazz);
+            }
             return configuration.buildSessionFactory();
         } catch (Throwable ex) {
             System.err.println("Initialization SessionFactory creation failed:\n" + ex);

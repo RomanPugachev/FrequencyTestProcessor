@@ -27,7 +27,6 @@ import java.util.List;
 public class UFFDataSource extends DataSource implements Iterable<UFF58> {
     @Getter
     @Setter
-    @JoinColumn(foreignKey = @ForeignKey(name = "datasetId"))
     @OneToMany(mappedBy = "parentUFF", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UFFDataset> datasets;
 

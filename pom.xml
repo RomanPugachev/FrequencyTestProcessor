@@ -13,12 +13,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>graalvm</id>-->
-<!--            <url>https://github.com/graalvm/graalvm-maven-repo/raw/master/</url>-->
-<!--        </repository>-->
-<!--    </repositories>-->
+    <repositories>
+        <repository>
+            <id>graalvm</id>
+            <url>https://github.com/graalvm/graalvm-maven-repo/raw/master/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <!-- JavaFX -->
         <dependency>
@@ -59,6 +59,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.16.1</version>
         </dependency>
+        <!-- reflections -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+
 
         <!-- Commons-lang3 -->
         <dependency>

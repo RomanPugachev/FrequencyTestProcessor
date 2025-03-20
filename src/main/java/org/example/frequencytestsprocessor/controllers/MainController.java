@@ -669,7 +669,6 @@ public class MainController {
             sourcesTreeTableView.setShowRoot(false);
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
-            // TODO implement selecting of recently uploaded source
             root.setExpanded(true);
             root.getChildren().add(item);
             sourcesTreeTableView.getSelectionModel().select(item);

@@ -10,6 +10,10 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.U
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dataset_type", discriminatorType = DiscriminatorType.INTEGER)
 public class UFFDataset {
+    @Transient
+    @Getter
+    @Setter
+    protected String type;
     @ManyToOne
     @JoinColumn(name = "sourceId", insertable = false, updatable = false)
     private UFFDataSource parentUFF;

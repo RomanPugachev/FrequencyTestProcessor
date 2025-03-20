@@ -12,11 +12,12 @@ module org.example.frequencytestsprocessor {
     requires org.hibernate.orm.core;
     requires jakarta.transaction;
 
-    opens org.example.frequencytestsprocessor to javafx.fxml;
+    opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor;
     exports org.example.frequencytestsprocessor.commons;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
     exports org.example.frequencytestsprocessor.services.idManagement;
+    exports org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets to javafx.fxml, com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.datamodel.myMath to com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.commons to javafx.fxml;
@@ -24,7 +25,6 @@ module org.example.frequencytestsprocessor {
     opens org.example.frequencytestsprocessor.datamodel.formula to javafx.base, javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor.controllers;
     opens org.example.frequencytestsprocessor.controllers to javafx.fxml;
-//    opens org.example.frequencytestsprocessor.datamodel.datasources.uffSources to com.fasterxml.jackson.databind, javafx.fxml;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.datasources to com.fasterxml.jackson.databind, javafx.fxml;
 }

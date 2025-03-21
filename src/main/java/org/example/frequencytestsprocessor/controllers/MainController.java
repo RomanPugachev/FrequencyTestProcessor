@@ -550,10 +550,10 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-        if (System.getenv("PRELOAD_PATH") != null) {
-            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-            saveUFFSourceFromFile(preloadFile);
-        }
+//        if (System.getenv("PRELOAD_PATH") != null) {
+//            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
+//            saveUFFSourceFromFile(preloadFile);
+//        }
     }
 
     private void setupWidgetsBehaviour() {

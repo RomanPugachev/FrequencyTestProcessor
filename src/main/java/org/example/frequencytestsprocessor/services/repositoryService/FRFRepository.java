@@ -44,7 +44,9 @@ public class FRFRepository {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
+            transaction.begin();
             UFFDataSource resultUFF = new UFFDataSource(fileAddress);
+            session.persist(resultUFF);
             ObjectMapper objectMapper = MainController.getObjectMapper();
             //Read data with Python
             byte[] pythonOutput = getPythonOutputByteArray(pythonizePathToFile(fileAddress, CommonMethods.PathFrom.SYSTEM));
@@ -85,7 +87,6 @@ public class FRFRepository {
                 transaction.rollback();
                 throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
             }
-            session.persist(resultUFF);
             transaction.commit();
             return resultUFF;
         } catch (Exception e) {

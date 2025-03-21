@@ -1,5 +1,7 @@
 package org.example.frequencytestsprocessor.commons;
 
+import java.io.File;
+
 public class StaticStrings {
     public static final String APPLICATION_NAME = "applicationName";
     public static final String DOT = ".";
@@ -13,6 +15,7 @@ public class StaticStrings {
     public static final String MAIN_APPLICATION_NAME = "mainApplicationName";
     public static final String UFF_STATIC_STRING = "UFF";
     public static final String PATH_TO_LANGUAGES = "/org/example/frequencytestsprocessor/language";
+    public static final String PATH_TO_JEP = String.join(File.separator, "/home/roman/.m2/repository/black/ninia/jep/4.2.0/jep-4.2.0.jar".split(SLASH));
     public static final String PATH_OF_PYTHON_SCRIPT_FOR_UFF = "src/main/resources/org/example/frequencytestsprocessor/pythonScripts/UFFReadingUtils.py";
     public static final String BASE_UFF_TYPES_CALSS_PATH = "org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF";
     public static final String CALCULATIONS_DIALOG_TITLE = "tempStage.calculationDialog";

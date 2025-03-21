@@ -21,7 +21,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "uffSources")
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @DiscriminatorValue("UFF")
 public class UFFDataSource extends DataSource implements Iterable<UFF58> {

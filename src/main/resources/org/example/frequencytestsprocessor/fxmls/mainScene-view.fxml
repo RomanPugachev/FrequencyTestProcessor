@@ -101,14 +101,14 @@
                                                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                                     </columnResizePolicy>
                                                 </TreeTableView>
-                                    <TreeTableView fx:id="datasetsTreeTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
-                                       <columns>
-                                          <TreeTableColumn fx:id="datasetsTreeTableColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="5000.0" text="DATASET_IN_SOURCE" />
-                                       </columns>
-                                       <columnResizePolicy>
-                                          <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                       </columnResizePolicy>
-                                    </TreeTableView>
+                                                <TreeTableView fx:id="datasetsTreeTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" prefWidth="0.0" HBox.hgrow="ALWAYS">
+                                                   <columns>
+                                                      <TreeTableColumn fx:id="datasetsTreeTableColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="5000.0" text="DATASET_IN_SOURCE" />
+                                                   </columns>
+                                                   <columnResizePolicy>
+                                                      <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                                   </columnResizePolicy>
+                                                </TreeTableView>
                                             </children>
                                         </HBox>
                                     </children>

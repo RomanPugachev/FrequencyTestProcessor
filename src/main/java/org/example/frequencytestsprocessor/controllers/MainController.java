@@ -560,6 +560,11 @@ public class MainController {
     }
 
     private void setupWidgetsBehaviour() {
+        ////////////////////////////////////////////
+        datasetsTreeTableView.getColumns().remove(datasetsTreeTableColumn);
+        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+//        dataBaseInteractionVBox.getChildren().remove(da);
+        ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
         sourcesTreeTableView.setRoot(new TreeItem<>());
         sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -573,6 +578,7 @@ public class MainController {
 
                     // Delegate further updates to Refresher
                     refresher.refreshOnChangeChosenUFFSource(uffSource);
+                    idManager.removeAllSlaves();
                 } else if (true) {
                     showAlertUnimplemented();
                 }

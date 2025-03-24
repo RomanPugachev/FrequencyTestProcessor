@@ -1,6 +1,9 @@
 package org.example.frequencytestsprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -550,14 +553,15 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-//        if (System.getenv("PRELOAD_PATH") != null) {
-//            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-//            saveUFFSourceFromFile(preloadFile);
-//        }
+        if (System.getenv("PRELOAD_PATH") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
+            saveUFFSourceFromFile(preloadFile);
+        }
     }
 
     private void setupWidgetsBehaviour() {
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
+        sourcesTreeTableView.setRoot(new TreeItem<>());
         sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 DataSource selectedDataSource = newValue.getValue();
@@ -572,6 +576,32 @@ public class MainController {
                 } else if (true) {
                     showAlertUnimplemented();
                 }
+            }
+        });
+        sourcesTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
+            @Override
+            public void addListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public void removeListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public String getValue() {
+                return datasource.getValue().getValue().getSourceAddress();
+            }
+
+            @Override
+            public void addListener(InvalidationListener listener) {
+
+            }
+
+            @Override
+            public void removeListener(InvalidationListener listener) {
+
             }
         });
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));

@@ -1,6 +1,8 @@
 package org.example.frequencytestsprocessor.services.repositoryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.hibernate.Transaction;
 import jep.Jep;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
@@ -16,12 +18,14 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.readAllLinesFromCSV;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.BASE_UFF_TYPES_CALSS_PATH;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_OF_PYTHON_SCRIPT_FOR_UFF;
 
@@ -39,7 +43,6 @@ public class FRFRepository {
         return frfRepositoryInstace;
     }
 
-//    TODO: add following methods to repository:
     public UFFDataSource saveUFFSource(String fileAddress) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -109,6 +112,47 @@ public class FRFRepository {
         }
         return uffSource;
     }
+
+    public TimeSeriesDataSource saveTimeSeriesSourceFromCSV(String fileAddress) {
+        // TODO: debug saving time series source from CSV
+        if (fileAddress == null || fileAddress.isEmpty()) {
+            throw new IllegalArgumentException("File address cannot be null or empty");
+        }
+        if (!fileAddress.endsWith(".csv")) {
+            throw new IllegalArgumentException("File must be a CSV file");
+        }
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            TimeSeriesDataSource resultTimeSeriesSource = new TimeSeriesDataSource(fileAddress);
+            session.persist(resultTimeSeriesSource);
+
+            List<String[]> allLinesInFile = readAllLinesFromCSV(Path.of(resultTimeSeriesSource.getSourceAddress()));
+
+            String[] headersLine = allLinesInFile.get(0);
+            for(int i = 2; i < headersLine.length; i++) {
+                resultTimeSeriesSource.addTimeSeriesDataset(new TimeSeriesDataset(headersLine[i]));
+            }
+            List<String[]> linesInFile = allLinesInFile.subList(1, allLinesInFile.size());
+            for (String[] line : linesInFile) {
+                String timeStamp = line[0] + line[1];
+                resultTimeSeriesSource.addTimeStamps(Long.valueOf(timeStamp));
+                for(int currentDatasetId = 0; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
+                    resultTimeSeriesSource.getTimeSeriesDatasets().get(currentDatasetId).addTimeData(Double.valueOf(line[currentDatasetId + 2]));
+                }
+            }
+            transaction.commit();
+            return resultTimeSeriesSource;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error saving Time series datasource: " + e.getMessage(), e);
+        }
+    }
+
+
 
     public void saveFRF(String frf) {
         // Implement the logic to save the FRF to the database

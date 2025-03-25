@@ -55,13 +55,4 @@ public class UFFDataSource extends DataSource implements Iterable<UFF58> {
                  .append(DATASETS, datasets)
                  .toString();
     }
-
-    private static byte[] getPythonOutputByteArray(String UFFPath) {
-        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
-        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
-        String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
-        pythonInterpreter.exec(pythonScript);
-        pythonInterpreter.exec(String.format("parse_UFF('%s')", UFFPath));
-        return pythonOutput.toByteArray();
-    }
 }

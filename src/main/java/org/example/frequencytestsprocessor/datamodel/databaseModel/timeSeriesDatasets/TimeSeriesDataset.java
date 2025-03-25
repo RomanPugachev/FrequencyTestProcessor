@@ -1,9 +1,11 @@
 package org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets;
 
 import jakarta.persistence.*;
+import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -13,10 +15,39 @@ public class TimeSeriesDataset {
     @Column(name = "datasetId")
     private Long datasetId;
 
+    private String datasetName;
+
+    @Setter
     @ManyToOne
     @JoinColumn(name = "sourceId", insertable = false, updatable = false)
     private TimeSeriesDataSource parentTimeSeries;
 
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeData;
+
+    public TimeSeriesDataset() {
+    }
+
+    public TimeSeriesDataset(String datasetName) {
+        this.datasetName = datasetName;
+    }
+
+    public TimeSeriesDataset addTimeData(Double timeData) {
+        if (this.timeData == null) {
+            this.timeData = new LinkedList<>();
+            this.timeData.add(timeData);
+        } else {
+            this.timeData.add(timeData);
+        }
+        return this;
+    }
+
+    public TimeSeriesDataset addTimeData(List<Double> timeData) {
+        if (this.timeData == null) {
+            this.timeData = timeData;
+        } else {
+            this.timeData.addAll(timeData);
+        }
+        return this;
+    }
 }

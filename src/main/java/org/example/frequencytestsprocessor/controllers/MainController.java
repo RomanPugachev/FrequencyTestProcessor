@@ -29,6 +29,7 @@ import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
@@ -355,7 +356,8 @@ public class MainController {
 
     @FXML
     private void saveTimeSeriesSourceFromFileDialog(MouseEvent event) {
-        showAlertUnimplemented();
+        File chosenFile = getFileFromDialog();
+        saveTimeSeriesSourceFromFile(chosenFile);
     }
 
     @FXML
@@ -567,6 +569,7 @@ public class MainController {
         ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
         sourcesTreeTableView.setRoot(new TreeItem<>());
+        sourcesTreeTableView.setShowRoot(false);
         sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 DataSource selectedDataSource = newValue.getValue();
@@ -702,7 +705,6 @@ public class MainController {
         if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {
             UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath());
-            sourcesTreeTableView.setShowRoot(false);
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
             root.setExpanded(true);
@@ -713,6 +715,23 @@ public class MainController {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
         }
     }
+
+    private void saveTimeSeriesSourceFromFile(File chosenFile) {
+        if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".csv")) {
+            TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath());
+            // TODO: implement
+            TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
+            TreeItem<DataSource> item = new TreeItem<>(savedSource);
+            root.setExpanded(true);
+            root.getChildren().add(item);
+//            sourcesTreeTableView.getSelectionModel().select(item);
+////            refresher.refreshUIOnSourceChange(savedSource);
+        } else if (chosenFile != null) {
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
+        }
+    }
+
+
 
     public void clearLineChart(MouseEvent event){
         graphsService.clearCharts();

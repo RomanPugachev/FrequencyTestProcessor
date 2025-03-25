@@ -12,6 +12,7 @@ module org.example.frequencytestsprocessor {
     requires org.hibernate.orm.core;
     requires jakarta.transaction;
     requires org.reflections;
+    requires com.opencsv;
 
     opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor;
@@ -30,4 +31,5 @@ module org.example.frequencytestsprocessor {
     opens org.example.frequencytestsprocessor.controllers to javafx.fxml;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.datasources to com.fasterxml.jackson.databind, javafx.fxml, org.hibernate.orm.core;
+    opens org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets to com.fasterxml.jackson.databind, javafx.fxml, org.hibernate.orm.core;
 }

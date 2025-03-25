@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.commons;
 
+import com.opencsv.CSVReader;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -8,6 +9,8 @@ import org.example.frequencytestsprocessor.services.languageService.LanguageNoti
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
@@ -113,13 +116,44 @@ public class CommonMethods {
                 .toList();
     }
 
+    public static String convertListOfLongToString(List<Long> longs) {
+        return longs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+    }
+
+    public static List<Long> convertStringToListOfLong(String longsString) {
+        return Arrays.stream(longsString.split(";"))
+                .map(Long::valueOf)
+                .toList();
+    }
+
     public static enum PathFrom {
         JAVA,
         PYTHON,
         SYSTEM
     }
 
-    public
+    public static List<String[]> readAllLinesFromCSV(Path filePath) {
+        if (Files.notExists(filePath)) {
+            throw new RuntimeException("File not found: " + filePath);
+        }
+        if (!Files.isReadable(filePath)) {
+            throw new RuntimeException("File is not readable: " + filePath);
+        }
+        if (!filePath.getFileName().toString().endsWith(".csv")) {
+            throw new RuntimeException("File is not CSV: " + filePath);
+        }
+        try (Reader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), StandardCharsets.UTF_8))) {
+            try (CSVReader csvReader = new CSVReader(reader)) {
+                return csvReader.readAll();
+            } catch (Exception e) {
+                throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
+        }
+    }
 
 
 //    public static void main(String[] args) {

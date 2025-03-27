@@ -1,6 +1,7 @@
 package org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
@@ -22,6 +23,7 @@ public class TimeSeriesDataset {
     @JoinColumn(name = "sourceId", insertable = false, updatable = false)
     private TimeSeriesDataSource parentTimeSeries;
 
+    @Getter
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeData;
 
@@ -38,6 +40,9 @@ public class TimeSeriesDataset {
             this.timeData.add(timeData);
         } else {
             this.timeData.add(timeData);
+        }
+        if (timeData == null) {
+            System.out.println("null timeData");
         }
         return this;
     }

@@ -22,9 +22,9 @@ public class SimpleTests {
         System.out.println("Hello world!");
         List<String[]> csvLines = null;
 //        Path path = Path.of("C:\\Temp\2_G1.csv");
-        Path path = Path.of("C:", "Temp", "1_G1.csv");
+        Path path = Path.of("C:", "Temp", "test_timeseries.csv");
 
-        csvLines = readAllLinesFromCSV(path);
+        csvLines = readAllLinesFromCSV(path, ";");
         for (String[] lines : csvLines) {
             System.out.println(Arrays.toString(lines));
         }

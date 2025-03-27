@@ -128,20 +128,38 @@ public class FRFRepository {
             TimeSeriesDataSource resultTimeSeriesSource = new TimeSeriesDataSource(fileAddress);
             session.persist(resultTimeSeriesSource);
 
-            List<String[]> allLinesInFile = readAllLinesFromCSV(Path.of(resultTimeSeriesSource.getSourceAddress()));
+            List<String[]> allLinesInFile = readAllLinesFromCSV(Path.of(resultTimeSeriesSource.getSourceAddress()), ";");
 
             String[] headersLine = allLinesInFile.get(0);
             for(int i = 2; i < headersLine.length; i++) {
-                resultTimeSeriesSource.addTimeSeriesDataset(new TimeSeriesDataset(headersLine[i]));
+                TimeSeriesDataset timeSeriesDataset = new TimeSeriesDataset(headersLine[i]);
+                resultTimeSeriesSource.addTimeSeriesDataset(timeSeriesDataset);
+                session.persist(resultTimeSeriesSource.getTimeSeriesDatasets().get(i - 2));
             }
-            List<String[]> linesInFile = allLinesInFile.subList(1, allLinesInFile.size());
-            for (String[] line : linesInFile) {
-                String timeStamp = line[0] + line[1];
-                resultTimeSeriesSource.addTimeStamps(Long.valueOf(timeStamp));
-                for(int currentDatasetId = 0; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
-                    resultTimeSeriesSource.getTimeSeriesDatasets().get(currentDatasetId).addTimeData(Double.valueOf(line[currentDatasetId + 2]));
+            List<String[]> dataLinesInFile = allLinesInFile.subList(1, allLinesInFile.size());
+            for (String[] line : dataLinesInFile) {
+                List<Double> lineDoubles = Arrays.stream(line)
+                        .map(s -> Double.valueOf(s.replace(",", ".")))
+                        .toList();
+                resultTimeSeriesSource.addTimeStamps1(lineDoubles.get(0));
+                resultTimeSeriesSource.addTimeStamps2(lineDoubles.get(1));
+                for(int currentDatasetId = 2; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
+                    TimeSeriesDataset datasetForInserting = resultTimeSeriesSource.getTimeSeriesDatasets().get(currentDatasetId);
+                    datasetForInserting.addTimeData(lineDoubles.get(currentDatasetId));
+                    session.persist(datasetForInserting);
                 }
+                // Debugging
+//                if (line == dataLinesInFile.get(dataLinesInFile.size() - 1)) {
+//                    break;
+//                }
             }
+            // Check of existing datasets
+            resultTimeSeriesSource.getTimeSeriesDatasets().stream()
+                            .forEach(timeSeriesDataset -> {
+                                if (timeSeriesDataset.getTimeData() == null || timeSeriesDataset.getTimeData().size() == 0) {
+                                    throw new RuntimeException("Time data is null or empty");
+                                }
+                            });
             transaction.commit();
             return resultTimeSeriesSource;
         } catch (Exception e) {

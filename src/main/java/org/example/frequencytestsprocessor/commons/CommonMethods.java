@@ -105,24 +105,28 @@ public class CommonMethods {
     }
 
     public static String convertListOfDoubleToString(List<Double> doubles) {
+        if (doubles == null || doubles.isEmpty()) return "";
         return doubles.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(";"));
     }
 
     public static List<Double> convertStringToListOfDouble(String doublesString) {
+        if (doublesString == null || doublesString.isEmpty()) return List.of();
         return Arrays.stream(doublesString.split(";"))
                 .map(Double::valueOf)
                 .toList();
     }
 
     public static String convertListOfLongToString(List<Long> longs) {
+        if (longs == null || longs.isEmpty()) return "";
         return longs.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(";"));
     }
 
     public static List<Long> convertStringToListOfLong(String longsString) {
+        if (longsString == null || longsString.isEmpty()) return List.of();
         return Arrays.stream(longsString.split(";"))
                 .map(Long::valueOf)
                 .toList();
@@ -150,6 +154,31 @@ public class CommonMethods {
             } catch (Exception e) {
                 throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
+        }
+    }
+
+    public static List<String[]> readAllLinesFromCSV(Path filePath, String valueDelimiter) {
+        if (Files.notExists(filePath)) {
+            throw new RuntimeException("File not found: " + filePath);
+        }
+        if (!Files.isReadable(filePath)) {
+            throw new RuntimeException("File is not readable: " + filePath);
+        }
+        if (!filePath.getFileName().toString().endsWith(".csv")) {
+            throw new RuntimeException("File is not CSV: " + filePath);
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), StandardCharsets.UTF_8))) {
+            List<String[]> lines = new ArrayList<>();
+            while (reader.ready()) {
+                String line = reader.readLine();
+                String[] values = line.split(valueDelimiter);
+                // Process the values as needed
+                lines.add(values);
+            }
+
+            return lines;
         } catch (Exception e) {
             throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
         }

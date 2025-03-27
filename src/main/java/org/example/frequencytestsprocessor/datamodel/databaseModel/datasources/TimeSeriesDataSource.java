@@ -2,6 +2,8 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
+import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.converters.LongListConverter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 
@@ -14,11 +16,15 @@ import java.util.List;
 @DiscriminatorValue("TimeSeriesSource")
 public class TimeSeriesDataSource extends DataSource {
 
-    @Convert(converter = LongListConverter.class)
-    private List<Long> timeStamps;
+    @Convert(converter = DoubleListConverter.class)
+    private List<Double> timeStamps1 = new LinkedList<>();
+    @Convert(converter = DoubleListConverter.class)
+    private List<Double> timeStamps2 = new LinkedList<>();
+
+    @Setter
     @Getter
-    @OneToMany(mappedBy = "parentTimeSeries")
-    private List<TimeSeriesDataset> timeSeriesDatasets;
+    @OneToMany(mappedBy = "parentTimeSeries", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TimeSeriesDataset> timeSeriesDatasets = new ArrayList<>();
 
     public TimeSeriesDataSource() {
     }
@@ -28,37 +34,35 @@ public class TimeSeriesDataSource extends DataSource {
     }
 
     public TimeSeriesDataSource addTimeSeriesDataset(TimeSeriesDataset timeSeriesDataset) {
-        if (timeSeriesDatasets == null) {
-            timeSeriesDatasets = new ArrayList<>();
-        }
         timeSeriesDatasets.add(timeSeriesDataset);
         timeSeriesDataset.setParentTimeSeries(this);
         return this;
     }
 
     public TimeSeriesDataSource addTimeSeriesDataset(List<TimeSeriesDataset> timeSeriesDataset) {
-        if (timeSeriesDatasets == null) {
-            timeSeriesDatasets = new ArrayList<>();
-        }
         timeSeriesDatasets.addAll(timeSeriesDataset);
         timeSeriesDataset.forEach(timeSeriesDataset1 -> timeSeriesDataset1.setParentTimeSeries(this));
         return this;
     }
 
 
-    public TimeSeriesDataSource addTimeStamps(Long timeStamps) {
-        if (this.timeStamps == null) {
-            this.timeStamps = new LinkedList<>();
-        }
-        this.timeStamps.add(timeStamps);
+    public TimeSeriesDataSource addTimeStamps1(Double timeStamps) {
+        this.timeStamps1.add(timeStamps);
         return this;
     }
 
-    public TimeSeriesDataSource addTimeStamps(List<Long> timeStamps) {
-        if (this.timeStamps == null) {
-            this.timeStamps = new LinkedList<>();
-        }
-        this.timeStamps.addAll(timeStamps);
+    public TimeSeriesDataSource addTimeStamps1(List<Double> timeStamps) {
+        this.timeStamps1.addAll(timeStamps);
+        return this;
+    }
+
+    public TimeSeriesDataSource addTimeStamps2(Double timeStamps) {
+        this.timeStamps2.add(timeStamps);
+        return this;
+    }
+
+    public TimeSeriesDataSource addTimeStamps2(List<Double> timeStamps) {
+        this.timeStamps2.addAll(timeStamps);
         return this;
     }
 

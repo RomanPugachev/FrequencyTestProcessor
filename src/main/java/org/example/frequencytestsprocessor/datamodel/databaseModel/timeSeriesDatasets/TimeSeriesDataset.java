@@ -16,6 +16,8 @@ public class TimeSeriesDataset {
     @Column(name = "datasetId")
     private Long datasetId;
 
+    @Getter
+    @Setter
     private String datasetName;
 
     @Setter

@@ -143,10 +143,10 @@ public class FRFRepository {
                         .toList();
                 resultTimeSeriesSource.addTimeStamps1(lineDoubles.get(0));
                 resultTimeSeriesSource.addTimeStamps2(lineDoubles.get(1));
-                for(int currentDatasetId = 2; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
+                for(int currentDatasetId = 0; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
                     TimeSeriesDataset datasetForInserting = resultTimeSeriesSource.getTimeSeriesDatasets().get(currentDatasetId);
-                    datasetForInserting.addTimeData(lineDoubles.get(currentDatasetId));
-                    session.persist(datasetForInserting);
+                    datasetForInserting.addTimeData(lineDoubles.get(currentDatasetId + 2));
+//                    session.persist(datasetForInserting);
                 }
                 // Debugging
 //                if (line == dataLinesInFile.get(dataLinesInFile.size() - 1)) {

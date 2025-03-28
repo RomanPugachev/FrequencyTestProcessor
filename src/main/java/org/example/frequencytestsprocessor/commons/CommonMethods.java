@@ -8,6 +8,7 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -138,7 +139,8 @@ public class CommonMethods {
         SYSTEM
     }
 
-    public static List<String[]> readAllLinesFromCSV(Path filePath) {
+
+    public static Charset defineCSVHeadersCharset(Path filePath, String valueDelimiter) {
         if (Files.notExists(filePath)) {
             throw new RuntimeException("File not found: " + filePath);
         }
@@ -148,16 +150,43 @@ public class CommonMethods {
         if (!filePath.getFileName().toString().endsWith(".csv")) {
             throw new RuntimeException("File is not CSV: " + filePath);
         }
-        try (Reader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), StandardCharsets.UTF_8))) {
-            try (CSVReader csvReader = new CSVReader(reader)) {
-                return csvReader.readAll();
-            } catch (Exception e) {
-                throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
+
+        Charset[] charsets = {StandardCharsets.UTF_8, Charset.forName("windows-1251")};
+
+        for (Charset charset : charsets) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), charset))) {
+                String firstLine = reader.readLine();
+                if (firstLine != null) {
+                    String[] headers = firstLine.split(valueDelimiter);
+                    boolean validEncoding = true;
+                    for (String header : headers) {
+                        if (!isValidHeader(header)) {
+                            validEncoding = false;
+                            break;
+                        }
+                    }
+                    if (validEncoding && containsCyrillicCharacters(firstLine)) {
+                        return charset;
+                    }
+                }
+            } catch (IOException e) {
+                // Continue to the next charset if there's an error
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
         }
+
+        // If no valid charset is found, return UTF-8 as a default
+        return StandardCharsets.UTF_8;
     }
+
+    private static boolean isValidHeader(String header) {
+        // Check if the header contains only valid characters (Latin, Cyrillic, digits, and common symbols)
+        return header.matches("^[\\p{L}\\p{N}\\s_№.]+$") && !header.contains("�");
+    }
+
+    private static boolean containsCyrillicCharacters(String text) {
+        return text.matches(".*[А-Яа-я].*");
+    }
+
 
     public static List<String[]> readAllLinesFromCSV(Path filePath, String valueDelimiter) {
         if (Files.notExists(filePath)) {
@@ -169,7 +198,7 @@ public class CommonMethods {
         if (!filePath.getFileName().toString().endsWith(".csv")) {
             throw new RuntimeException("File is not CSV: " + filePath);
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), defineCSVHeadersCharset(filePath, valueDelimiter)))) {
             List<String[]> lines = new ArrayList<>();
             while (reader.ready()) {
                 String line = reader.readLine();

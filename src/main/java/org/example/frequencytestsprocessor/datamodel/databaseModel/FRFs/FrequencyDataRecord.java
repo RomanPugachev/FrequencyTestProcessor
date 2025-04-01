@@ -2,37 +2,27 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
-public class FrequencyDataRecord {
+@Table(name = "frequencyDataRecords")
+@DiscriminatorColumn(name = "frf_type", discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class FrequencyDataRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String frfId;
-
-    private Long sourceId;
-
-    @Enumerated(EnumType.STRING)
-    private FRFSourceType sourceType;
-
-    @Transient
-    private FRFProvider frfProvider;
+    private String recordId;
 
     @Embedded
+    @Transient
     private RawFrequencyData rawFrequencyData;
 
     public FrequencyDataRecord() {}
 
-    public FrequencyDataRecord(FRFSourceType sourceType, FRFProvider frfProvider) {
-        this.sourceType = sourceType;
-        this.sourceId = frfProvider.getSourceId();
-        this.frfProvider = frfProvider;
-        this.rawFrequencyData = frfProvider.getRawFrequencyData();
-    }
-
     @PrePersist
     @PreUpdate
-    private void updateRawFrequencyData() {
-        frfProvider.getRawFrequencyData();
-    }
+    public abstract void refreshRawFrequencyData();
+
 }

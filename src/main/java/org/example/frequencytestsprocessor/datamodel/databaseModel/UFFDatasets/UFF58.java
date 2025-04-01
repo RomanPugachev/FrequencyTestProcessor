@@ -4,23 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.example.frequencytestsprocessor.converters.ComplexListConverter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.FRFProvider;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.RawFrequencyData;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.UFFBasedFRF;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
-
-import static org.example.frequencytestsprocessor.controllers.MainController.objectMapper;
 
 @Entity
 @Table(name = "uff58")
 @DiscriminatorValue(value = "58")
 @Getter
 @Setter
-public class UFF58 extends UFFDataset implements FRFProvider {
+public class UFF58 extends UFFDataset {
     private int binary;
     @Getter
     private String id1;
@@ -117,26 +113,7 @@ public class UFF58 extends UFFDataset implements FRFProvider {
     @Convert(converter = ComplexListConverter.class)
     @Column(nullable = false)
     private List<Complex> complexValues;
-    @Embedded
-    @Transient
-    private RawFrequencyData rawFrequencyData = loadRawFrequencyData();
-
-    public Long getSourceId() {
-        return getDatasetId();
-    }
-
-    @Override
-    public RawFrequencyData getRawFrequencyData() {
-        return rawFrequencyData;
-    }
-
-    private RawFrequencyData loadRawFrequencyData() {
-        return new RawFrequencyData(frequencies, complexValues);
-    }
-
-    @SneakyThrows
-    @Override
-    public String toString() {
-        return objectMapper.writeValueAsString(this);
-    }
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "uff_frf_id")
+    private UFFBasedFRF uffBasedFRF;
 }

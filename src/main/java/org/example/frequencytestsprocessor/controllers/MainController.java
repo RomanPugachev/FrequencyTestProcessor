@@ -582,8 +582,8 @@ public class MainController {
                     // Delegate further updates to Refresher
                     refresher.refreshOnChangeChosenUFFSource(uffSource);
                     idManager.removeAllSlaves();
-                } else if (true) {
-                    showAlertUnimplemented();
+                } else if (selectedDataSource instanceof TimeSeriesDataSource) {
+                    callTimeDataSourceDialog();
                 }
             }
         });
@@ -766,6 +766,35 @@ public class MainController {
             result.remove(key);
         });
         graphsService.pinCurrentGraph(result);
+    }
+
+    private void callTimeDataSourceDialog() {
+        FXMLLoader tempLoader = new FXMLLoader(mainApplication.getClass().getResource("fxmls/time_data_source_dialog.fxml"));
+        Scene tempScene = null;
+        try {
+            tempScene = new Scene(tempLoader.load());
+            TimeDataSourceDialogController tempController = tempLoader.getController();
+            tempController.setTimedialogCommitHandler((chosenRuns, showErrors) -> {
+                // TODO: handled dialog parameters properly
+                if (showErrors) performCalculations(chosenRuns); else performOnlyPossibleCalculations(chosenRuns);
+            });
+            tempController.initializeServices(currentLanguage, getSharedRuns());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlertUnimplemented();
+        }
+        Stage tempStage = new Stage();
+        tempStage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("images/calculator(not_free).jpg")));
+        tempStage.initOwner(mainStage);
+        tempStage.setScene(tempScene);
+        tempStage.setTitle(
+                new String(languageNotifier.getLanaguagePropertyService().
+                        getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
+                        .getBytes(StandardCharsets.ISO_8859_1),
+                        StandardCharsets.UTF_8
+                )
+        );
+        tempStage.showAndWait();
     }
 
     private void extractFRFForGraphs(Map<String, FRF> result) {

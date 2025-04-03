@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
+@Table(name = "timeSeriesDatasets")
 public class TimeSeriesDataset {
     @Id
     @GeneratedValue
@@ -23,7 +24,7 @@ public class TimeSeriesDataset {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "sourceId", insertable = false, updatable = false)
+    @JoinColumn(name = "sourceId", insertable = false)
     private TimeSeriesDataSource parentTimeSeries;
 
     @Getter

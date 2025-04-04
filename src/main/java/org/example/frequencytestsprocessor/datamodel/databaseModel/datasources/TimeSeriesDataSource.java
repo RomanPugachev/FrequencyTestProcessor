@@ -16,8 +16,10 @@ import java.util.List;
 @DiscriminatorValue("TimeSeriesSource")
 public class TimeSeriesDataSource extends DataSource {
 
+    @Getter
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeStamps1 = new LinkedList<>();
+    @Getter
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeStamps2 = new LinkedList<>();
 

@@ -2,6 +2,8 @@ package org.example.frequencytestsprocessor.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -9,7 +11,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
@@ -44,16 +49,16 @@ public class TimeDataSourceDialogController {
     private HBox controlHBox;
 
     @FXML
-    private ChoiceBox<?> datasetChoiseBox;
+    private ChoiceBox<TimeSeriesDataset> datasetChoiseBox;
 
     @FXML
     private Label headerLabel;
 
     @FXML
-    private Label insertRunsForCalculationLabel;
+    private Label insertingFRFNameLabel;
 
     @FXML
-    private Tooltip insertRunsForCalculationLabelTooltip;
+    private Tooltip insertingFRFNameLabelTooltip;
 
     @FXML
     private AnchorPane mainAnchorPane;
@@ -65,10 +70,10 @@ public class TimeDataSourceDialogController {
     private TextField runsForCalculationTextField;
 
     @FXML
-    private LineChart<?, ?> timeDatasetChart;
+    private LineChart<Number, Number> timeDatasetChart;
 
     @FXML
-    private VBox transformedDatasetChart;
+    private LineChart<Number, Number> transformedDatasetChart;
 
     // Common parameters and objects
     @Setter
@@ -76,49 +81,55 @@ public class TimeDataSourceDialogController {
 
     private LanguageNotifier languageNotifier;
 
-    List<? extends Number> sharedRuns;
+    TimeSeriesDataSource chosenTimeSeriesDataSource;
 
-    public void initializeServices(String currentLanguage, List<? extends Number> sharedRuns) {
-//        initializeLanguageService(currentLanguage);
-//        this.sharedRuns = sharedRuns;
-//        availableRunsText.setText(availableRunsText.getText() + this.sharedRuns.stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
-
-//        setupWidgetsBehaviour();
+    public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
+        this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
+        initializeLineChart();
+        initializeChoiseBox(chosenTimeSeriesDataSource);
+        initializeLanguageService(currentLanguage);
+        setupWidgetsBehaviour();
     }
+
+    private void initializeLineChart() {
+        timeDatasetChart.getXAxis().setLabel("Time");
+        timeDatasetChart.getYAxis().setLabel("Amplitude");
+        timeDatasetChart.getXAxis().setAutoRanging(true);
+        timeDatasetChart.getYAxis().setAutoRanging(true);
+        timeDatasetChart.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
+        timeDatasetChart.legendVisibleProperty().set(false);
+//        TODO: continue setting up of graphics visualization
+
+    }
+
     private void initializeLanguageService(String currentLanguage) {
-//        languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/calculationsFileDialogLanguage.properties");
-//        languageNotifier.addObserver(
-//                List.of(
-//                        (languageProperties, languageToSet, previousLanguage) -> {
-//                            String key = availableRunsText.getId() + DOT;
-//                            String text = languageProperties.getProperty(key + languageToSet);
-//                            if (text != null) {
-//                                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
-//                                String decodedText = new String(bytes, StandardCharsets.UTF_8);
-//                                availableRunsText.setText(decodedText);
-//                            } else {
-//                                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
-//                            }
-//                        },
-//                        (languageProperties, languageToSet, previousLanguage) -> {
-//                            String key = insertRunsForCalculationLabelTooltip.getId() + DOT;
-//                            String text = languageProperties.getProperty(key + languageToSet);
-//                            if (text != null) {
-//                                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
-//                                String decodedText = new String(bytes, StandardCharsets.UTF_8);
-//                                insertRunsForCalculationLabelTooltip.setText(decodedText);
-//                            } else {
-//                                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
-//                            }
-//                        },
-//                        new LanguageObserverDecorator<>(insertRunsForCalculationLabel),
-//                        new LanguageObserverDecorator<>(ignoreWarningsCheckBox),
-//                        new LanguageObserverDecorator<>(cancelButton),
-//                        new LanguageObserverDecorator<>(confirmButton)
-//                )
-//        );
-//        languageNotifier.changeLanguage(currentLanguage);
+        languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/timeDataSourceDialogLanguage.properties");
+        languageNotifier.addObserver(
+                List.of(
+                        (languageProperties, languageToSet, previousLanguage) -> {
+                            String key = headerLabel.getId() + DOT;
+                            String text = languageProperties.getProperty(key + languageToSet);
+                            if (text != null) {
+                                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                                headerLabel.setText(String.format(decodedText, this.chosenTimeSeriesDataSource.getSourceAddress()));
+                            } else {
+                                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                            }
+                        },
+                        new LanguageObserverDecorator<>(insertingFRFNameLabel),
+                        new LanguageObserverDecorator<>(cancelButton),
+                        new LanguageObserverDecorator<>(confirmButton)
+                )
+        );
+        languageNotifier.changeLanguage(currentLanguage);
     }
+
+    private void initializeChoiseBox(TimeSeriesDataSource chosenTimeSeriesDataSource) {
+        datasetChoiseBox.getItems().addAll(chosenTimeSeriesDataSource.getTimeSeriesDatasets());
+        datasetChoiseBox.getSelectionModel().select(chosenTimeSeriesDataSource.getTimeSeriesDatasets().get(0));
+    }
+
     @FXML
     void initialize() {
         assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
@@ -127,8 +138,8 @@ public class TimeDataSourceDialogController {
         assert controlHBox != null : "fx:id=\"controlHBox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert datasetChoiseBox != null : "fx:id=\"datasetChoiseBox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert headerLabel != null : "fx:id=\"headerLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert insertRunsForCalculationLabel != null : "fx:id=\"insertRunsForCalculationLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert insertRunsForCalculationLabelTooltip != null : "fx:id=\"insertRunsForCalculationLabelTooltip\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertingFRFNameLabel != null : "fx:id=\"insertingFRFNameLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertingFRFNameLabelTooltip != null : "fx:id=\"insertingFRFNameLabelTooltip\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert mainVbox != null : "fx:id=\"mainVbox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert runsForCalculationTextField != null : "fx:id=\"runsForCalculationTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
@@ -137,6 +148,25 @@ public class TimeDataSourceDialogController {
     }
 
     private void setupWidgetsBehaviour(){
+        datasetChoiseBox.setConverter(new StringConverter<TimeSeriesDataset>() {
+            @Override
+            public String toString(TimeSeriesDataset object) {
+                return object.getDatasetName();
+            }
+
+            @Override
+            public TimeSeriesDataset fromString(String string) {
+                return null;
+            }
+        });
+        datasetChoiseBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            timeDatasetChart.getData().clear();
+            XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
+            for (int i = 0; i < newValue.getTimeData().size(); i++) {
+                timeSeries.getData().add(new XYChart.Data<>(chosenTimeSeriesDataSource.getTimeStamps1().get(i), newValue.getTimeData().get(i)));
+            }
+            timeDatasetChart.getData().add(timeSeries);
+        });
 //        cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
 //        confirmButton.setOnMouseClicked(event -> {
 //            Map<String, String> incorrectItems = new HashMap<>();

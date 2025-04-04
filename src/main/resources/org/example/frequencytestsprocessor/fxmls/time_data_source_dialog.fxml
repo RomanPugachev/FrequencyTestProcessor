@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
@@ -40,7 +39,7 @@
                      <children>
                         <LineChart fx:id="timeDatasetChart" VBox.vgrow="ALWAYS">
                           <xAxis>
-                            <CategoryAxis side="BOTTOM" />
+                            <NumberAxis side="BOTTOM" />
                           </xAxis>
                           <yAxis>
                             <NumberAxis side="LEFT" />
@@ -48,11 +47,11 @@
                         </LineChart>
                      </children>
                   </VBox>
-                  <VBox fx:id="transformedDatasetChart" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                  <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <LineChart VBox.vgrow="ALWAYS">
+                        <LineChart fx:id="transformedDatasetChart" VBox.vgrow="ALWAYS">
                            <xAxis>
-                              <CategoryAxis side="BOTTOM" />
+                              <NumberAxis side="BOTTOM" />
                            </xAxis>
                            <yAxis>
                               <NumberAxis side="LEFT" />
@@ -64,7 +63,7 @@
             </HBox>
             <HBox fx:id="controlHBox" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="45.0" VBox.vgrow="NEVER">
                <children>
-                  <Label fx:id="insertRunsForCalculationLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_NAME_LABEL" HBox.hgrow="ALWAYS">
+                  <Label fx:id="insertingFRFNameLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_NAME_LABEL" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>

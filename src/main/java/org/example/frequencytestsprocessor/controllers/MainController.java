@@ -583,7 +583,8 @@ public class MainController {
                     refresher.refreshOnChangeChosenUFFSource(uffSource);
                     idManager.removeAllSlaves();
                 } else if (selectedDataSource instanceof TimeSeriesDataSource) {
-                    callTimeDataSourceDialog();
+//                    TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
+                    callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
                 }
             }
         });
@@ -768,7 +769,7 @@ public class MainController {
         graphsService.pinCurrentGraph(result);
     }
 
-    private void callTimeDataSourceDialog() {
+    private void callTimeDataSourceDialog(TimeSeriesDataSource selectedDataSource) {
         FXMLLoader tempLoader = new FXMLLoader(mainApplication.getClass().getResource("fxmls/time_data_source_dialog.fxml"));
         Scene tempScene = null;
         try {
@@ -778,7 +779,7 @@ public class MainController {
                 // TODO: handled dialog parameters properly
                 if (showErrors) performCalculations(chosenRuns); else performOnlyPossibleCalculations(chosenRuns);
             });
-            tempController.initializeServices(currentLanguage, getSharedRuns());
+            tempController.initializeServices(currentLanguage, selectedDataSource);
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();

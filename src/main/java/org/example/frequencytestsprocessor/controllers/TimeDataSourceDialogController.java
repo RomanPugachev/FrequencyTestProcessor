@@ -1,6 +1,8 @@
 package org.example.frequencytestsprocessor.controllers;
 
+import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -11,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
@@ -94,9 +97,9 @@ public class TimeDataSourceDialogController {
     private void initializeLineChart() {
         timeDatasetChart.getXAxis().setLabel("Time");
         timeDatasetChart.getYAxis().setLabel("Amplitude");
-        timeDatasetChart.getXAxis().setAutoRanging(true);
-        timeDatasetChart.getYAxis().setAutoRanging(true);
-        timeDatasetChart.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
+        timeDatasetChart.getXAxis().setAutoRanging(false);
+        timeDatasetChart.getYAxis().setAutoRanging(false);
+
         timeDatasetChart.legendVisibleProperty().set(false);
 //        TODO: continue setting up of graphics visualization
 
@@ -162,10 +165,27 @@ public class TimeDataSourceDialogController {
         datasetChoiseBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             timeDatasetChart.getData().clear();
             XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
+            timeSeries.setName("Current time series dataset");
+            double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE;
+            double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
             for (int i = 0; i < newValue.getTimeData().size(); i++) {
+                minX = Math.min(minX, chosenTimeSeriesDataSource.getTimeStamps1().get(i));
+                maxX = Math.max(maxX, chosenTimeSeriesDataSource.getTimeStamps1().get(i));
+                minY = Math.min(minY, newValue.getTimeData().get(i));
+                maxY = Math.max(maxY, newValue.getTimeData().get(i));
                 timeSeries.getData().add(new XYChart.Data<>(chosenTimeSeriesDataSource.getTimeStamps1().get(i), newValue.getTimeData().get(i)));
             }
+            timeDatasetChart.setLegendVisible(false);
+//            ((NumberAxis) timeDatasetChart.getXAxis()).setLowerBound(-100000);
+//            ((NumberAxis) timeDatasetChart.getYAxis()).setLowerBound(-100000);
+//            ((NumberAxis) timeDatasetChart.getXAxis()).setUpperBound(100000);
+//            ((NumberAxis) timeDatasetChart.getYAxis()).setUpperBound(100000);
+            ((NumberAxis) timeDatasetChart.getXAxis()).setLowerBound(minX - (maxX - minX) * 0.05);
+            ((NumberAxis) timeDatasetChart.getYAxis()).setLowerBound(minY - (maxY - minY) * 0.05);
+            ((NumberAxis) timeDatasetChart.getXAxis()).setUpperBound(maxX + (maxX - minX) * 0.05);
+            ((NumberAxis) timeDatasetChart.getYAxis()).setUpperBound(maxY + (maxY - minY) * 0.05);
             timeDatasetChart.getData().add(timeSeries);
+            applyDragAndDrop(timeSeries, (NumberAxis) timeDatasetChart.getXAxis(), (NumberAxis) timeDatasetChart.getYAxis());
         });
 //        cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
 //        confirmButton.setOnMouseClicked(event -> {
@@ -176,6 +196,116 @@ public class TimeDataSourceDialogController {
 //                        incorrectItems.keySet().stream().map(k -> k + ":\n" + incorrectItems.get(k)).collect(Collectors.joining("\n\n"))); }
 //            timedialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));
 //        });
+    }
+
+    private void applyDragAndDrop(XYChart.Series<Number, Number> series, NumberAxis xAxis, NumberAxis yAxis) {
+        for (XYChart.Data<Number, Number> data : series.getData()) {
+            Node node = data.getNode();
+
+            // Ensure the node exists.  Sometimes it takes a rendering cycle for it to be created.
+            if (node != null) {
+                makeDraggable(node, data, xAxis, yAxis);
+            } else {
+                // If node is null, defer the setup until it exists using a Platform.runLater() call.
+                // This happens during initial setup if the chart renders before all data points
+                javafx.application.Platform.runLater(() -> {
+                    Node dataNode = data.getNode();  //Try to get the node again
+                    if(dataNode != null) {
+                        makeDraggable(dataNode, data, xAxis, yAxis);
+                    } else {
+                        System.err.println("Could not get data node for " + data); //Print Error if even after deferring, the node isn't found
+                    }
+                });
+            }
+
+
+            // Add a Tooltip to display the data values
+            // Tooltip will now be handled inside makeDraggable
+        }
+    }
+
+    private void makeDraggable(Node node, XYChart.Data<Number, Number> data, NumberAxis xAxis, NumberAxis yAxis) {
+        final double[] dragDelta = new double[2];  // use an array to store deltas
+        final double originalNodeSize = 6; //  or whatever the default size is
+        final double hoverScaleFactor = 1.5; // How much to scale up on hover
+        final Duration animationDuration = Duration.millis(100); // Animation speed
+
+        // Use ScaleTransition for smooth size changes
+        ScaleTransition hoverScaleUp = new ScaleTransition(animationDuration, node);
+        hoverScaleUp.setFromX(1.0);
+        hoverScaleUp.setFromY(1.0);
+        hoverScaleUp.setToX(hoverScaleFactor);
+        hoverScaleUp.setToY(hoverScaleFactor);
+
+
+        ScaleTransition hoverScaleDown = new ScaleTransition(animationDuration, node);
+        hoverScaleDown.setFromX(hoverScaleFactor);
+        hoverScaleDown.setFromY(hoverScaleFactor);
+        hoverScaleDown.setToX(1.0);
+        hoverScaleDown.setToY(1.0);
+
+        // Create and install the tooltip
+        Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
+        Tooltip.install(node, tooltip);
+
+        node.setOnMousePressed(event -> {
+            timeDatasetChart.setAnimated(false);
+
+            dragDelta[0] = node.getLayoutX() - event.getSceneX();
+            dragDelta[1] = node.getLayoutY() - event.getSceneY();
+            node.setCursor(javafx.scene.Cursor.MOVE);
+
+            hoverScaleUp.stop();
+            hoverScaleDown.stop();
+
+            //  Ensure the node is at its normal size before starting a drag
+            node.setScaleX(1.0);
+            node.setScaleY(1.0);
+        });
+
+        node.setOnMouseReleased(event -> {
+            node.setCursor(javafx.scene.Cursor.HAND);
+            timeDatasetChart.setAnimated(true);
+        });
+
+        node.setOnMouseDragged(event -> {
+            double newX = event.getSceneX() + dragDelta[0];
+            double newY = event.getSceneY() + dragDelta[1];
+
+            // Clamp the new X and Y positions to the chart's bounds.
+            double xLowerBound = xAxis.getLowerBound();
+            double xUpperBound = xAxis.getUpperBound();
+            double yLowerBound = yAxis.getLowerBound();
+            double yUpperBound = yAxis.getUpperBound();
+
+            double xValue = xAxis.getValueForDisplay(newX).doubleValue();
+            double yValue = yAxis.getValueForDisplay(newY).doubleValue();
+
+            if (xValue >= xLowerBound && xValue <= xUpperBound &&
+                    yValue >= yLowerBound && yValue <= yUpperBound) {
+
+                data.setXValue(xValue);
+                data.setYValue(yValue);
+
+                //Force the chart to update, otherwise dragged location isn't correct.
+                xAxis.requestAxisLayout();
+                yAxis.requestAxisLayout();
+            }
+        });
+
+        node.setOnMouseEntered(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.HAND);
+                hoverScaleUp.play();
+            }
+        });
+
+        node.setOnMouseExited(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.DEFAULT);
+                hoverScaleDown.play();
+            }
+        });
     }
 
 

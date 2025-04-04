@@ -149,9 +149,9 @@ public class FRFRepository {
 //                    session.persist(datasetForInserting);
                 }
                 // Debugging
-//                if (line == dataLinesInFile.get(dataLinesInFile.size() - 1)) {
-//                    break;
-//                }
+        //        if (line == dataLinesInFile.get(dataLinesInFile.size() - 1)) {
+        //            break;
+        //        }
             }
             // Check of existing datasets
             resultTimeSeriesSource.getTimeSeriesDatasets().stream()

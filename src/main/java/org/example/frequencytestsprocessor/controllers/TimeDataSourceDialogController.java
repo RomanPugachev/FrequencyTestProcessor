@@ -1,15 +1,19 @@
 package org.example.frequencytestsprocessor.controllers;
 
 import javafx.animation.ScaleTransition;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -26,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static javafx.scene.input.KeyCode.ENTER;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.showAlert;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
@@ -58,10 +63,22 @@ public class TimeDataSourceDialogController {
     private Label headerLabel;
 
     @FXML
+    private Tooltip insertRunsForCalculationLabelTooltip;
+
+    @FXML
+    private Tooltip insertRunsForCalculationLabelTooltip1;
+
+    @FXML
+    private Tooltip insertRunsForCalculationLabelTooltip2;
+
+    @FXML
     private Label insertingFRFNameLabel;
 
     @FXML
-    private Tooltip insertingFRFNameLabelTooltip;
+    private Label leftBorderLabel;
+
+    @FXML
+    private TextField leftBorderTextField;
 
     @FXML
     private AnchorPane mainAnchorPane;
@@ -70,7 +87,16 @@ public class TimeDataSourceDialogController {
     private VBox mainVbox;
 
     @FXML
+    private Label rightBorderLabel;
+
+    @FXML
+    private TextField rightBorderTextField;
+
+    @FXML
     private TextField runsForCalculationTextField;
+
+    @FXML
+    private Rectangle selectionRectangle;
 
     @FXML
     private LineChart<Number, Number> timeDatasetChart;
@@ -78,7 +104,24 @@ public class TimeDataSourceDialogController {
     @FXML
     private LineChart<Number, Number> transformedDatasetChart;
 
+    @FXML
+    private NumberAxis xAxisTime;
+
+    @FXML
+    private NumberAxis yAxisTime;
+
     // Common parameters and objects
+    // Variables for hovering implementation
+    private double startX, startY; // Mouse press coordinates
+
+    private boolean isHovering = false;
+    private String defaultBorder;
+    private String hoverBorder = "-fx-border-color: blue; -fx-border-width: 2;";
+
+    // Store original axis ranges for unzooming
+    private double originalXLowerBound, originalXUpperBound, originalYLowerBound, originalYUpperBound;
+    private boolean isZoomed = false;
+
     @Setter
     private TimeDialogCommitHandler timedialogCommitHandler;
 
@@ -88,21 +131,30 @@ public class TimeDataSourceDialogController {
 
     public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
         this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
+        initializeTextFields();
         initializeLineChart();
-        initializeChoiseBox(chosenTimeSeriesDataSource);
+        initializeChoiceBox(chosenTimeSeriesDataSource);
         initializeLanguageService(currentLanguage);
         setupWidgetsBehaviour();
     }
 
     private void initializeLineChart() {
-        timeDatasetChart.getXAxis().setLabel("Time");
-        timeDatasetChart.getYAxis().setLabel("Amplitude");
-        timeDatasetChart.getXAxis().setAutoRanging(false);
-        timeDatasetChart.getYAxis().setAutoRanging(false);
+        xAxisTime.setLabel("Time");
+        yAxisTime.setLabel("Amplitude");
+        xAxisTime.setAutoRanging(false);
+        yAxisTime.setAutoRanging(false);
 
         timeDatasetChart.legendVisibleProperty().set(false);
+
 //        TODO: continue setting up of graphics visualization
 
+    }
+
+    private void initializeTextFields() {
+        double leftBorder = chosenTimeSeriesDataSource.getTimeStamps1().get(0);
+        double rightBorder = chosenTimeSeriesDataSource.getTimeStamps1().get(chosenTimeSeriesDataSource.getTimeStamps1().size() - 1);
+        leftBorderTextField.setText(String.valueOf(leftBorder));
+        rightBorderTextField.setText(String.valueOf(rightBorder));
     }
 
     private void initializeLanguageService(String currentLanguage) {
@@ -120,6 +172,8 @@ public class TimeDataSourceDialogController {
                                 throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                             }
                         },
+                        new LanguageObserverDecorator<>(leftBorderLabel),
+                        new LanguageObserverDecorator<>(rightBorderLabel),
                         new LanguageObserverDecorator<>(insertingFRFNameLabel),
                         new LanguageObserverDecorator<>(cancelButton),
                         new LanguageObserverDecorator<>(confirmButton)
@@ -128,7 +182,7 @@ public class TimeDataSourceDialogController {
         languageNotifier.changeLanguage(currentLanguage);
     }
 
-    private void initializeChoiseBox(TimeSeriesDataSource chosenTimeSeriesDataSource) {
+    private void initializeChoiceBox(TimeSeriesDataSource chosenTimeSeriesDataSource) {
         datasetChoiseBox.getItems().addAll(chosenTimeSeriesDataSource.getTimeSeriesDatasets());
         datasetChoiseBox.getSelectionModel().select(chosenTimeSeriesDataSource.getTimeSeriesDatasets().get(0));
     }
@@ -141,13 +195,22 @@ public class TimeDataSourceDialogController {
         assert controlHBox != null : "fx:id=\"controlHBox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert datasetChoiseBox != null : "fx:id=\"datasetChoiseBox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert headerLabel != null : "fx:id=\"headerLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertRunsForCalculationLabelTooltip != null : "fx:id=\"insertRunsForCalculationLabelTooltip\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertRunsForCalculationLabelTooltip1 != null : "fx:id=\"insertRunsForCalculationLabelTooltip1\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertRunsForCalculationLabelTooltip2 != null : "fx:id=\"insertRunsForCalculationLabelTooltip2\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert insertingFRFNameLabel != null : "fx:id=\"insertingFRFNameLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert insertingFRFNameLabelTooltip != null : "fx:id=\"insertingFRFNameLabelTooltip\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert leftBorderLabel != null : "fx:id=\"leftBorderLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert leftBorderTextField != null : "fx:id=\"leftBorderTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert mainVbox != null : "fx:id=\"mainVbox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert rightBorderLabel != null : "fx:id=\"rightBorderLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert rightBorderTextField != null : "fx:id=\"rightBorderTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert runsForCalculationTextField != null : "fx:id=\"runsForCalculationTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert selectionRectangle != null : "fx:id=\"selectionRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert timeDatasetChart != null : "fx:id=\"timeDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert transformedDatasetChart != null : "fx:id=\"transformedDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert xAxisTime != null : "fx:id=\"xAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert yAxisTime != null : "fx:id=\"yAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
     }
 
     private void setupWidgetsBehaviour(){
@@ -163,151 +226,78 @@ public class TimeDataSourceDialogController {
             }
         });
         datasetChoiseBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            timeDatasetChart.getData().clear();
-            XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
-            timeSeries.setName("Current time series dataset");
-            double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE;
-            double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
-            for (int i = 0; i < newValue.getTimeData().size(); i++) {
-                minX = Math.min(minX, chosenTimeSeriesDataSource.getTimeStamps1().get(i));
-                maxX = Math.max(maxX, chosenTimeSeriesDataSource.getTimeStamps1().get(i));
-                minY = Math.min(minY, newValue.getTimeData().get(i));
-                maxY = Math.max(maxY, newValue.getTimeData().get(i));
-                timeSeries.getData().add(new XYChart.Data<>(chosenTimeSeriesDataSource.getTimeStamps1().get(i), newValue.getTimeData().get(i)));
-            }
-            timeDatasetChart.setLegendVisible(false);
-//            ((NumberAxis) timeDatasetChart.getXAxis()).setLowerBound(-100000);
-//            ((NumberAxis) timeDatasetChart.getYAxis()).setLowerBound(-100000);
-//            ((NumberAxis) timeDatasetChart.getXAxis()).setUpperBound(100000);
-//            ((NumberAxis) timeDatasetChart.getYAxis()).setUpperBound(100000);
-            ((NumberAxis) timeDatasetChart.getXAxis()).setLowerBound(minX - (maxX - minX) * 0.05);
-            ((NumberAxis) timeDatasetChart.getYAxis()).setLowerBound(minY - (maxY - minY) * 0.05);
-            ((NumberAxis) timeDatasetChart.getXAxis()).setUpperBound(maxX + (maxX - minX) * 0.05);
-            ((NumberAxis) timeDatasetChart.getYAxis()).setUpperBound(maxY + (maxY - minY) * 0.05);
-            timeDatasetChart.getData().add(timeSeries);
-            applyDragAndDrop(timeSeries, (NumberAxis) timeDatasetChart.getXAxis(), (NumberAxis) timeDatasetChart.getYAxis());
+            redrawDatasetChart();
         });
-//        cancelButton.setOnMouseClicked(event -> ((Stage) cancelButton.getScene().getWindow()).close());
-//        confirmButton.setOnMouseClicked(event -> {
-//            Map<String, String> incorrectItems = new HashMap<>();
-//            Set<Long> chosenRuns = (Set<Long>) extractRuns(runsForCalculationTextField.getText(), incorrectItems);
-//            if (!(ignoreWarningsCheckBox.isSelected()) && incorrectItems.size() >= 1) {
-//                showAlert("Error", "Errors in extracting runs",
-//                        incorrectItems.keySet().stream().map(k -> k + ":\n" + incorrectItems.get(k)).collect(Collectors.joining("\n\n"))); }
-//            timedialogCommitHandler.handleCommit(chosenRuns, !(ignoreWarningsCheckBox.isSelected()));
-//        });
+        leftBorderTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue != null && !newValue.isEmpty()) {
+                    double value = Double.parseDouble(newValue);
+                    // Update the left border value
+                    // Add your logic here to handle the new left border value
+                }
+            } catch (NumberFormatException e) {
+                // Handle invalid input
+                leftBorderTextField.setText(oldValue);
+            } finally {
+                redrawDatasetChart();
+            }
+        });
+        listenSubmitBorderUpdate(leftBorderTextField);
+        listenSubmitBorderUpdate(rightBorderTextField);
     }
 
-    private void applyDragAndDrop(XYChart.Series<Number, Number> series, NumberAxis xAxis, NumberAxis yAxis) {
-        for (XYChart.Data<Number, Number> data : series.getData()) {
-            Node node = data.getNode();
-
-            // Ensure the node exists.  Sometimes it takes a rendering cycle for it to be created.
-            if (node != null) {
-                makeDraggable(node, data, xAxis, yAxis);
-            } else {
-                // If node is null, defer the setup until it exists using a Platform.runLater() call.
-                // This happens during initial setup if the chart renders before all data points
-                javafx.application.Platform.runLater(() -> {
-                    Node dataNode = data.getNode();  //Try to get the node again
-                    if(dataNode != null) {
-                        makeDraggable(dataNode, data, xAxis, yAxis);
-                    } else {
-                        System.err.println("Could not get data node for " + data); //Print Error if even after deferring, the node isn't found
-                    }
-                });
+    private void listenSubmitBorderUpdate(TextField borderTextField) {
+        rightBorderTextField.setOnKeyPressed(event -> {
+            if (event.getCode() == ENTER) {
+                try {
+                    Double.parseDouble(rightBorderTextField.getText());
+                } catch (Exception e) {
+                    // Handle invalid input
+                    System.out.println("Invalid input. Please enter a valid number.");
+                    rightBorderTextField.setText(chosenTimeSeriesDataSource.getTimeStamps1().get(0).toString());
+                }
             }
+        });
+        redrawDatasetChart();
+    }
 
+    private void redrawDatasetChart() {
+        timeDatasetChart.getData().clear();
+        XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
+        timeSeries.setName("Current time series dataset");
 
-            // Add a Tooltip to display the data values
-            // Tooltip will now be handled inside makeDraggable
+        double leftBorder = Double.parseDouble(leftBorderTextField.getText());
+        double rightBorder = Double.parseDouble(rightBorderTextField.getText());
+
+        Iterator<Double> timeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+        Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
+
+        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(chosenTimeSeriesDataSource.getTimeStamps1().size());
+
+        int count = 0, sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+
+        double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+        while (timeStampsIterator.hasNext() && timeDataIterator.hasNext()) {
+            double x = timeStampsIterator.next();
+            double y = timeDataIterator.next();
+            if (x >= leftBorder && x <= rightBorder) {
+                minY = Math.min(minY, y);
+                maxY = Math.max(maxY, y);
+                if (count % sampleRate == 0) {
+                    dataPoints.add(new XYChart.Data<>(x, y));
+                }
+                count++;
+            } else if (x > rightBorder) {
+                break;
+            }
         }
+        timeSeries.getData().addAll(dataPoints);
+        xAxisTime.setLowerBound(leftBorder);
+        xAxisTime.setUpperBound(rightBorder);
+        yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
+        yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
+        timeDatasetChart.getData().add(timeSeries);
     }
-
-    private void makeDraggable(Node node, XYChart.Data<Number, Number> data, NumberAxis xAxis, NumberAxis yAxis) {
-        final double[] dragDelta = new double[2];  // use an array to store deltas
-        final double originalNodeSize = 6; //  or whatever the default size is
-        final double hoverScaleFactor = 1.5; // How much to scale up on hover
-        final Duration animationDuration = Duration.millis(100); // Animation speed
-
-        // Use ScaleTransition for smooth size changes
-        ScaleTransition hoverScaleUp = new ScaleTransition(animationDuration, node);
-        hoverScaleUp.setFromX(1.0);
-        hoverScaleUp.setFromY(1.0);
-        hoverScaleUp.setToX(hoverScaleFactor);
-        hoverScaleUp.setToY(hoverScaleFactor);
-
-
-        ScaleTransition hoverScaleDown = new ScaleTransition(animationDuration, node);
-        hoverScaleDown.setFromX(hoverScaleFactor);
-        hoverScaleDown.setFromY(hoverScaleFactor);
-        hoverScaleDown.setToX(1.0);
-        hoverScaleDown.setToY(1.0);
-
-        // Create and install the tooltip
-        Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
-        Tooltip.install(node, tooltip);
-
-        node.setOnMousePressed(event -> {
-            timeDatasetChart.setAnimated(false);
-
-            dragDelta[0] = node.getLayoutX() - event.getSceneX();
-            dragDelta[1] = node.getLayoutY() - event.getSceneY();
-            node.setCursor(javafx.scene.Cursor.MOVE);
-
-            hoverScaleUp.stop();
-            hoverScaleDown.stop();
-
-            //  Ensure the node is at its normal size before starting a drag
-            node.setScaleX(1.0);
-            node.setScaleY(1.0);
-        });
-
-        node.setOnMouseReleased(event -> {
-            node.setCursor(javafx.scene.Cursor.HAND);
-            timeDatasetChart.setAnimated(true);
-        });
-
-        node.setOnMouseDragged(event -> {
-            double newX = event.getSceneX() + dragDelta[0];
-            double newY = event.getSceneY() + dragDelta[1];
-
-            // Clamp the new X and Y positions to the chart's bounds.
-            double xLowerBound = xAxis.getLowerBound();
-            double xUpperBound = xAxis.getUpperBound();
-            double yLowerBound = yAxis.getLowerBound();
-            double yUpperBound = yAxis.getUpperBound();
-
-            double xValue = xAxis.getValueForDisplay(newX).doubleValue();
-            double yValue = yAxis.getValueForDisplay(newY).doubleValue();
-
-            if (xValue >= xLowerBound && xValue <= xUpperBound &&
-                    yValue >= yLowerBound && yValue <= yUpperBound) {
-
-                data.setXValue(xValue);
-                data.setYValue(yValue);
-
-                //Force the chart to update, otherwise dragged location isn't correct.
-                xAxis.requestAxisLayout();
-                yAxis.requestAxisLayout();
-            }
-        });
-
-        node.setOnMouseEntered(event -> {
-            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
-                node.setCursor(javafx.scene.Cursor.HAND);
-                hoverScaleUp.play();
-            }
-        });
-
-        node.setOnMouseExited(event -> {
-            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
-                node.setCursor(javafx.scene.Cursor.DEFAULT);
-                hoverScaleDown.play();
-            }
-        });
-    }
-
 
     @FunctionalInterface
     public interface TimeDialogCommitHandler {

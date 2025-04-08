@@ -10,7 +10,9 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
 <AnchorPane fx:id="mainAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="100.0" minWidth="100.0" prefHeight="444.0" prefWidth="641.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.controllers.TimeDataSourceDialogController">
    <children>
@@ -35,14 +37,19 @@
             </HBox>
             <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                <children>
-                  <LineChart fx:id="timeDatasetChart">
-                    <xAxis>
-                      <NumberAxis side="BOTTOM" />
-                    </xAxis>
-                    <yAxis>
-                      <NumberAxis side="LEFT" />
-                    </yAxis>
-                  </LineChart>
+                  <StackPane>
+                     <children>
+                        <LineChart fx:id="timeDatasetChart">
+                          <xAxis>
+                            <NumberAxis side="BOTTOM" fx:id="xAxisTime" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxisTime" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                        <Rectangle fx:id="selectionRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                     </children>
+                  </StackPane>
                   <LineChart fx:id="transformedDatasetChart">
                      <xAxis>
                         <NumberAxis side="BOTTOM" />
@@ -56,6 +63,29 @@
             </HBox>
             <HBox fx:id="controlHBox" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="45.0" VBox.vgrow="NEVER">
                <children>
+                  <Label fx:id="leftBorderLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_LEFT_LIMIT">
+                     <tooltip>
+                        <Tooltip fx:id="insertRunsForCalculationLabelTooltip1" text="Empty Tooltip" textAlignment="CENTER" />
+                     </tooltip>
+                  </Label>
+                  <TextField fx:id="leftBorderTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Label fx:id="rightBorderLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_RIGHT_LIMIT">
+                     <tooltip>
+                        <Tooltip fx:id="insertRunsForCalculationLabelTooltip2" text="Empty Tooltip" textAlignment="CENTER" />
+                     </tooltip>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+                  <TextField fx:id="rightBorderTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="100.0" top="10.0" />
+                     </HBox.margin>
+                  </TextField>
                   <Label fx:id="insertingFRFNameLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_NAME_LABEL" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets />
@@ -66,7 +96,7 @@
                   </Label>
                   <TextField fx:id="runsForCalculationTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
                      <HBox.margin>
-                        <Insets top="10.0" />
+                        <Insets right="50.0" top="10.0" />
                      </HBox.margin>
                   </TextField>
                </children>

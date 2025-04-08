@@ -790,7 +790,7 @@ public class MainController {
         tempStage.setScene(tempScene);
         tempStage.setTitle(
                 new String(languageNotifier.getLanaguagePropertyService().
-                        getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
+                        getProperties().getProperty(TIMESERIES_FRF_EXTRACTION_DIALOG_TITLE + DOT + currentLanguage)
                         .getBytes(StandardCharsets.ISO_8859_1),
                         StandardCharsets.UTF_8
                 )

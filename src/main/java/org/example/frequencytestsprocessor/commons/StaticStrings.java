@@ -16,6 +16,7 @@ public class StaticStrings {
     public static final String PATH_OF_PYTHON_SCRIPT_FOR_UFF = "src/main/resources/org/example/frequencytestsprocessor/pythonScripts/UFFReadingUtils.py";
     public static final String BASE_UFF_TYPES_CALSS_PATH = "org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF";
     public static final String CALCULATIONS_DIALOG_TITLE = "tempStage.calculationDialog";
+    public static final String TIMESERIES_FRF_EXTRACTION_DIALOG_TITLE = "tempStage.timeSeriesFRFExtractionDialog";
     public static final String TYPES_OF_DATASETS = "typesOfDatasets";
     public static final String TO_BE_PROCESSED_DATASETS_INDICES = "toBeProcessedDatasetsIndices";
     public static final String DATASETS = "datasets";

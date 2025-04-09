@@ -305,17 +305,24 @@ public class TimeDataSourceDialogController {
         XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
         transformedSeries.setName("Transformed dataset");
 
-        Complex[] transformedData = FourierTransforms.fft(timeDatasetChart.getData().get(0).getData().stream().map(dataPoint -> (Double) dataPoint.getYValue()).toList());
-
+        List<Double> dataForTransformation =new LinkedList<>();
         List<Double> frequencies = new LinkedList<>();
         List<Double> includedTimeStamps = new LinkedList<>();
+
+        Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
         Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
-        while (sourceTimeStampsIterator.hasNext()) {
+
+        while (sourceTimeStampsIterator.hasNext() && timeDataIterator.hasNext()) {
+            double datasetValue = timeDataIterator.next();
             double timeStamp = sourceTimeStampsIterator.next();
             if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
                 includedTimeStamps.add(timeStamp);
+                dataForTransformation.add(datasetValue);
             }
         }
+
+        Complex[] transformedData = FourierTransforms.fft(dataForTransformation);
+
         for (int i = 0; i < transformedData.length; i++) {
             double frequency = i / (includedTimeStamps.size() * (includedTimeStamps.get(1) - includedTimeStamps.get(0)));
             frequencies.add(frequency);

@@ -13,6 +13,7 @@ module org.example.frequencytestsprocessor {
     requires jakarta.transaction;
     requires org.reflections;
     requires com.opencsv;
+    requires commons.math3;
 
     opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor;

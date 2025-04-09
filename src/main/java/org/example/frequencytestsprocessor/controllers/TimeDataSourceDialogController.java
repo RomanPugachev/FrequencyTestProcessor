@@ -22,7 +22,10 @@ import javafx.util.StringConverter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
+import org.example.frequencytestsprocessor.datamodel.myMath.FourierTransforms;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.net.URL;
@@ -110,6 +113,12 @@ public class TimeDataSourceDialogController {
     @FXML
     private NumberAxis yAxisTime;
 
+    @FXML
+    private NumberAxis xAxisTransformed;
+
+    @FXML
+    private NumberAxis yAxisTransformed;
+
     // Common parameters and objects
     // Variables for hovering implementation
     private double startX, startY; // Mouse press coordinates
@@ -132,15 +141,14 @@ public class TimeDataSourceDialogController {
     public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
         this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
         initializeTextFields();
-        initializeLineChart();
+        initializeLineCharts();
         initializeChoiceBox(chosenTimeSeriesDataSource);
         initializeLanguageService(currentLanguage);
         setupWidgetsBehaviour();
+        redrawDatasetChart();
     }
 
-    private void initializeLineChart() {
-        xAxisTime.setLabel("Time");
-        yAxisTime.setLabel("Amplitude");
+    private void initializeLineCharts() {
         xAxisTime.setAutoRanging(false);
         yAxisTime.setAutoRanging(false);
 
@@ -161,6 +169,15 @@ public class TimeDataSourceDialogController {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/timeDataSourceDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
+                        observeAxis(xAxisTime),
+                        observeAxis(yAxisTime),
+                        observeAxis(xAxisTransformed),
+                        observeAxis(yAxisTransformed),
+                        new LanguageObserverDecorator<>(leftBorderLabel),
+                        new LanguageObserverDecorator<>(rightBorderLabel),
+                        new LanguageObserverDecorator<>(insertingFRFNameLabel),
+                        new LanguageObserverDecorator<>(cancelButton),
+                        new LanguageObserverDecorator<>(confirmButton),
                         (languageProperties, languageToSet, previousLanguage) -> {
                             String key = headerLabel.getId() + DOT;
                             String text = languageProperties.getProperty(key + languageToSet);
@@ -171,12 +188,7 @@ public class TimeDataSourceDialogController {
                             } else {
                                 throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                             }
-                        },
-                        new LanguageObserverDecorator<>(leftBorderLabel),
-                        new LanguageObserverDecorator<>(rightBorderLabel),
-                        new LanguageObserverDecorator<>(insertingFRFNameLabel),
-                        new LanguageObserverDecorator<>(cancelButton),
-                        new LanguageObserverDecorator<>(confirmButton)
+                        }
                 )
         );
         languageNotifier.changeLanguage(currentLanguage);
@@ -228,7 +240,12 @@ public class TimeDataSourceDialogController {
         datasetChoiseBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             redrawDatasetChart();
         });
-        leftBorderTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+        listenSubmitBorderUpdate(leftBorderTextField);
+        listenSubmitBorderUpdate(rightBorderTextField);
+    }
+
+    private void listenSubmitBorderUpdate(TextField borderTextField) {
+        borderTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (newValue != null && !newValue.isEmpty()) {
                     double value = Double.parseDouble(newValue);
@@ -237,28 +254,11 @@ public class TimeDataSourceDialogController {
                 }
             } catch (NumberFormatException e) {
                 // Handle invalid input
-                leftBorderTextField.setText(oldValue);
+                borderTextField.setText(oldValue);
             } finally {
                 redrawDatasetChart();
             }
         });
-        listenSubmitBorderUpdate(leftBorderTextField);
-        listenSubmitBorderUpdate(rightBorderTextField);
-    }
-
-    private void listenSubmitBorderUpdate(TextField borderTextField) {
-        rightBorderTextField.setOnKeyPressed(event -> {
-            if (event.getCode() == ENTER) {
-                try {
-                    Double.parseDouble(rightBorderTextField.getText());
-                } catch (Exception e) {
-                    // Handle invalid input
-                    System.out.println("Invalid input. Please enter a valid number.");
-                    rightBorderTextField.setText(chosenTimeSeriesDataSource.getTimeStamps1().get(0).toString());
-                }
-            }
-        });
-        redrawDatasetChart();
     }
 
     private void redrawDatasetChart() {
@@ -297,6 +297,46 @@ public class TimeDataSourceDialogController {
         yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
         yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
         timeDatasetChart.getData().add(timeSeries);
+        updateFourierTransformChart();
+    }
+
+    private void updateFourierTransformChart() {
+        transformedDatasetChart.getData().clear();
+        XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
+        transformedSeries.setName("Transformed dataset");
+
+        Complex[] transformedData = FourierTransforms.fft(timeDatasetChart.getData().get(0).getData().stream().map(dataPoint -> (Double) dataPoint.getYValue()).toList());
+
+        List<Double> frequencies = new LinkedList<>();
+        List<Double> includedTimeStamps = new LinkedList<>();
+        Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
+                includedTimeStamps.add(timeStamp);
+            }
+        }
+        for (int i = 0; i < transformedData.length; i++) {
+            double frequency = i / (includedTimeStamps.size() * (includedTimeStamps.get(1) - includedTimeStamps.get(0)));
+            frequencies.add(frequency);
+            transformedSeries.getData().add(new XYChart.Data<>(frequency, Complex.getModuleAsDouble(transformedData[i])));
+        }
+        transformedDatasetChart.getData().add(transformedSeries);
+
+    }
+
+    private static LanguageObserver observeAxis(NumberAxis axis) {
+        return (languageProperties, languageToSet, previousLanguage) -> {
+            String key = axis.getId() + DOT;
+            String text = languageProperties.getProperty(key + languageToSet);
+            if (text != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                axis.setLabel(decodedText);
+            } else {
+                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+            }
+        };
     }
 
     @FunctionalInterface

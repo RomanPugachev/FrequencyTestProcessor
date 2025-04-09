@@ -52,10 +52,10 @@
                   </StackPane>
                   <LineChart fx:id="transformedDatasetChart">
                      <xAxis>
-                        <NumberAxis side="BOTTOM" />
+                        <NumberAxis side="BOTTOM" fx:id="xAxisTransformed" />
                      </xAxis>
                      <yAxis>
-                        <NumberAxis side="LEFT" />
+                        <NumberAxis fx:id="yAxisTransformed" side="LEFT" />
                      </yAxis>
                   </LineChart>
 

@@ -368,7 +368,7 @@ public class TimeDataSourceDialogController {
             dataPoints.add(new XYChart.Data<>(frequency, y));
         }
         transformedSeries.getData().addAll(dataPoints);
-        xAxisTransformed.setLowerBound();
+        xAxisTransformed.setLowerBound(minX );
         xAxisTransformed.setUpperBound(maxX);
         yAxisTransformed.setLowerBound(minY - (maxY - minY) * 0.05);
         yAxisTransformed.setUpperBound(maxY + (maxY - minY) * 0.05);

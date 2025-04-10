@@ -4,6 +4,7 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class FourierTransforms {
@@ -11,8 +12,9 @@ public class FourierTransforms {
         int n = timeSeries.size();
         double[] realTimeSeries = new double[n];
 
+        Iterator<Double> iterator = timeSeries.iterator();
         for (int i = 0; i < n; i++) {
-            realTimeSeries[i] = timeSeries.get(i);
+            realTimeSeries[i] = iterator.next();
         }
 
         if (isPowerOfTwo(n)) {

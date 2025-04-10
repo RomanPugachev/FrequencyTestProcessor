@@ -138,6 +138,8 @@ public class TimeDataSourceDialogController {
 
     TimeSeriesDataSource chosenTimeSeriesDataSource;
 
+    private Complex[] transformedData;
+
     public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
         this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
         initializeTextFields();
@@ -153,6 +155,7 @@ public class TimeDataSourceDialogController {
         yAxisTime.setAutoRanging(false);
 
         timeDatasetChart.legendVisibleProperty().set(false);
+        transformedDatasetChart.legendVisibleProperty().set(false);
 
 //        TODO: continue setting up of graphics visualization
 
@@ -297,39 +300,79 @@ public class TimeDataSourceDialogController {
         yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
         yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
         timeDatasetChart.getData().add(timeSeries);
-        updateFourierTransformChart();
+        updateTransformedData();
     }
 
-    private void updateFourierTransformChart() {
-        transformedDatasetChart.getData().clear();
-        XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
-        transformedSeries.setName("Transformed dataset");
-
+    private void updateTransformedData() {
+        List<Double> includedTimeStamps = new LinkedList<>();
         List<Double> dataForTransformation =new LinkedList<>();
         List<Double> frequencies = new LinkedList<>();
-        List<Double> includedTimeStamps = new LinkedList<>();
 
         Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
         Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
 
-        while (sourceTimeStampsIterator.hasNext() && timeDataIterator.hasNext()) {
-            double datasetValue = timeDataIterator.next();
+        while (timeDataIterator.hasNext() && sourceTimeStampsIterator.hasNext()) {
             double timeStamp = sourceTimeStampsIterator.next();
+            double datasetValue = timeDataIterator.next();
             if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
                 includedTimeStamps.add(timeStamp);
                 dataForTransformation.add(datasetValue);
             }
         }
 
-        Complex[] transformedData = FourierTransforms.fft(dataForTransformation);
+        setTransformedData(FourierTransforms.fft(dataForTransformation));
+    }
 
-        for (int i = 0; i < transformedData.length; i++) {
-            double frequency = i / (includedTimeStamps.size() * (includedTimeStamps.get(1) - includedTimeStamps.get(0)));
-            frequencies.add(frequency);
-            transformedSeries.getData().add(new XYChart.Data<>(frequency, Complex.getModuleAsDouble(transformedData[i])));
+    private void setTransformedData(Complex[] transformedData) {
+        this.transformedData = transformedData;
+        updateFourierTransformChart();
+    }
+
+    private void updateFourierTransformChart() {
+
+        // Clear existing data from the chart and extracting timeStamps limit and number of points
+        transformedDatasetChart.getData().clear();
+        XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
+        transformedSeries.setName("Transformed dataset");
+
+        Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+        Double firstTimeStamp = null;
+        Double lastTimeStamp = null;
+        int numberOfTimeStamps = 0;
+
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
+                if (firstTimeStamp == null) {
+                    firstTimeStamp = timeStamp;
+                }
+                numberOfTimeStamps++;
+                lastTimeStamp = timeStamp;
+            } else if (timeStamp > Double.valueOf(rightBorderTextField.getText())) {
+                break;
+            }
         }
-        transformedDatasetChart.getData().add(transformedSeries);
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Creating DataPoints for the chart with sample rate and setting limits
+        double chosenPeriod = lastTimeStamp - firstTimeStamp;
+        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(numberOfTimeStamps);
+        int sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+        double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+        double minX = 0, maxX = (transformedData.length - 1) / chosenPeriod;
+        for (int i = 0; i < transformedData.length / sampleRate; i++) {
+            double frequency = (i * sampleRate) / chosenPeriod;
+            double y = Complex.getModuleAsDouble(transformedData[i * sampleRate]);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+            dataPoints.add(new XYChart.Data<>(frequency, y));
+        }
+        transformedSeries.getData().addAll(dataPoints);
+        xAxisTransformed.setLowerBound();
+        xAxisTransformed.setUpperBound(maxX);
+        yAxisTransformed.setLowerBound(minY - (maxY - minY) * 0.05);
+        yAxisTransformed.setUpperBound(maxY + (maxY - minY) * 0.05);
+        transformedDatasetChart.getData().add(transformedSeries);
     }
 
     private static LanguageObserver observeAxis(NumberAxis axis) {

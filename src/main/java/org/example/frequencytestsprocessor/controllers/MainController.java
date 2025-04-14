@@ -775,9 +775,8 @@ public class MainController {
         try {
             tempScene = new Scene(tempLoader.load());
             TimeDataSourceDialogController tempController = tempLoader.getController();
-            tempController.setTimedialogCommitHandler((chosenRuns, showErrors) -> {
-                // TODO: handled dialog parameters properly
-                if (showErrors) performCalculations(chosenRuns); else performOnlyPossibleCalculations(chosenRuns);
+            tempController.setTimedialogCommitHandler((frequencies, complexes) -> {
+                // TODO: handle incoming from dialog frequencies and complexes
             });
             tempController.initializeServices(currentLanguage, selectedDataSource);
         } catch (IOException e) {

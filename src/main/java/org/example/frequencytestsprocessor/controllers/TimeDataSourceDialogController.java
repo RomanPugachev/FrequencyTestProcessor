@@ -412,47 +412,12 @@ public class TimeDataSourceDialogController {
         sinusTimeSeries.setDatasetName("Test sinus time series " + sinusFrequency + " Hz");
         chosenTimeSeriesDataSource.addTimeSeriesDataset(sinusTimeSeries);
         datasetChoiseBox.getItems().add(sinusTimeSeries);
-//        timeDatasetChart.getData().clear();
-//        XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
-//        timeSeries.setName("Current time series dataset");
-//
-//
-////        Iterator<Double> timeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
-////        Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
-//
-//        Random random = new Random();
-//        double sinusFrequency = random.nextDouble(0.1, 10);
-//        double periodsForVisualization = 10;
-//        double sinusAmplitude = 1;
-//        int pointsPerPeriod = 100;
-//        double dt = 1.0 / pointsPerPeriod / sinusFrequency;
-//        int totalPoints = (int) Math.ceil(periodsForVisualization * pointsPerPeriod);
-//        double leftBorder = 0;
-//        double rightBorder = periodsForVisualization / sinusFrequency;
-//
-//        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(totalPoints);
-//
-//        int count = 0, sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
-//
-//        double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
-//        for(int stampId = 0; stampId < totalPoints; stampId++){
-//            double x = dt * stampId;
-//            double y = sinusAmplitude * Math.sin(2 * Math.PI * sinusFrequency * x);
-//            dataPoints.add(new XYChart.Data<>(x, y));
-//        }
-//        timeSeries.getData().addAll(dataPoints);
-//        xAxisTime.setLowerBound(leftBorder);
-//        xAxisTime.setUpperBound(rightBorder);
-//        yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
-//        yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
-//        timeDatasetChart.getData().add(timeSeries);
-//        updateTransformedData();
     }
 
     @FunctionalInterface
     public interface TimeDialogCommitHandler {
         // Here will be the method that will be called when the user clicks the "Commit" button.
-        void handleCommit(Collection<Long> chosenRuns, boolean showErrors);
+        void handleCommit(List<Double> frequencies, List<Complex> complexes);
     }
 
 }

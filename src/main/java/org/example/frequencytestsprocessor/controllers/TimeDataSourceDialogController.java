@@ -146,6 +146,7 @@ public class TimeDataSourceDialogController {
         initializeLineCharts();
         initializeChoiceBox(chosenTimeSeriesDataSource);
         initializeLanguageService(currentLanguage);
+        addSinusTimeSeriesInSource();
         setupWidgetsBehaviour();
         redrawDatasetChart();
     }
@@ -326,6 +327,15 @@ public class TimeDataSourceDialogController {
     private void setTransformedData(Complex[] transformedData) {
         this.transformedData = transformedData;
         updateFourierTransformChart();
+        Double maxVal = Arrays.stream(transformedData).map(Complex::getSquaredModuleAsDouble).max(Double::compareTo).get();
+        double eps = 0.001;
+        List<Long> id = new LinkedList<>();
+        for(long i = 0L; i < transformedData.length; i++) {
+            if (Math.abs(Complex.getModuleAsDouble(transformedData[(int)i]) - maxVal) < eps) {
+                id.add(Long.valueOf(i));
+            }
+        }
+        System.out.println(id);
     }
 
     private void updateFourierTransformChart() {
@@ -387,6 +397,56 @@ public class TimeDataSourceDialogController {
                 throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
             }
         };
+    }
+
+    private void addSinusTimeSeriesInSource() {
+        TimeSeriesDataset sinusTimeSeries = new TimeSeriesDataset();
+        List<Double> values = new LinkedList<>();
+
+        double sinusFrequency = 3;
+        double sinusAmplitude = 1;
+        for (double timeStampFromSource : chosenTimeSeriesDataSource.getTimeStamps1()) {
+            values.add(sinusAmplitude * Math.sin(2 * Math.PI * sinusFrequency * timeStampFromSource));
+        }
+        sinusTimeSeries.setTimeData(values);
+        sinusTimeSeries.setDatasetName("Test sinus time series " + sinusFrequency + " Hz");
+        chosenTimeSeriesDataSource.addTimeSeriesDataset(sinusTimeSeries);
+        datasetChoiseBox.getItems().add(sinusTimeSeries);
+//        timeDatasetChart.getData().clear();
+//        XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
+//        timeSeries.setName("Current time series dataset");
+//
+//
+////        Iterator<Double> timeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+////        Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
+//
+//        Random random = new Random();
+//        double sinusFrequency = random.nextDouble(0.1, 10);
+//        double periodsForVisualization = 10;
+//        double sinusAmplitude = 1;
+//        int pointsPerPeriod = 100;
+//        double dt = 1.0 / pointsPerPeriod / sinusFrequency;
+//        int totalPoints = (int) Math.ceil(periodsForVisualization * pointsPerPeriod);
+//        double leftBorder = 0;
+//        double rightBorder = periodsForVisualization / sinusFrequency;
+//
+//        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(totalPoints);
+//
+//        int count = 0, sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+//
+//        double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+//        for(int stampId = 0; stampId < totalPoints; stampId++){
+//            double x = dt * stampId;
+//            double y = sinusAmplitude * Math.sin(2 * Math.PI * sinusFrequency * x);
+//            dataPoints.add(new XYChart.Data<>(x, y));
+//        }
+//        timeSeries.getData().addAll(dataPoints);
+//        xAxisTime.setLowerBound(leftBorder);
+//        xAxisTime.setUpperBound(rightBorder);
+//        yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
+//        yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
+//        timeDatasetChart.getData().add(timeSeries);
+//        updateTransformedData();
     }
 
     @FunctionalInterface

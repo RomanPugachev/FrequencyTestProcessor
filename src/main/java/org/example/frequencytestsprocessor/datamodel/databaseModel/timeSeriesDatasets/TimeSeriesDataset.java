@@ -28,6 +28,7 @@ public class TimeSeriesDataset {
     private TimeSeriesDataSource parentTimeSeries;
 
     @Getter
+    @Setter
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeData;
 

@@ -1,16 +1,16 @@
 package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 
-@Getter
-@Setter
-@Entity
-@DiscriminatorValue(value = "timeSeriesBasedFRFs")
-public class TimeSeriesBasedFRF extends FrequencyDataRecord{
+@Table(name="timeSeriesBasedCalculatedFrequencyDataRecords")
+@DiscriminatorValue(value = "timeSeriesBased")
+public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFrequencyDataRecords{
     @ManyToOne
     @JoinColumn(name = "parentDatasetId")
     private TimeSeriesDataset parentTimeSeriesDataset;
@@ -19,9 +19,9 @@ public class TimeSeriesBasedFRF extends FrequencyDataRecord{
 
     private Long rightLimitId;
 
-    public TimeSeriesBasedFRF() {}
+    public TimeSeriesBasedCalculatedFrequencyDataRecord() {}
 
-    public TimeSeriesBasedFRF(TimeSeriesDataset parentTimeSeriesDataset, Long leftLimitId, Long rightLimitId) {
+    public TimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Long leftLimitId, Long rightLimitId) {
         this.parentTimeSeriesDataset = parentTimeSeriesDataset;
         this.leftLimitId = leftLimitId;
         this.rightLimitId = rightLimitId;
@@ -31,6 +31,5 @@ public class TimeSeriesBasedFRF extends FrequencyDataRecord{
     @Override
     public void refreshRawFrequencyData() {
         // TODO: implement Fourier transform
-
     }
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedFRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 
 import java.util.LinkedList;
@@ -32,8 +32,8 @@ public class TimeSeriesDataset {
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeData;
 
-    @OneToMany(mappedBy = "parentTimeSeriesDataset")
-    private List<TimeSeriesBasedFRF> timeSeriesBasedFRFS;
+    @OneToMany(mappedBy = "parentTimeSeriesDataset", cascade = CascadeType.ALL)
+    private List<TimeSeriesBasedCalculatedFrequencyDataRecord> timeSeriesBasedFRFS;
 
     public TimeSeriesDataset() {
     }

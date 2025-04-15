@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "frequencyDataRecords")
-@DiscriminatorColumn(name = "frf_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "frfType", discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class FrequencyDataRecord {
     @Id

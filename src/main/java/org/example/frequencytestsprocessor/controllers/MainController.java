@@ -6,9 +6,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
@@ -286,6 +288,8 @@ public class MainController {
 
     public void initializeServices() {
         initializeLanguageService();
+        graphsService.initializeService();
+        addCalulcatedFRFSourceElement();
         FRFRepository.setInstMainController(this);
     }
 
@@ -322,13 +326,14 @@ public class MainController {
 //                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
                         },
                         new LanguageObserverDecorator<>(exportGraphsButton),
-                        new LanguageObserverDecorator<>(clearGraphsButton)
+                        new LanguageObserverDecorator<>(clearGraphsButton),
+                        new LanguageObserverDecorator<>(sourcesTreeTableView),
+                        new LanguageObserverDecorator<>(datasetsTreeTableView)
                 )
         );
         currentLanguage = RU;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
-        graphsService.initializeService();
     }
 
     @FXML
@@ -562,10 +567,6 @@ public class MainController {
     }
 
     private void setupWidgetsBehaviour() {
-        ////////////////////////////////////////////
-        datasetsTreeTableView.getColumns().remove(datasetsTreeTableColumn);
-        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-//        dataBaseInteractionVBox.getChildren().remove(da);
         ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
         sourcesTreeTableView.setRoot(new TreeItem<>());
@@ -827,5 +828,9 @@ public class MainController {
                     })
             );
         }
+    }
+
+    private void addCalulcatedFRFSourceElement() {
+        // TODO: implement adding new element into table
     }
 }

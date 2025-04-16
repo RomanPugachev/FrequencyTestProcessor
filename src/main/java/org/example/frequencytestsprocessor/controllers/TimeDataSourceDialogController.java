@@ -96,7 +96,7 @@ public class TimeDataSourceDialogController {
     private TextField rightBorderTextField;
 
     @FXML
-    private TextField runsForCalculationTextField;
+    private TextField insertingFRFNameTextField;
 
     @FXML
     private Rectangle selectionRectangle;
@@ -221,7 +221,7 @@ public class TimeDataSourceDialogController {
         assert mainVbox != null : "fx:id=\"mainVbox\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert rightBorderLabel != null : "fx:id=\"rightBorderLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert rightBorderTextField != null : "fx:id=\"rightBorderTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert runsForCalculationTextField != null : "fx:id=\"runsForCalculationTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert insertingFRFNameTextField != null : "fx:id=\"insertingFRFNameTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert selectionRectangle != null : "fx:id=\"selectionRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert timeDatasetChart != null : "fx:id=\"timeDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert transformedDatasetChart != null : "fx:id=\"transformedDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
@@ -376,7 +376,32 @@ public class TimeDataSourceDialogController {
     @FunctionalInterface
     public interface TimeDialogCommitHandler {
         // Here will be the method that will be called when the user clicks the "Commit" button.
-        void handleCommit(List<Double> frequencies, List<Complex> complexes);
+        void handleCommit(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name);
     }
-
+    @FXML
+    private void invokeHandlingConfirmation(){
+        TimeSeriesDataset parentTimeSeriesDataset = datasetChoiseBox.getValue();
+        Double leftBorder = Double.valueOf(leftBorderTextField.getText());
+        Double rightBorder = Double.valueOf(rightBorderTextField.getText());
+        String name = insertingFRFNameTextField.getText();
+        String errorMessage = "";
+        if (parentTimeSeriesDataset == null) {
+            errorMessage += "Time series dataset is not chosen";
+        }
+        if (leftBorder >= rightBorder) {
+            errorMessage += "Right border value must be bigger then value in left border\n";
+        }
+        if (name == null || name.isBlank()) {
+            errorMessage += "Fill text field with name of FRF\n";
+        }
+        if (errorMessage.isBlank()){
+            timedialogCommitHandler.handleCommit(parentTimeSeriesDataset, leftBorder, rightBorder, name);
+        } else {
+            showAlert("Error", "Couldn't create FRF by chosen parameters:", errorMessage);
+        }
+    }
+    @FXML
+    private void invokeHandlingCancel() {
+        ((Stage) cancelButton.getScene().getWindow()).close();
+    }
 }

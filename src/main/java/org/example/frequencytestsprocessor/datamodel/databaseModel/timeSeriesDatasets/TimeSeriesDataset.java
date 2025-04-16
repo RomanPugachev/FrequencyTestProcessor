@@ -1,6 +1,7 @@
 package org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets;
 
 import jakarta.persistence.*;
+import javafx.fxml.FXML;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
@@ -81,5 +82,11 @@ public class TimeSeriesDataset {
 
     public List<Double> getParentTimeStamps2(){
         return parentTimeSeries.getTimeStamps2();
+    }
+
+    public TimeSeriesBasedCalculatedFrequencyDataRecord addChildFrequencyRecord(TimeSeriesBasedCalculatedFrequencyDataRecord incomingRecord) {
+        timeSeriesBasedFRFS.add(incomingRecord);
+        incomingRecord.setParentTimeSeriesDataset(this);
+        return incomingRecord;
     }
 }

@@ -30,8 +30,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
@@ -776,8 +778,8 @@ public class MainController {
         try {
             tempScene = new Scene(tempLoader.load());
             TimeDataSourceDialogController tempController = tempLoader.getController();
-            tempController.setTimedialogCommitHandler((frequencies, complexes) -> {
-                // TODO: handle incoming from dialog frequencies and complexes
+            tempController.setTimedialogCommitHandler((parentTimeSeriesDataset, leftLimit, rightLimit, name) -> {
+                addTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
             });
             tempController.initializeServices(currentLanguage, selectedDataSource);
         } catch (IOException e) {
@@ -828,6 +830,10 @@ public class MainController {
                     })
             );
         }
+    }
+
+    private void addTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
+        frfRepository.saveTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
     }
 
     private void addCalulcatedFRFSourceElement() {

@@ -1,13 +1,24 @@
 package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
+import org.example.frequencytestsprocessor.datamodel.myMath.FourierTransforms;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static org.example.frequencytestsprocessor.commons.CommonMethods.getDataForFourierTransforms;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.getFrequenciesOfBorderedSeries;
+
+
+@Getter
+@Setter
+@Entity
 @Table(name="timeSeriesBasedCalculatedFrequencyDataRecords")
 @DiscriminatorValue(value = "timeSeriesBased")
 public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFrequencyDataRecords{
@@ -15,21 +26,26 @@ public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFreq
     @JoinColumn(name = "parentDatasetId")
     private TimeSeriesDataset parentTimeSeriesDataset;
 
-    private Long leftLimitId;
+    private Double leftLimit;
 
-    private Long rightLimitId;
+    private Double rightLimit;
 
     public TimeSeriesBasedCalculatedFrequencyDataRecord() {}
 
-    public TimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Long leftLimitId, Long rightLimitId) {
+    public TimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
+        super(name);
         this.parentTimeSeriesDataset = parentTimeSeriesDataset;
-        this.leftLimitId = leftLimitId;
-        this.rightLimitId = rightLimitId;
+        this.leftLimit = leftLimit;
+        this.rightLimit = rightLimit;
         refreshRawFrequencyData();
     }
 
     @Override
     public void refreshRawFrequencyData() {
         // TODO: implement Fourier transform
+        List<Double> dataToTransform = getDataForFourierTransforms(parentTimeSeriesDataset.getTimeData(), parentTimeSeriesDataset.getParentTimeStamps1(), leftLimit, rightLimit);
+        Complex[] complexes = FourierTransforms.fft(dataToTransform);
+        List<Double> frequencies = getFrequenciesOfBorderedSeries(parentTimeSeriesDataset.getParentTimeStamps1(), leftLimit, rightLimit);
+        setRawFrequencyData(new RawFrequencyData(frequencies, Arrays.stream(complexes).toList()));
     }
 }

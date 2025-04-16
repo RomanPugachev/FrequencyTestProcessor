@@ -213,6 +213,60 @@ public class CommonMethods {
         }
     }
 
+    public static double getTimeRangeOfBorderedSeries(List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+        Double firstTimeStamp = null;
+        Double lastTimeStamp = null;
+        int numberOfTimeStamps = 0;
+
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                if (firstTimeStamp == null) {
+                    firstTimeStamp = timeStamp;
+                }
+                numberOfTimeStamps++;
+                lastTimeStamp = timeStamp;
+            } else if (timeStamp > rightBorder) {
+                break;
+            }
+        }
+        return lastTimeStamp - firstTimeStamp;
+    }
+
+    public static List<Double> getFrequenciesOfBorderedSeries(List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        double timeRange = getTimeRangeOfBorderedSeries(timeStamps, leftBorder, rightBorder);
+        List<Double> frequencies = new LinkedList<>();
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+        long acceptedTimeStamps = 0;
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                frequencies.add(acceptedTimeStamps / timeRange);
+                acceptedTimeStamps++;
+            } else if (timeStamp > rightBorder) {
+                break;
+            }
+        }
+        return frequencies;
+    }
+
+    public static List<Double> getDataForFourierTransforms(List<Double> timeData, List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        List<Double> dataForTransformation =new LinkedList<>();
+
+        Iterator<Double> timeDataIterator = timeData.iterator();
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+
+        while (timeDataIterator.hasNext() && sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            double datasetValue = timeDataIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                dataForTransformation.add(datasetValue);
+            }
+        }
+        return dataForTransformation;
+    }
+
 
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

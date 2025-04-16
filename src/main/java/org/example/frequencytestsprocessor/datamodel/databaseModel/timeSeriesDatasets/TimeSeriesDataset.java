@@ -29,6 +29,17 @@ public class TimeSeriesDataset {
 
     @Getter
     @Setter
+    @Transient
+    private List<Double> parentTimeStamps1;
+    @Getter
+    @Setter
+    @Transient
+    private List<Double> parentTimeStamps2;
+
+
+
+    @Getter
+    @Setter
     @Convert(converter = DoubleListConverter.class)
     private List<Double> timeData;
 
@@ -62,5 +73,13 @@ public class TimeSeriesDataset {
             this.timeData.addAll(timeData);
         }
         return this;
+    }
+
+    public List<Double> getParentTimeStamps1(){
+        return parentTimeSeries.getTimeStamps1();
+    }
+
+    public List<Double> getParentTimeStamps2(){
+        return parentTimeSeries.getTimeStamps2();
     }
 }

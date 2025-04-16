@@ -15,4 +15,12 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class CalculatedFrequencyDataRecords extends FrequencyDataRecord {
     private String calculationName;
+
+    public CalculatedFrequencyDataRecords() {
+    }
+
+    public CalculatedFrequencyDataRecords(String calculationName) {
+        super();
+        this.calculationName = calculationName;
+    }
 }

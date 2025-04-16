@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static javafx.scene.input.KeyCode.ENTER;
-import static org.example.frequencytestsprocessor.commons.CommonMethods.showAlert;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
 
@@ -305,37 +305,13 @@ public class TimeDataSourceDialogController {
     }
 
     private void updateTransformedData() {
-        List<Double> includedTimeStamps = new LinkedList<>();
-        List<Double> dataForTransformation =new LinkedList<>();
-        List<Double> frequencies = new LinkedList<>();
-
-        Iterator<Double> timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
-        Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
-
-        while (timeDataIterator.hasNext() && sourceTimeStampsIterator.hasNext()) {
-            double timeStamp = sourceTimeStampsIterator.next();
-            double datasetValue = timeDataIterator.next();
-            if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
-                includedTimeStamps.add(timeStamp);
-                dataForTransformation.add(datasetValue);
-            }
-        }
-
-        setTransformedData(FourierTransforms.fft(dataForTransformation));
+        List<Double> dataToTransform = getDataForFourierTransforms(datasetChoiseBox.getValue().getTimeData(), chosenTimeSeriesDataSource.getTimeStamps1(), Double.valueOf(leftBorderTextField.getText()), Double.valueOf(rightBorderTextField.getText()));
+        setTransformedData(FourierTransforms.fft(dataToTransform));
     }
 
     private void setTransformedData(Complex[] transformedData) {
         this.transformedData = transformedData;
         updateFourierTransformChart();
-        Double maxVal = Arrays.stream(transformedData).map(Complex::getSquaredModuleAsDouble).max(Double::compareTo).get();
-        double eps = 0.001;
-        List<Long> id = new LinkedList<>();
-        for(long i = 0L; i < transformedData.length; i++) {
-            if (Math.abs(Complex.getModuleAsDouble(transformedData[(int)i]) - maxVal) < eps) {
-                id.add(Long.valueOf(i));
-            }
-        }
-        System.out.println(id);
     }
 
     private void updateFourierTransformChart() {
@@ -344,34 +320,17 @@ public class TimeDataSourceDialogController {
         transformedDatasetChart.getData().clear();
         XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
         transformedSeries.setName("Transformed dataset");
-
-        Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
-        Double firstTimeStamp = null;
-        Double lastTimeStamp = null;
-        int numberOfTimeStamps = 0;
-
-        while (sourceTimeStampsIterator.hasNext()) {
-            double timeStamp = sourceTimeStampsIterator.next();
-            if (timeStamp >= Double.valueOf(leftBorderTextField.getText()) && timeStamp <= Double.valueOf(rightBorderTextField.getText())) {
-                if (firstTimeStamp == null) {
-                    firstTimeStamp = timeStamp;
-                }
-                numberOfTimeStamps++;
-                lastTimeStamp = timeStamp;
-            } else if (timeStamp > Double.valueOf(rightBorderTextField.getText())) {
-                break;
-            }
-        }
+        double transformTimeRange = getTimeRangeOfBorderedSeries(chosenTimeSeriesDataSource.getTimeStamps1(), Double.valueOf(leftBorderTextField.getText()), Double.valueOf(rightBorderTextField.getText()));
+        int sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+        int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRate);
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Creating DataPoints for the chart with sample rate and setting limits
-        double chosenPeriod = lastTimeStamp - firstTimeStamp;
-        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(numberOfTimeStamps);
-        int sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+        List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(graphPointsNumber);
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
-        double minX = 0, maxX = (transformedData.length - 1) / chosenPeriod;
+        double minX = 0, maxX = (transformedData.length - 1) / transformTimeRange;
         for (int i = 0; i < transformedData.length / sampleRate; i++) {
-            double frequency = (i * sampleRate) / chosenPeriod;
+            double frequency = (i * sampleRate) / transformTimeRange;
             double y = Complex.getModuleAsDouble(transformedData[i * sampleRate]);
             minY = Math.min(minY, y);
             maxY = Math.max(maxY, y);

@@ -564,7 +564,7 @@ public class MainController {
         refresher.setDefaultComboBoxes();
         if (System.getenv("PRELOAD_PATH") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-            saveTimeSeriesSourceFromFile(preloadFile);
+            saveUFFSourceFromFile(preloadFile);
         }
     }
 

@@ -94,9 +94,6 @@ public class FRFRepository {
             transaction.commit();
             return resultUFF;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             throw new RuntimeException("Error saving UNV file: " + e.getMessage(), e);
         }
     }

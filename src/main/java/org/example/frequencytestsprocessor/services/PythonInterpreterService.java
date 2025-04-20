@@ -8,6 +8,13 @@ import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * Service class for Python interpreter.
+ * This class provides methods to initialize and interact with a Python interpreter.
+* It also provides a method to execute Python code. Important note: for the interpreter to work, you need to set following environment variables:
+  * 1. PYTHONPATH - path to Python packages: /home/user/.pyenv/versions/3.12.5/lib/python3.12/site-packages
+  * 2. PYTHONHOME - path to Python installation: /home/user/.pyenv/versions/3.12.5
+  * 3. JEP_HOME - path to JEP library: /home/user/.pyenv/versions/3.12.5/lib/python3.12/site-packages/jep/libjep.so */
 public class PythonInterpreterService {
     @Getter
     private static volatile Jep pythonInterpreter;  // Singleton instance of Jep interpreter
@@ -17,19 +24,12 @@ public class PythonInterpreterService {
     static {
         System.out.println("Initializing Python interpreter...");
         try {
-            // This might help add JEP dependency
-            // -Djep.library.path=/home/roman/.pyenv/versions/3.12.5/lib/python3.12/site-packages/jep
-            // -Dpython.home=/home/roman/.pyenv/versions/3.12.5
-            // -Djava.library.path=/home/roman/.pyenv/versions/3.12.5/lib/python3.12/site-packages/jep
             System.out.println("Loading Python interpreter...\nPATH environment variable: " + System.getenv("PATH"));
             System.out.println("Working dir: " + System.getProperty("user.dir"));
             System.out.println("java.library.path = " + System.getProperty("java.library.path"));
-            String JEP_HOME = System.getenv("JEP_HOME");
-            JEP_HOME = "/home/roman/.pyenv/versions/3.12.5/lib/python3.12/site-packages/jep/libjep.so";
-            MainInterpreter.setJepLibraryPath(JEP_HOME);
+
             pythonOutputStream = new ByteArrayOutputStream();
             JepConfig config = new JepConfig()
-                    .setIncludePath("/home/roman/.pyenv/versions/3.12.5/lib/python3.12/site-packages")
                     .redirectStdout(pythonOutputStream);
             SharedInterpreter.setConfig(config);
             pythonInterpreter = new SharedInterpreter();
@@ -56,11 +56,10 @@ public class PythonInterpreterService {
         pythonInterpreter.eval("print('Python interpreter working directory' + os.getcwd())");
         pythonInterpreter.eval("print(sys.version)");
         pythonInterpreter.eval("print('Executable path: ' + sys.executable)");
-        // List of available python packages installed by pip
         pythonInterpreter.eval("print('Python packages: ' + str(sys.modules.keys()))");
-        // change working directory to the project root directory
-        pythonInterpreter.eval("import os");
-        pythonInterpreter.eval("import numpy");
+        pythonInterpreter.eval("import numpy as np");
+        System.out.println("Python interpreter output: " + pythonOutputStream.toString());
+        pythonOutputStream.reset();
         System.out.println("Python interpreter is healthy!");
     }
 }

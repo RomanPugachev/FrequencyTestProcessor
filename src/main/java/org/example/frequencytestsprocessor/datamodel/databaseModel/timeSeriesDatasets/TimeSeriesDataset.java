@@ -9,6 +9,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeri
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -86,6 +87,9 @@ public class TimeSeriesDataset extends AbstractDataset {
     }
 
     public TimeSeriesBasedCalculatedFrequencyDataRecord addChildFrequencyRecord(TimeSeriesBasedCalculatedFrequencyDataRecord incomingRecord) {
+        if (timeSeriesBasedFRFS == null) {
+            timeSeriesBasedFRFS = new ArrayList<>();
+        }
         timeSeriesBasedFRFS.add(incomingRecord);
         incomingRecord.setParentTimeSeriesDataset(this);
         return incomingRecord;

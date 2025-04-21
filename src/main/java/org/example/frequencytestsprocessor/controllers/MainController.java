@@ -606,7 +606,7 @@ public class MainController {
         refresher.setDefaultComboBoxes();
         if (System.getenv("PRELOAD_PATH") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-            saveUFFSourceFromFile(preloadFile);
+            saveTimeSeriesSourceFromFile(preloadFile);
         }
     }
 
@@ -655,6 +655,33 @@ public class MainController {
             @Override
             public String getValue() {
                 return datasource.getValue().getValue().getSourceAddress();
+            }
+
+            @Override
+            public void addListener(InvalidationListener listener) {
+
+            }
+
+            @Override
+            public void removeListener(InvalidationListener listener) {
+
+            }
+        });
+        datasetsTreeTableView.setShowRoot(false);
+        datasetsTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
+            @Override
+            public void addListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public void removeListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public String getValue() {
+                return datasource.getValue().getValue().getDatasetName();
             }
 
             @Override
@@ -886,8 +913,6 @@ public class MainController {
     }
 
     private void addCalulcatedFRFSourceElement() {
-        // TODO: implement adding new element into table
-        // Hide datasets tree table view
         sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(calculatedFrequencyDataSource));
     }
 }

@@ -173,20 +173,26 @@ public class FRFRepository {
         // Implement the logic to save the FRF to the database
     }
 
+    public TimeSeriesDataset getTimeSeriesDatasetById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(TimeSeriesDataset.class, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting TimeSeriesDataset by id: " + e.getMessage(), e);
+        }
+    }
     public Optional<TimeSeriesBasedCalculatedFrequencyDataRecord> saveTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
         Transaction transaction = null;
         TimeSeriesBasedCalculatedFrequencyDataRecord incomingRecord = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            // TODO: fix error here
-            session.persist(parentTimeSeriesDataset);
+            session.merge(parentTimeSeriesDataset);
             try {
                 incomingRecord = new TimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
                 parentTimeSeriesDataset.addChildFrequencyRecord(incomingRecord);
             } catch (Exception e) {
                 transaction.rollback();
-                throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
+                throw new RuntimeException("Error processing saving timeSeriesBasedCalculatedFrequencyDataRecord: " + e.getMessage(), e);
             }
             transaction.commit();
             return Optional.of(incomingRecord);
@@ -194,7 +200,7 @@ public class FRFRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Error saving UNV file: " + e.getMessage(), e);
+            throw new RuntimeException("Error saving timeSeriesBasedCalculatedFrequencyDataRecord: " + e.getMessage(), e);
         }
     }
 

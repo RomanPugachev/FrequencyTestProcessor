@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 
 @Entity
 @Table(name = "uffDatasets")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dataset_type", discriminatorType = DiscriminatorType.INTEGER)
-public class UFFDataset {
+public class UFFDataset extends AbstractDataset {
     @Transient
     @Getter
     @Setter
@@ -30,5 +31,10 @@ public class UFFDataset {
 
     public UFFDataset(UFFDataSource parentUFF) {
         this.parentUFF = parentUFF;
+    }
+
+    @Override
+    public String getDatasetName(){
+        return this.parentUFF.getSourceAddress() + "_" + this.datasetId;
     }
 }

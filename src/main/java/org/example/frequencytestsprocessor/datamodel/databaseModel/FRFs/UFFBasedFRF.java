@@ -25,4 +25,8 @@ public class UFFBasedFRF extends FrequencyDataRecord {
     public void refreshRawFrequencyData() {
         setRawFrequencyData(new RawFrequencyData(uff58.getFrequencies(), uff58.getComplexValues()));
     }
+
+    public String getDatasetName() {
+        return uff58.getDatasetName();
+    }
 }

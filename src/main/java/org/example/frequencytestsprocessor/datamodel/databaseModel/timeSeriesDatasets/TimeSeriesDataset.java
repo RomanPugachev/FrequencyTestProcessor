@@ -7,13 +7,14 @@ import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 
 import java.util.LinkedList;
 import java.util.List;
 
 @Entity
 @Table(name = "timeSeriesDatasets")
-public class TimeSeriesDataset {
+public class TimeSeriesDataset extends AbstractDataset {
     @Id
     @GeneratedValue
     @Column(name = "datasetId")

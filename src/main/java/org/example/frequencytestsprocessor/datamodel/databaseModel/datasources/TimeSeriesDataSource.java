@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.converters.LongListConverter;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 
 import java.util.ArrayList;
@@ -72,5 +73,10 @@ public class TimeSeriesDataSource extends DataSource {
         TimeSeriesDataSource timeSeriesDataSource = new TimeSeriesDataSource(csvPath);
         timeSeriesDataSource.timeSeriesDatasets = new ArrayList<>();
         return timeSeriesDataSource;
+    }
+
+    @Override
+    public List<TimeSeriesDataset> getDatasets() {
+        return timeSeriesDatasets;
     }
 }

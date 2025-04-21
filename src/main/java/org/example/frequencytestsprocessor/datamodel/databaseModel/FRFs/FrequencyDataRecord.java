@@ -3,6 +3,7 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 
 @Getter
 @Setter
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Table(name = "frequencyDataRecords")
 @DiscriminatorColumn(name = "frfType", discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class FrequencyDataRecord {
+public abstract class FrequencyDataRecord extends AbstractDataset {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String recordId;

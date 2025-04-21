@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
@@ -172,21 +173,23 @@ public class FRFRepository {
         // Implement the logic to save the FRF to the database
     }
 
-    public void saveTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
+    public Optional<TimeSeriesBasedCalculatedFrequencyDataRecord> saveTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
         Transaction transaction = null;
+        TimeSeriesBasedCalculatedFrequencyDataRecord incomingRecord = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
+            // TODO: fix error here
             session.persist(parentTimeSeriesDataset);
             try {
-                TimeSeriesBasedCalculatedFrequencyDataRecord incomingRecord = new TimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
+                incomingRecord = new TimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
                 parentTimeSeriesDataset.addChildFrequencyRecord(incomingRecord);
             } catch (Exception e) {
                 transaction.rollback();
                 throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
             }
             transaction.commit();
-            return;
+            return Optional.of(incomingRecord);
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();

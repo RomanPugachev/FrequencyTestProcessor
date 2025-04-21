@@ -29,6 +29,7 @@ public class StaticStrings {
     public static final String DEFAULT_GRAPHS_TYPE_CHOICE = "defaultGraphsTypeChoice";
     public static final String BODE = "bode";
     public static final String NYQUIST = "nyquist";
+    public static final String DEFAULT_CALCULATED_DATA_SOURCE = "defaultCalculatedDataSource";
 
 
 

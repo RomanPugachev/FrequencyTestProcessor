@@ -2,7 +2,6 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
@@ -21,7 +20,7 @@ import static org.example.frequencytestsprocessor.commons.CommonMethods.getFrequ
 @Entity
 @Table(name="timeSeriesBasedCalculatedFrequencyDataRecords")
 @DiscriminatorValue(value = "timeSeriesBased")
-public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFrequencyDataRecords{
+public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFrequencyDataRecord {
     @ManyToOne
     @JoinColumn(name = "parentDatasetId")
     private TimeSeriesDataset parentTimeSeriesDataset;

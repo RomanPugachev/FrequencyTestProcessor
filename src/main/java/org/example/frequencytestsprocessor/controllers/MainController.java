@@ -30,9 +30,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.CalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
@@ -120,10 +122,10 @@ public class MainController {
     private VBox dataProcessVBox;
 
     @FXML
-    private TreeTableColumn<?, ?> datasetsTreeTableColumn;
+    private TreeTableColumn<AbstractDataset, String> datasetsTreeTableColumn;
 
     @FXML
-    private TreeTableView<?> datasetsTreeTableView;
+    private TreeTableView<AbstractDataset> datasetsTreeTableView;
 
     @FXML
     private MenuItem deleteChosenSensorsMenuItem;
@@ -271,7 +273,7 @@ public class MainController {
     @Getter
     public static ObjectMapper objectMapper = new ObjectMapper();
 
-    // Common application parameters
+    // Common application parameters and objects //
     private Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs;
     @Getter
     private String currentLanguage = RU;
@@ -287,12 +289,41 @@ public class MainController {
     private GraphsService graphsService = new GraphsService(this);
     private FRFRepository frfRepository = FRFRepository.getRepository();
     private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
+    private DataSource calculatedFrequencyDataSource = new DataSource() {
+
+        private final List<CalculatedFrequencyDataRecord> frequencyDataRecords = new ArrayList<>();
+        {
+            setSourceAddress("");
+        }
+
+        public List<CalculatedFrequencyDataRecord> getFrequencyDataRecords() {
+            return frequencyDataRecords;
+        }
+        @Override
+        public String getSourceAddress() {
+            return super.getSourceAddress();
+        }
+
+        @Override
+        public List<CalculatedFrequencyDataRecord> getDatasets(){
+            return frequencyDataRecords;
+        };
+    };
 
     public void initializeServices() {
+        if (datasetsTreeTableView.getRoot() == null) {
+            sourcesTreeTableView.setRoot(new TreeItem<>());
+        }
+        if (datasetsTreeTableView.getRoot() == null) {
+            datasetsTreeTableView.setRoot(new TreeItem<>());
+        }
+        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+        addCalulcatedFRFSourceElement();
         initializeLanguageService();
         graphsService.initializeService();
-        addCalulcatedFRFSourceElement();
         FRFRepository.setInstMainController(this);
+
+
     }
 
     public void initializeLanguageService() {
@@ -302,6 +333,7 @@ public class MainController {
                         new LanguageObserverDecorator<>(mainMenuBar),
                         new LanguageObserverDecorator<>(changeLanguageButton),
                         new LanguageObserverDecorator<>(chosenFileLabel),
+                        new LanguageObserverDecorator<>(manageDataBaseSourcesLabel),
                         SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
                         Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
                         (languageProperties, currentLanguage,previousLanguage) -> {
@@ -330,7 +362,17 @@ public class MainController {
                         new LanguageObserverDecorator<>(exportGraphsButton),
                         new LanguageObserverDecorator<>(clearGraphsButton),
                         new LanguageObserverDecorator<>(sourcesTreeTableView),
-                        new LanguageObserverDecorator<>(datasetsTreeTableView)
+                        new LanguageObserverDecorator<>(datasetsTreeTableView),
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            ObservableList<TreeItem<DataSource>> dataSources = sourcesTreeTableView.getRoot().getChildren();
+                            for(TreeItem<DataSource> curSource : dataSources) {
+                                if (curSource.getValue().equals(calculatedFrequencyDataSource)) {
+                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
+                                    curSource.getValue().setSourceAddress(decodedText);
+                                    sourcesTreeTableView.refresh();
+                                }
+                            }
+                        }
                 )
         );
         currentLanguage = RU;
@@ -571,12 +613,12 @@ public class MainController {
     private void setupWidgetsBehaviour() {
         ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
-        sourcesTreeTableView.setRoot(new TreeItem<>());
         sourcesTreeTableView.setShowRoot(false);
         sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 DataSource selectedDataSource = newValue.getValue();
                 if (selectedDataSource instanceof UFFDataSource) {
+                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
                     UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
 
                     // Set label which represents current source for calculations
@@ -587,7 +629,15 @@ public class MainController {
                     idManager.removeAllSlaves();
                 } else if (selectedDataSource instanceof TimeSeriesDataSource) {
 //                    TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
+                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
                     callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
+                } else if (selectedDataSource.equals(calculatedFrequencyDataSource)) {
+                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
+                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
+                    }
+                    // Ensure that datasetsTreeTableView is clear
+                    datasetsTreeTableView.getRoot().getChildren().clear();
+                    calculatedFrequencyDataSource.getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
                 }
             }
         });
@@ -723,15 +773,12 @@ public class MainController {
     private void saveTimeSeriesSourceFromFile(File chosenFile) {
         if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".csv")) {
             TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath());
-            // TODO: implement
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
             root.setExpanded(true);
             root.getChildren().add(item);
-//            sourcesTreeTableView.getSelectionModel().select(item);
-////            refresher.refreshUIOnSourceChange(savedSource);
         } else if (chosenFile != null) {
-            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .csv");
         }
     }
 
@@ -833,10 +880,14 @@ public class MainController {
     }
 
     private void addTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
-        frfRepository.saveTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
+        TimeSeriesBasedCalculatedFrequencyDataRecord incomingRec = frfRepository.saveTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name).orElseThrow(() -> new RuntimeException("Can't save calculated frequency data record"));
+
+        ((List<CalculatedFrequencyDataRecord>) calculatedFrequencyDataSource.getDatasets()).add(incomingRec);
     }
 
     private void addCalulcatedFRFSourceElement() {
         // TODO: implement adding new element into table
+        // Hide datasets tree table view
+        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(calculatedFrequencyDataSource));
     }
 }

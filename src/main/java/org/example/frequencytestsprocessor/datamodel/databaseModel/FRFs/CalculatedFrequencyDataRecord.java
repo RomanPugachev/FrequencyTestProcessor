@@ -2,7 +2,6 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,14 +12,19 @@ import lombok.Setter;
 @DiscriminatorValue(value="calculatedFrequencyDataRecords")
 @DiscriminatorColumn(name = "calculationType", discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class CalculatedFrequencyDataRecords extends FrequencyDataRecord {
+public abstract class CalculatedFrequencyDataRecord extends FrequencyDataRecord {
     private String calculationName;
 
-    public CalculatedFrequencyDataRecords() {
+    public CalculatedFrequencyDataRecord() {
     }
 
-    public CalculatedFrequencyDataRecords(String calculationName) {
+    public CalculatedFrequencyDataRecord(String calculationName) {
         super();
         this.calculationName = calculationName;
+    }
+
+    @Override
+    public String getDatasetName() {
+        return calculationName;
     }
 }

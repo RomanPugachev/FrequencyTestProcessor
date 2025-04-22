@@ -10,7 +10,6 @@ import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import java.util.*;
 import java.util.function.Predicate;
 
-// TODO: implement this type of formula
 public class AnalyticalFormula extends Formula{
 
     List<AnalyticalFormula.Token> tokensList;

@@ -25,7 +25,6 @@ public class HibernateUtil {
             }
 
             // Creating the SessionFactory from properties and created classes
-            // TODO: fix configuration
             Reflections reflections = new Reflections("org.example.frequencytestsprocessor.datamodel.databaseModel", Scanners.TypesAnnotated);
 
             Configuration configuration = new Configuration().setProperties(properties);

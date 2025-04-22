@@ -41,7 +41,6 @@ public class TimeSeriesBasedCalculatedFrequencyDataRecord extends CalculatedFreq
 
     @Override
     public void refreshRawFrequencyData() {
-        // TODO: implement Fourier transform
         List<Double> dataToTransform = getDataForFourierTransforms(parentTimeSeriesDataset.getTimeData(), parentTimeSeriesDataset.getParentTimeStamps1(), leftLimit, rightLimit);
         Complex[] complexes = FourierTransforms.fft(dataToTransform);
         List<Double> frequencies = getFrequenciesOfBorderedSeries(parentTimeSeriesDataset.getParentTimeStamps1(), leftLimit, rightLimit);

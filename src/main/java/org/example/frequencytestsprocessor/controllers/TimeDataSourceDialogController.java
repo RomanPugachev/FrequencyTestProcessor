@@ -158,8 +158,52 @@ public class TimeDataSourceDialogController {
         timeDatasetChart.legendVisibleProperty().set(false);
         transformedDatasetChart.legendVisibleProperty().set(false);
 
-//        TODO: continue setting up of graphics visualization
+        // TODO: continue setting up of graphics visualization
+        // Leave only lines without points on charts
+        timeDatasetChart.setCreateSymbols(false);
+        transformedDatasetChart.setCreateSymbols(false);
 
+        // Set up zooming behavior for transformedData
+        transformedDatasetChart.setOnMousePressed(event -> {
+            startX = event.getX();
+            startY = event.getY();
+        });
+
+        transformedDatasetChart.setOnMouseReleased(event -> {
+            double endX = event.getX();
+            double endY = event.getY();
+
+            // Calculate new axis bounds
+            double newXLower = Math.min(xAxisTransformed.getValueForDisplay(startX).doubleValue(), xAxisTransformed.getValueForDisplay(endX).doubleValue());
+            double newXUpper = Math.max(xAxisTransformed.getValueForDisplay(startX).doubleValue(), xAxisTransformed.getValueForDisplay(endX).doubleValue());
+            double newYLower = Math.min(yAxisTransformed.getValueForDisplay(startY).doubleValue(), yAxisTransformed.getValueForDisplay(endY).doubleValue());
+            double newYUpper = Math.max(yAxisTransformed.getValueForDisplay(startY).doubleValue(), yAxisTransformed.getValueForDisplay(endY).doubleValue());
+
+            // Update axis bounds
+            xAxisTransformed.setLowerBound(newXLower);
+            xAxisTransformed.setUpperBound(newXUpper);
+            yAxisTransformed.setLowerBound(newYLower);
+            yAxisTransformed.setUpperBound(newYUpper);
+
+            isZoomed = true;
+        });
+
+        transformedDatasetChart.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && isZoomed) {
+                // Reset zoom on double-click
+                xAxisTransformed.setLowerBound(originalXLowerBound);
+                xAxisTransformed.setUpperBound(originalXUpperBound);
+                yAxisTransformed.setLowerBound(originalYLowerBound);
+                yAxisTransformed.setUpperBound(originalYUpperBound);
+                isZoomed = false;
+            }
+        });
+
+        // Store original axis bounds
+        originalXLowerBound = xAxisTransformed.getLowerBound();
+        originalXUpperBound = xAxisTransformed.getUpperBound();
+        originalYLowerBound = yAxisTransformed.getLowerBound();
+        originalYUpperBound = yAxisTransformed.getUpperBound();
     }
 
     private void initializeTextFields() {
@@ -278,7 +322,7 @@ public class TimeDataSourceDialogController {
 
         List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(chosenTimeSeriesDataSource.getTimeStamps1().size());
 
-        int count = 0, sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+        int count = 0;
 
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         while (timeStampsIterator.hasNext() && timeDataIterator.hasNext()) {
@@ -287,6 +331,20 @@ public class TimeDataSourceDialogController {
             if (x >= leftBorder && x <= rightBorder) {
                 minY = Math.min(minY, y);
                 maxY = Math.max(maxY, y);
+                count++;
+            } else if (x > rightBorder) {
+                break;
+            }
+        }
+
+        int sampleRate = Math.max(count / 1000, 1);
+        count = 0;
+        timeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+        timeDataIterator = datasetChoiseBox.getValue().getTimeData().iterator();
+        while (timeStampsIterator.hasNext() && timeDataIterator.hasNext()) {
+            double x = timeStampsIterator.next();
+            double y = timeDataIterator.next();
+            if (x >= leftBorder && x <= rightBorder) {
                 if (count % sampleRate == 0) {
                     dataPoints.add(new XYChart.Data<>(x, y));
                 }
@@ -320,8 +378,21 @@ public class TimeDataSourceDialogController {
         transformedDatasetChart.getData().clear();
         XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
         transformedSeries.setName("Transformed dataset");
-        double transformTimeRange = getTimeRangeOfBorderedSeries(chosenTimeSeriesDataSource.getTimeStamps1(), Double.valueOf(leftBorderTextField.getText()), Double.valueOf(rightBorderTextField.getText()));
-        int sampleRate = Math.max(chosenTimeSeriesDataSource.getTimeStamps1().size() / 1000, 1);
+        Double leftBorder = Double.valueOf(leftBorderTextField.getText()), rightBorder = Double.valueOf(rightBorderTextField.getText());
+        double transformTimeRange = getTimeRangeOfBorderedSeries(chosenTimeSeriesDataSource.getTimeStamps1(), leftBorder, rightBorder);
+
+        int numberOfTimeStamps = 0;
+        Iterator<Double> sourceTimeStampsIterator = chosenTimeSeriesDataSource.getTimeStamps1().iterator();
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                numberOfTimeStamps++;
+            } else if (timeStamp > rightBorder) {
+                break;
+            }
+        }
+
+        int sampleRate = Math.max(numberOfTimeStamps / 1000, 1);
         int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRate);
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

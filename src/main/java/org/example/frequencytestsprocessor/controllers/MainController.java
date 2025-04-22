@@ -604,9 +604,13 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-        if (System.getenv("PRELOAD_PATH") != null) {
-            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
+        if (System.getenv("PRELOAD_PATH_CSV") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
             saveTimeSeriesSourceFromFile(preloadFile);
+        }
+        if (System.getenv("PRELOAD_PATH_UFF") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH_UFF"));
+            saveUFFSourceFromFile(preloadFile);
         }
     }
 

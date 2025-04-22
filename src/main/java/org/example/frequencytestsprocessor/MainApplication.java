@@ -10,8 +10,8 @@ import org.example.frequencytestsprocessor.controllers.MainController;
 
 import java.io.IOException;
 // TODO: list:
-// TODO: 0. Fix calculation of formula, based on other formula
-// TODO: 1. Handle bug with disappearing data points
+// TODO: 0. Fix calculation of formula, based on other formula +
+// TODO: 1. Handle bug with disappearing data points +
 // TODO: 2. Add scaling of fourier transformed data chat
 // TODO: 3. Enable to set left and right limits of x axis by selecting area
 // TODO: 4. Add global setting dialog

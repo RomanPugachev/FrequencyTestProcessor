@@ -65,7 +65,8 @@ public class SensorBasedFormula extends Formula {
                     try {
                         String id = (String) token.getValue();
                         FRF frfToPush = null;
-                        Sensor sensorById = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst().orElseGet(null);
+                        Optional<Sensor> temp = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst();
+                        Sensor sensorById = temp.orElseGet(() -> null);
                         if (sensorById != null) {
                             frfToPush = ((SensorProxyForTable) sensorById).getOriginalSensor().getData().get(runNumber);
                             if (frfToPush != null) { stack.push(frfToPush); continue; }

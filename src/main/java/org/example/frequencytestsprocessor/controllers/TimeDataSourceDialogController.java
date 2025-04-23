@@ -110,12 +110,9 @@ public class TimeDataSourceDialogController {
     @FXML
     private NumberAxis yAxisTransformed;
 
-    // Common parameters and objects
-    // Variables for hovering implementation
-    private double dragStartX, dragStartY; // Mouse press coordinates
+    private Rectangle zoomRect = new Rectangle();
 
-    // Store original axis ranges for unzooming
-    private boolean isZoomed = false;
+    // Common parameters and objects
 
     @Setter
     private TimeDialogCommitHandler timedialogCommitHandler;
@@ -140,6 +137,8 @@ public class TimeDataSourceDialogController {
     private void initializeLineCharts() {
         xAxisTime.setAutoRanging(false);
         yAxisTime.setAutoRanging(false);
+        xAxisTransformed.setAutoRanging(false);
+        yAxisTransformed.setAutoRanging(false);
 
         timeDatasetChart.legendVisibleProperty().set(false);
         transformedDatasetChart.legendVisibleProperty().set(false);
@@ -147,7 +146,9 @@ public class TimeDataSourceDialogController {
         timeDatasetChart.setCreateSymbols(false);
         transformedDatasetChart.setCreateSymbols(false);
 
-        makeTransformedDatasetChartZoomable();
+        makeChartZoomable(transformedDatasetChart);
+
+        enableChooseLimitsOfTimeSeries();
     }
 
     private void initializeTextFields() {
@@ -298,10 +299,7 @@ public class TimeDataSourceDialogController {
             }
         }
         timeSeries.getData().addAll(dataPoints);
-        xAxisTime.setLowerBound(leftBorder);
-        xAxisTime.setUpperBound(rightBorder);
-        yAxisTime.setLowerBound(minY - (maxY - minY) * 0.05);
-        yAxisTime.setUpperBound(maxY + (maxY - minY) * 0.05);
+        zoomToArea(timeDatasetChart, leftBorder, rightBorder, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
         timeDatasetChart.getData().add(timeSeries);
         updateTransformedData();
     }
@@ -352,10 +350,7 @@ public class TimeDataSourceDialogController {
             dataPoints.add(new XYChart.Data<>(frequency, y));
         }
         transformedSeries.getData().addAll(dataPoints);
-        xAxisTransformed.setLowerBound(minX );
-        xAxisTransformed.setUpperBound(maxX);
-        yAxisTransformed.setLowerBound(minY - (maxY - minY) * 0.05);
-        yAxisTransformed.setUpperBound(maxY + (maxY - minY) * 0.05);
+        zoomToArea(transformedDatasetChart, minX, maxX, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
         transformedDatasetChart.getData().add(transformedSeries);
     }
 
@@ -420,58 +415,47 @@ public class TimeDataSourceDialogController {
         ((Stage) cancelButton.getScene().getWindow()).close();
     }
 
-    private void makeTransformedDatasetChartZoomable() {
-        // TODO: continue setting up of graphics visualization
-        // Leave only lines without points on charts
+    private void makeChartZoomable(LineChart<Number, Number> chart) {
+        List<Double> dragStartValues = new ArrayList<>(Arrays.asList(0.0, 0.0));
 
-        // Set up zooming behavior for transformedData
-        transformedDatasetChart.setOnMousePressed(event -> {
-            dragStartX = event.getX();
-            dragStartY = event.getY();
+        Boolean[] isZoomed = new Boolean[]{false};
+
+        chart.setOnMousePressed(event -> {
+            dragStartValues.set(0, event.getX());
+            dragStartValues.set(1, event.getY());
         });
 
-        transformedDatasetChart.setOnMouseReleased(event -> {
+        chart.setOnMouseReleased(event -> {
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 
-            if (Math.abs(dragStartX - dragEndX) > 5 && Math.abs(dragStartY - dragEndY) > 5) {
+            if (Math.abs(dragStartValues.get(0) - dragEndX) > 5 && Math.abs(dragStartValues.get(1) - dragEndY) > 5) {
                 // Convert screen coords to axis values using plot area only
-                double xChartStart = transformedDatasetChart.getXAxis().sceneToLocal(transformedDatasetChart.localToScene(dragStartX, 0)).getX();
-                double xChartEnd = transformedDatasetChart.getXAxis().sceneToLocal(transformedDatasetChart.localToScene(dragEndX, 0)).getX();
-                double yChartStart = transformedDatasetChart.getYAxis().sceneToLocal(transformedDatasetChart.localToScene(0, dragStartY)).getY();
-                double yChartEnd = transformedDatasetChart.getYAxis().sceneToLocal(transformedDatasetChart.localToScene(0, dragEndY)).getY();
+                double xChartStart = chart.getXAxis().sceneToLocal(chart.localToScene(dragStartValues.get(0), 0)).getX();
+                double xChartEnd = chart.getXAxis().sceneToLocal(chart.localToScene(dragEndX, 0)).getX();
+                double yChartStart = chart.getYAxis().sceneToLocal(chart.localToScene(0, dragStartValues.get(1))).getY();
+                double yChartEnd = chart.getYAxis().sceneToLocal(chart.localToScene(0, dragEndY)).getY();
 
-                double xLowerZoom = xAxisTransformed.getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
-                double xUpperZoom = xAxisTransformed.getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
-                double yLowerZoom = yAxisTransformed.getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
-                double yUpperZoom = yAxisTransformed.getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
+                double xLowerZoom = ((NumberAxis) chart.getXAxis()).getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
+                double xUpperZoom = ((NumberAxis) chart.getXAxis()).getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
+                double yLowerZoom = ((NumberAxis) chart.getYAxis()).getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
+                double yUpperZoom = ((NumberAxis) chart.getYAxis()).getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
 
-                zoomToArea(xLowerZoom, xUpperZoom, yLowerZoom, yUpperZoom);
+                zoomToArea(chart, xLowerZoom, xUpperZoom, yLowerZoom, yUpperZoom);
+                isZoomed[0] = true;
             }
-
-            xAxisTransformed.requestAxisLayout();
-            yAxisTransformed.requestAxisLayout();
         });
 
-        transformedDatasetChart.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2 && isZoomed) {
-                resetZoom();
+        chart.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && isZoomed[0]) {
+                resetZoom(chart);
+                isZoomed[0] = false;
             }
-            xAxisTransformed.requestAxisLayout();
-            yAxisTransformed.requestAxisLayout();
         });
 
     }
 
-    private void zoomToArea(double xMin, double xMax, double yMin, double yMax) {
-        xAxisTransformed.setLowerBound(xMin);
-        xAxisTransformed.setUpperBound(xMax);
-        yAxisTransformed.setLowerBound(yMin);
-        yAxisTransformed.setUpperBound(yMax);
-        isZoomed = true;
-    }
-
-    private void resetZoom() {
+    private void resetZoom(LineChart<Number, Number> chart) {
         ObservableList<XYChart.Data<Number, Number>> transformedData = transformedDatasetChart.getData().getFirst().getData();
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         double minX = 0, maxX = Double.MIN_VALUE;
@@ -483,10 +467,13 @@ public class TimeDataSourceDialogController {
             minX = Math.min(minX, x);
             maxX = Math.max(maxX, x);
         }
-        xAxisTransformed.setLowerBound(minX );
-        xAxisTransformed.setUpperBound(maxX);
-        yAxisTransformed.setLowerBound(minY - (maxY - minY) * 0.05);
-        yAxisTransformed.setUpperBound(maxY + (maxY - minY) * 0.05);
-        isZoomed = false;
+        ((NumberAxis) chart.getXAxis()).setLowerBound(minX );
+        ((NumberAxis) chart.getXAxis()).setUpperBound(maxX);
+        ((NumberAxis) chart.getYAxis()).setLowerBound(minY - (maxY - minY) * 0.05);
+        ((NumberAxis) chart.getYAxis()).setUpperBound(maxY + (maxY - minY) * 0.05);
+    }
+
+    private void enableChooseLimitsOfTimeSeries(){
+        showAlertUnimplemented();
     }
 }

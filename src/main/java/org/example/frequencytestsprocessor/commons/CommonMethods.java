@@ -1,6 +1,8 @@
 package org.example.frequencytestsprocessor.commons;
 
 import com.opencsv.CSVReader;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -267,6 +269,17 @@ public class CommonMethods {
         return dataForTransformation;
     }
 
+
+    // Begin to write here javadoc string
+    /**
+     *  These functions must support LineChart features
+     */
+    public static void zoomToArea(LineChart<Number, Number> chart, double xMin, double xMax, double yMin, double yMax) {
+        ((NumberAxis) chart.getXAxis()).setLowerBound(xMin);
+        ((NumberAxis) chart.getXAxis()).setUpperBound(xMax);
+        ((NumberAxis) chart.getYAxis()).setLowerBound(yMin);
+        ((NumberAxis) chart.getYAxis()).setUpperBound(yMax);
+    }
 
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

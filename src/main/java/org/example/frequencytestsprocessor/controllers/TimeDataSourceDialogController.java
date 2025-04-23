@@ -90,7 +90,10 @@ public class TimeDataSourceDialogController {
     private TextField insertingFRFNameTextField;
 
     @FXML
-    private Rectangle selectionRectangle;
+    private Rectangle selectionTimeLimitsRectangle;
+
+    @FXML
+    private Rectangle selectionTransformedDatasetRectangle;
 
     @FXML
     private LineChart<Number, Number> timeDatasetChart;
@@ -109,8 +112,6 @@ public class TimeDataSourceDialogController {
 
     @FXML
     private NumberAxis yAxisTransformed;
-
-    private Rectangle zoomRect = new Rectangle();
 
     // Common parameters and objects
 
@@ -211,7 +212,8 @@ public class TimeDataSourceDialogController {
         assert rightBorderLabel != null : "fx:id=\"rightBorderLabel\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert rightBorderTextField != null : "fx:id=\"rightBorderTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert insertingFRFNameTextField != null : "fx:id=\"insertingFRFNameTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert selectionRectangle != null : "fx:id=\"selectionRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert selectionTimeLimitsRectangle != null : "fx:id=\"selectionTimeLimitsRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert selectionTransformedDatasetRectangle != null : "fx:id=\"selectionTransformedDatasetRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert timeDatasetChart != null : "fx:id=\"timeDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert transformedDatasetChart != null : "fx:id=\"transformedDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert xAxisTime != null : "fx:id=\"xAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
@@ -417,15 +419,33 @@ public class TimeDataSourceDialogController {
 
     private void makeChartZoomable(LineChart<Number, Number> chart) {
         List<Double> dragStartValues = new ArrayList<>(Arrays.asList(0.0, 0.0));
+        selectionTransformedDatasetRectangle.setManaged(false);
 
         Boolean[] isZoomed = new Boolean[]{false};
 
         chart.setOnMousePressed(event -> {
             dragStartValues.set(0, event.getX());
             dragStartValues.set(1, event.getY());
+
+            selectionTransformedDatasetRectangle.setX(dragStartValues.get(0));
+            selectionTransformedDatasetRectangle.setY(dragStartValues.get(1));
+            selectionTransformedDatasetRectangle.setWidth(0);
+            selectionTransformedDatasetRectangle.setHeight(0);
+            selectionTransformedDatasetRectangle.setVisible(true);
+        });
+
+        transformedDatasetChart.setOnMouseDragged(event -> {
+            double dragEndX = event.getX();
+            double dragEndY = event.getY();
+
+            selectionTransformedDatasetRectangle.setX(Math.min(dragStartValues.get(0), dragEndX));
+            selectionTransformedDatasetRectangle.setY(Math.min(dragStartValues.get(1), dragEndY));
+            selectionTransformedDatasetRectangle.setWidth(Math.abs(dragEndX - dragStartValues.get(0)));
+            selectionTransformedDatasetRectangle.setHeight(Math.abs(dragEndY - dragStartValues.get(1)));
         });
 
         chart.setOnMouseReleased(event -> {
+            selectionTransformedDatasetRectangle.setVisible(false);
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 

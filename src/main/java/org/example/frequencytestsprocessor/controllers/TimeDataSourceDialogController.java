@@ -431,29 +431,30 @@ public class TimeDataSourceDialogController {
         });
 
         transformedDatasetChart.setOnMouseReleased(event -> {
-            // TODO: now new values not match the one, which user selects according to axis.
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 
-            double xBegin = Math.min(dragStartX, dragEndX), xEnd = Math.max(dragStartX, dragEndX), yBegin = Math.min(dragStartY, dragEndY), yEnd = Math.max(dragStartY, dragEndY);
+            if (Math.abs(dragStartX - dragEndX) > 5 && Math.abs(dragStartY - dragEndY) > 5) {
+                // Convert screen coords to axis values using plot area only
+                double xChartStart = transformedDatasetChart.getXAxis().sceneToLocal(transformedDatasetChart.localToScene(dragStartX, 0)).getX();
+                double xChartEnd = transformedDatasetChart.getXAxis().sceneToLocal(transformedDatasetChart.localToScene(dragEndX, 0)).getX();
+                double yChartStart = transformedDatasetChart.getYAxis().sceneToLocal(transformedDatasetChart.localToScene(0, dragStartY)).getY();
+                double yChartEnd = transformedDatasetChart.getYAxis().sceneToLocal(transformedDatasetChart.localToScene(0, dragEndY)).getY();
 
-            // Determine zoom area based on drag start and end points
-            double xLowerZoom = xAxisTransformed.getValueForDisplay(xBegin).doubleValue();
-            double xUpperZoom = xAxisTransformed.getValueForDisplay(xEnd).doubleValue();
-            double yLowerZoom = yAxisTransformed.getValueForDisplay(yEnd).doubleValue();
-            double yUpperZoom = yAxisTransformed.getValueForDisplay(yBegin).doubleValue();
+                double xLowerZoom = xAxisTransformed.getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
+                double xUpperZoom = xAxisTransformed.getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
+                double yLowerZoom = yAxisTransformed.getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
+                double yUpperZoom = yAxisTransformed.getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
 
-            // Apply zoom if a selection was made
-            if (Math.abs(dragStartX - dragEndX) > 5 && Math.abs(dragStartY - dragEndY) > 5) { // A small threshold to prevent zooming on accidental clicks
                 zoomToArea(xLowerZoom, xUpperZoom, yLowerZoom, yUpperZoom);
             }
+
             xAxisTransformed.requestAxisLayout();
             yAxisTransformed.requestAxisLayout();
         });
 
         transformedDatasetChart.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2 && isZoomed) {
-                // Reset zoom on double-click
                 resetZoom();
             }
             xAxisTransformed.requestAxisLayout();

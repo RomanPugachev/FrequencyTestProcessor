@@ -1,23 +1,16 @@
 package org.example.frequencytestsprocessor.controllers;
 
-import javafx.animation.ScaleTransition;
-import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import javafx.util.StringConverter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
@@ -31,9 +24,7 @@ import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDec
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static javafx.scene.input.KeyCode.ENTER;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
@@ -121,14 +112,9 @@ public class TimeDataSourceDialogController {
 
     // Common parameters and objects
     // Variables for hovering implementation
-    private double startX, startY; // Mouse press coordinates
-
-    private boolean isHovering = false;
-    private String defaultBorder;
-    private String hoverBorder = "-fx-border-color: blue; -fx-border-width: 2;";
+    private double dragStartX, dragStartY; // Mouse press coordinates
 
     // Store original axis ranges for unzooming
-    private double originalXLowerBound, originalXUpperBound, originalYLowerBound, originalYUpperBound;
     private boolean isZoomed = false;
 
     @Setter
@@ -158,52 +144,10 @@ public class TimeDataSourceDialogController {
         timeDatasetChart.legendVisibleProperty().set(false);
         transformedDatasetChart.legendVisibleProperty().set(false);
 
-        // TODO: continue setting up of graphics visualization
-        // Leave only lines without points on charts
         timeDatasetChart.setCreateSymbols(false);
         transformedDatasetChart.setCreateSymbols(false);
 
-        // Set up zooming behavior for transformedData
-        transformedDatasetChart.setOnMousePressed(event -> {
-            startX = event.getX();
-            startY = event.getY();
-        });
-
-        transformedDatasetChart.setOnMouseReleased(event -> {
-            double endX = event.getX();
-            double endY = event.getY();
-
-            // Calculate new axis bounds
-            double newXLower = Math.min(xAxisTransformed.getValueForDisplay(startX).doubleValue(), xAxisTransformed.getValueForDisplay(endX).doubleValue());
-            double newXUpper = Math.max(xAxisTransformed.getValueForDisplay(startX).doubleValue(), xAxisTransformed.getValueForDisplay(endX).doubleValue());
-            double newYLower = Math.min(yAxisTransformed.getValueForDisplay(startY).doubleValue(), yAxisTransformed.getValueForDisplay(endY).doubleValue());
-            double newYUpper = Math.max(yAxisTransformed.getValueForDisplay(startY).doubleValue(), yAxisTransformed.getValueForDisplay(endY).doubleValue());
-
-            // Update axis bounds
-            xAxisTransformed.setLowerBound(newXLower);
-            xAxisTransformed.setUpperBound(newXUpper);
-            yAxisTransformed.setLowerBound(newYLower);
-            yAxisTransformed.setUpperBound(newYUpper);
-
-            isZoomed = true;
-        });
-
-        transformedDatasetChart.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2 && isZoomed) {
-                // Reset zoom on double-click
-                xAxisTransformed.setLowerBound(originalXLowerBound);
-                xAxisTransformed.setUpperBound(originalXUpperBound);
-                yAxisTransformed.setLowerBound(originalYLowerBound);
-                yAxisTransformed.setUpperBound(originalYUpperBound);
-                isZoomed = false;
-            }
-        });
-
-        // Store original axis bounds
-        originalXLowerBound = xAxisTransformed.getLowerBound();
-        originalXUpperBound = xAxisTransformed.getUpperBound();
-        originalYLowerBound = yAxisTransformed.getLowerBound();
-        originalYUpperBound = yAxisTransformed.getUpperBound();
+        makeTransformedDatasetChartZoomable();
     }
 
     private void initializeTextFields() {
@@ -474,5 +418,74 @@ public class TimeDataSourceDialogController {
     @FXML
     private void invokeHandlingCancel() {
         ((Stage) cancelButton.getScene().getWindow()).close();
+    }
+
+    private void makeTransformedDatasetChartZoomable() {
+        // TODO: continue setting up of graphics visualization
+        // Leave only lines without points on charts
+
+        // Set up zooming behavior for transformedData
+        transformedDatasetChart.setOnMousePressed(event -> {
+            dragStartX = event.getX();
+            dragStartY = event.getY();
+        });
+
+        transformedDatasetChart.setOnMouseReleased(event -> {
+            // TODO: now new values not match the one, which user selects according to axis.
+            double dragEndX = event.getX();
+            double dragEndY = event.getY();
+
+            double xBegin = Math.min(dragStartX, dragEndX), xEnd = Math.max(dragStartX, dragEndX), yBegin = Math.min(dragStartY, dragEndY), yEnd = Math.max(dragStartY, dragEndY);
+
+            // Determine zoom area based on drag start and end points
+            double xLowerZoom = xAxisTransformed.getValueForDisplay(xBegin).doubleValue();
+            double xUpperZoom = xAxisTransformed.getValueForDisplay(xEnd).doubleValue();
+            double yLowerZoom = yAxisTransformed.getValueForDisplay(yEnd).doubleValue();
+            double yUpperZoom = yAxisTransformed.getValueForDisplay(yBegin).doubleValue();
+
+            // Apply zoom if a selection was made
+            if (Math.abs(dragStartX - dragEndX) > 5 && Math.abs(dragStartY - dragEndY) > 5) { // A small threshold to prevent zooming on accidental clicks
+                zoomToArea(xLowerZoom, xUpperZoom, yLowerZoom, yUpperZoom);
+            }
+            xAxisTransformed.requestAxisLayout();
+            yAxisTransformed.requestAxisLayout();
+        });
+
+        transformedDatasetChart.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && isZoomed) {
+                // Reset zoom on double-click
+                resetZoom();
+            }
+            xAxisTransformed.requestAxisLayout();
+            yAxisTransformed.requestAxisLayout();
+        });
+
+    }
+
+    private void zoomToArea(double xMin, double xMax, double yMin, double yMax) {
+        xAxisTransformed.setLowerBound(xMin);
+        xAxisTransformed.setUpperBound(xMax);
+        yAxisTransformed.setLowerBound(yMin);
+        yAxisTransformed.setUpperBound(yMax);
+        isZoomed = true;
+    }
+
+    private void resetZoom() {
+        ObservableList<XYChart.Data<Number, Number>> transformedData = transformedDatasetChart.getData().getFirst().getData();
+        double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+        double minX = 0, maxX = Double.MIN_VALUE;
+        for (XYChart.Data<Number, Number> dataPoint : transformedData) {
+            double x = dataPoint.getXValue().doubleValue();
+            double y = dataPoint.getYValue().doubleValue();
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+        }
+        xAxisTransformed.setLowerBound(minX );
+        xAxisTransformed.setUpperBound(maxX);
+        yAxisTransformed.setLowerBound(minY - (maxY - minY) * 0.05);
+        yAxisTransformed.setUpperBound(maxY + (maxY - minY) * 0.05);
+        isZoomed = false;
     }
 }

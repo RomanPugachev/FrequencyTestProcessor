@@ -40,6 +40,7 @@
                                 <MenuItem fx:id="language_en" mnemonicParsing="false" text="mainMenuBar.settings.languageSettings.language_en" />
                             </items>
                         </Menu>
+                        <MenuItem fx:id="glogalSettings" mnemonicParsing="false" text="mainMenuBar.settings.glogalSettings"/>
                     </items>
                 </Menu>
             </menus>
@@ -62,7 +63,7 @@
                                     <children>
                                         <HBox fx:id="manageSourcesHBox" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
                                             <children>
-                                                <Button fx:id="loadTimeDataButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="25.0" maxWidth="25.0" minHeight="10.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#saveTimeSeriesSourceFromFileDialog" prefHeight="25.0" prefWidth="25.0" text="">
+                                                <Button fx:id="loadTimeDataButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="25.0" maxWidth="25.0" minHeight="10.0" minWidth="25.0" mnemonicParsing="false" onMouseClicked="#saveTimeSeriesSourceFromFileDialog" prefHeight="25.0" prefWidth="25.0" text="" HBox.hgrow="ALWAYS">
                                                     <font>
                                                         <Font size="7.5" />
                                                     </font>
@@ -251,32 +252,32 @@
                                         </HBox>
                                         <StackPane fx:id="graphsStackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                                             <children>
-                                                <VBox fx:id="graphsVBoxtBode">
+                                                <VBox fx:id="graphsVBoxBode">
                                                     <children>
                                                         <LineChart fx:id="graphsLineChartBodeAmplitude">
                                                             <xAxis>
-                                                                <NumberAxis side="BOTTOM" />
+                                                                <NumberAxis fx:id="graphsXAxisBodeAmplitude" side="BOTTOM" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT" />
+                                                                <NumberAxis fx:id="graphsYAxisBodeAmplitude" side="LEFT" />
                                                             </yAxis>
                                                         </LineChart>
                                                         <LineChart fx:id="graphsLineChartBodePhase">
                                                             <xAxis>
-                                                                <NumberAxis side="BOTTOM" />
+                                                                <NumberAxis fx:id="graphsXAxisBodePhase" side="BOTTOM" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT" />
+                                                                <NumberAxis fx:id="graphsYAxisBodePhase" side="LEFT" />
                                                             </yAxis>
                                                         </LineChart>
                                                     </children>
                                                 </VBox>
                                                 <LineChart fx:id="graphsLineChartNyquist">
                                                     <xAxis>
-                                                        <NumberAxis side="BOTTOM" />
+                                                        <NumberAxis fx:id="graphsXAxisNyquist" side="BOTTOM" />
                                                     </xAxis>
                                                     <yAxis>
-                                                        <NumberAxis side="LEFT" />
+                                                        <NumberAxis fx:id="graphsYAxisNyquist" side="LEFT" />
                                                     </yAxis>
                                                 </LineChart>
                                             </children>

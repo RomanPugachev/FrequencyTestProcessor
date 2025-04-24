@@ -18,7 +18,7 @@ public class FourierTransforms {
         }
 
         if (isPowerOfTwo(n)) {
-            FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.UNITARY);
+            FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
             org.apache.commons.math3.complex.Complex[] result = fft.transform(realTimeSeries, TransformType.FORWARD);
 
             Complex[] complexResult = new Complex[n];

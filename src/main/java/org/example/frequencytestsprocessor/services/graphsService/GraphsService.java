@@ -63,16 +63,16 @@ public class GraphsService {
     public void initializeService() {
         graphsLineChartBodeAmplitude = mainController.getGraphsLineChartBodeAmplitude();
         graphsLineChartBodeAmplitude.setTitle("Amplidude frequency response");
-        graphsLineChartBodeAmplitude.getXAxis().setLabel("Frequency, Hz");
-        graphsLineChartBodeAmplitude.getYAxis().setLabel("Amlitude");
+//        graphsLineChartBodeAmplitude.getXAxis().setLabel("Frequency, Hz");
+//        graphsLineChartBodeAmplitude.getYAxis().setLabel("Amlitude");
         graphsLineChartBodePhase = mainController.getGraphsLineChartBodePhase();
         graphsLineChartBodePhase.setTitle("Phase frequency response");
-        graphsLineChartBodePhase.getXAxis().setLabel("Frequency, Hz");
-        graphsLineChartBodePhase.getYAxis().setLabel("Phase");
+//        graphsLineChartBodePhase.getXAxis().setLabel("Frequency, Hz");
+//        graphsLineChartBodePhase.getYAxis().setLabel("Phase");
         graphsLineChartNyquist = mainController.getGraphsLineChartNyquist();
         graphsLineChartNyquist.setTitle("Nyquist diagram");
-        graphsLineChartNyquist.getXAxis().setLabel("Real");
-        graphsLineChartNyquist.getYAxis().setLabel("Imaginary");
+//        graphsLineChartNyquist.getXAxis().setLabel("Real");
+//        graphsLineChartNyquist.getYAxis().setLabel("Imaginary");
         graphsLineChartNyquist.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
         drawNyquistLimitation = false;
         colorPreset = new ArrayList<>();

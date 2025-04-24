@@ -356,20 +356,6 @@ public class TimeDataSourceDialogController {
         transformedDatasetChart.getData().add(transformedSeries);
     }
 
-    private static LanguageObserver observeAxis(NumberAxis axis) {
-        return (languageProperties, languageToSet, previousLanguage) -> {
-            String key = axis.getId() + DOT;
-            String text = languageProperties.getProperty(key + languageToSet);
-            if (text != null) {
-                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
-                String decodedText = new String(bytes, StandardCharsets.UTF_8);
-                axis.setLabel(decodedText);
-            } else {
-                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
-            }
-        };
-    }
-
     private void addSinusTimeSeriesInSource() {
         TimeSeriesDataset sinusTimeSeries = new TimeSeriesDataset();
         List<Double> values = new LinkedList<>();

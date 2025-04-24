@@ -8,6 +8,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -19,8 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
-import static org.example.frequencytestsprocessor.commons.StaticStrings.OTHER;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -279,6 +279,34 @@ public class CommonMethods {
         ((NumberAxis) chart.getXAxis()).setUpperBound(xMax);
         ((NumberAxis) chart.getYAxis()).setLowerBound(yMin);
         ((NumberAxis) chart.getYAxis()).setUpperBound(yMax);
+    }
+
+    public static LanguageObserver observeAxis(NumberAxis axis) {
+        return (languageProperties, languageToSet, previousLanguage) -> {
+            String key = axis.getId() + DOT;
+            String text = languageProperties.getProperty(key + languageToSet);
+            if (text != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                axis.setLabel(decodedText);
+            } else {
+                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+            }
+        };
+    }
+
+    public static LanguageObserver observeChartTitle(LineChart<?, ?> chart) {
+        return (languageProperties, languageToSet, previousLanguage) -> {
+            String key = chart.getId() + DOT + TITLE + DOT;
+            String text = languageProperties.getProperty(key + languageToSet);
+            if (text != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                chart.setTitle(decodedText);
+            } else {
+                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+            }
+        };
     }
 
 //    public static void main(String[] args) {

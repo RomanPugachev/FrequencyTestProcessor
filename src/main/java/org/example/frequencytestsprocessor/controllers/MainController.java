@@ -6,13 +6,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.css.Styleable;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -25,6 +24,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -166,6 +166,24 @@ public class MainController {
     @FXML
     private Button graphPinButton;
 
+    @FXML
+    private NumberAxis graphsXAxisBodeAmplitude;
+
+    @FXML
+    private NumberAxis graphsYAxisBodeAmplitude;
+
+    @FXML
+    private NumberAxis graphsXAxisBodePhase;
+
+    @FXML
+    private NumberAxis graphsYAxisBodePhase;
+
+    @FXML
+    private NumberAxis graphsXAxisNyquist;
+
+    @FXML
+    private NumberAxis graphsYAxisNyquist;
+
     @Getter
     @FXML
     private ChoiceBox<String> graphRunChoiceBox;
@@ -204,7 +222,7 @@ public class MainController {
     private VBox graphsVBox;
 
     @FXML
-    private VBox graphsVBoxtBode;
+    private VBox graphsVBoxBode;
 
     @FXML
     private Menu languageSettings;
@@ -328,6 +346,57 @@ public class MainController {
 
     public void initializeLanguageService() {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/mainApplicationLanguage.properties");
+        // Additional properties strings for glogal settings menu item. Temporary solution
+        String encodedIn88591 = "Глобальные настройки приложения";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("mainMenuBar.settings.glogalSettings.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("mainMenuBar.settings.glogalSettings.en", "Global application settings");
+
+        encodedIn88591 = "Частота, Гц";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodeAmplitude.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodeAmplitude.en", "Frequency, Hz");
+
+        encodedIn88591 = "Амплитуда";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodeAmplitude.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodeAmplitude.en", "Amplitude");
+
+        encodedIn88591 = "Частота, Гц";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodePhase.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodePhase.en", "Frequency, Hz");
+
+        encodedIn88591 = "Фаза";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodePhase.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodePhase.en", "Phase");
+
+        encodedIn88591 = "Действительная часть";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisNyquist.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisNyquist.en", "Real part");
+
+        encodedIn88591 = "Мнимая часть";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisNyquist.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisNyquist.en", "Imaginary part");
+
+        encodedIn88591 = "Амплитудная характеристика";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodeAmplitude.title.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodeAmplitude.title.en", "Amplitude frequency response");
+
+        encodedIn88591 = "Фазовая характеристика";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodePhase.title.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodePhase.title.en", "Phase frequency response");
+
+        encodedIn88591 = "Диаграмма Найквиста";
+        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartNyquist.title.ru", encodedIn88591);
+        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartNyquist.title.en", "Nyquist diagram");
+
         languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
@@ -372,7 +441,25 @@ public class MainController {
                                     sourcesTreeTableView.refresh();
                                 }
                             }
-                        }
+                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            languageSettings.getItems().forEach(item -> {
+                                String languageStringOfItem = item.getId().split("_")[1];
+                                if (item.getText().startsWith("* ")) item.setText(item.getText().replace("* ", ""));
+                                if (languageStringOfItem.equals(currentLanguage)) {
+                                    item.setText("* " + item.getText());
+                                }
+                            });
+                        },
+                        observeChartTitle(graphsLineChartBodeAmplitude),
+                        observeChartTitle(graphsLineChartBodePhase),
+                        observeChartTitle(graphsLineChartNyquist),
+                        observeAxis(graphsXAxisBodeAmplitude),
+                        observeAxis(graphsYAxisBodeAmplitude),
+                        observeAxis(graphsXAxisBodePhase),
+                        observeAxis(graphsYAxisBodePhase),
+                        observeAxis(graphsXAxisNyquist),
+                        observeAxis(graphsYAxisNyquist)
                 )
         );
         currentLanguage = RU;
@@ -382,18 +469,13 @@ public class MainController {
 
     @FXML
     private void updateLanguage() {
+        String newLanguage;
         if (currentLanguage.equals(RU)) {
-            currentLanguage = EN;
+            newLanguage = EN;
         } else {
-            currentLanguage = RU;
+            newLanguage = RU;
         }
-        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
-        if (newTitle != null) {
-            byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
-            String decodedTitle = new String(bytes, StandardCharsets.UTF_8);
-            mainStage.setTitle(decodedTitle);
-        }
-        languageNotifier.changeLanguage(currentLanguage);
+        setCurrentLanguage(newLanguage);
     }
 
     @FXML
@@ -480,8 +562,8 @@ public class MainController {
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
         tempStage.setTitle(
-                new String(languageNotifier.getLanaguagePropertyService().
-                        getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
+                new String(languageNotifier.getLanaguagePropertyService()
+                        .getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
                         .getBytes(StandardCharsets.ISO_8859_1),
                         StandardCharsets.UTF_8
                 )
@@ -518,19 +600,32 @@ public class MainController {
 
     public void loadImages(){
         try {
-            Image image = mainApplication.getImage("images/" + "package.jpg");
+
+//            Image image = mainApplication.getImage("images" + "/ms" + "/processing_status.svg");
+//            ImageView imageView = new ImageView(image);
+//            imageView.setFitWidth(20);
+//            imageView.setFitHeight(20);
+//            imageView.setPreserveRatio(true);
+//            imageView.setSmooth(true);
+//            loadTimeDataButton.setGraphic(imageView);
+            Image image = mainApplication.getImage("images" + "/package.jpg");
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
-            loadTimeDataButton.setGraphic(imageView);
             loadUFFSourceButton.setGraphic(imageView);
-            imageView = new ImageView(mainApplication.getImage("images/" + "pin.png"));
+
+            imageView = new ImageView(mainApplication.getImage("images" + "/pin.png"));
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
             graphPinButton.setGraphic(imageView);
 
+            imageView = new ImageView(mainApplication.getImage("images" + "/ms" + "/processing_status.png"));
+            imageView.setFitWidth(20);
+            imageView.setFitHeight(20);
+            imageView.setPreserveRatio(true);
+            loadTimeDataButton.setGraphic(imageView);
         } catch (Exception e) {
             System.err.println("Error loading image: " + e.getMessage());
         }
@@ -579,7 +674,7 @@ public class MainController {
         assert graphsLineChartNyquist != null : "fx:id=\"graphsLineChartNyquist\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsStackPane != null : "fx:id=\"graphsStackPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsVBoxtBode != null : "fx:id=\"graphsVBoxtBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsVBoxBode != null : "fx:id=\"graphsVBoxtBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -648,7 +743,9 @@ public class MainController {
         languageSettings.getItems().forEach(item -> {
             String languageStringOfItem = item.getId().split("_")[1];
             item.setOnAction(event -> {
-
+                if (!currentLanguage.equals(languageStringOfItem)) {
+                    setCurrentLanguage(languageStringOfItem);
+                }
             });
         });
         sourcesTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
@@ -827,10 +924,10 @@ public class MainController {
 
     private void switchStackPaneLayout(String extractedTypeOfGraphs) {
         if ("bode".equalsIgnoreCase(extractedTypeOfGraphs)) {
-            graphsVBoxtBode.setVisible(true);
+            graphsVBoxBode.setVisible(true);
             graphsLineChartNyquist.setVisible(false);
         } else if ("nyquist".equalsIgnoreCase(extractedTypeOfGraphs)) {
-            graphsVBoxtBode.setVisible(false);
+            graphsVBoxBode.setVisible(false);
             graphsLineChartNyquist.setVisible(true);
         } else {
             System.err.println("Invalid graph type: " + extractedTypeOfGraphs);
@@ -924,5 +1021,16 @@ public class MainController {
 
     private void addCalulcatedFRFSourceElement() {
         sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(calculatedFrequencyDataSource));
+    }
+
+    private void setCurrentLanguage(String newLanguage) {
+        currentLanguage = newLanguage;
+        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
+        if (newTitle != null) {
+            byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
+            String decodedTitle = new String(bytes, StandardCharsets.UTF_8);
+            mainStage.setTitle(decodedTitle);
+        }
+        languageNotifier.changeLanguage(currentLanguage);
     }
 }

@@ -434,7 +434,7 @@ public class TimeDataSourceDialogController {
             selectionTransformedDatasetRectangle.setVisible(true);
         });
 
-        transformedDatasetChart.setOnMouseDragged(event -> {
+        chart.setOnMouseDragged(event -> {
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 
@@ -494,6 +494,63 @@ public class TimeDataSourceDialogController {
     }
 
     private void enableChooseLimitsOfTimeSeries(){
-        showAlertUnimplemented();
+        List<Double> dragStartValues = new ArrayList<>(Arrays.asList(0.0, 0.0));
+        selectionTimeLimitsRectangle.setManaged(false);
+
+        timeDatasetChart.setOnMousePressed(event -> {
+            dragStartValues.set(0, event.getX());
+            dragStartValues.set(1, event.getY());
+
+            selectionTimeLimitsRectangle.setX(dragStartValues.get(0));
+            selectionTimeLimitsRectangle.setY(dragStartValues.get(1));
+            selectionTimeLimitsRectangle.setWidth(0);
+            selectionTimeLimitsRectangle.setHeight(0);
+            selectionTimeLimitsRectangle.setVisible(true);
+        });
+
+        timeDatasetChart.setOnMouseDragged(event -> {
+            double dragEndX = event.getX();
+            double dragEndY = event.getY();
+
+            selectionTimeLimitsRectangle.setX(Math.min(dragStartValues.get(0), dragEndX));
+            selectionTimeLimitsRectangle.setY(Math.min(dragStartValues.get(1), dragEndY));
+            selectionTimeLimitsRectangle.setWidth(Math.abs(dragEndX - dragStartValues.get(0)));
+            selectionTimeLimitsRectangle.setHeight(Math.abs(dragEndY - dragStartValues.get(1)));
+        });
+
+        timeDatasetChart.setOnMouseReleased(event -> {
+            selectionTimeLimitsRectangle.setVisible(false);
+            double dragEndX = event.getX();
+            double dragEndY = event.getY();
+
+            if (Math.abs(dragStartValues.get(0) - dragEndX) > 5 && Math.abs(dragStartValues.get(1) - dragEndY) > 5) {
+                // Convert screen coords to axis values using plot area only
+                double xChartStart = timeDatasetChart.getXAxis().sceneToLocal(timeDatasetChart.localToScene(dragStartValues.get(0), 0)).getX();
+                double xChartEnd = timeDatasetChart.getXAxis().sceneToLocal(timeDatasetChart.localToScene(dragEndX, 0)).getX();
+                double yChartStart = timeDatasetChart.getYAxis().sceneToLocal(timeDatasetChart.localToScene(0, dragStartValues.get(1))).getY();
+                double yChartEnd = timeDatasetChart.getYAxis().sceneToLocal(timeDatasetChart.localToScene(0, dragEndY)).getY();
+
+                double xLowerZoom = ((NumberAxis) timeDatasetChart.getXAxis()).getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
+                double xUpperZoom = ((NumberAxis) timeDatasetChart.getXAxis()).getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
+                double yLowerZoom = ((NumberAxis) timeDatasetChart.getYAxis()).getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
+                double yUpperZoom = ((NumberAxis) timeDatasetChart.getYAxis()).getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
+
+                leftBorderTextField.setText(xLowerZoom + "");
+                rightBorderTextField.setText(xUpperZoom + "");
+                redrawDatasetChart();
+            }
+        });
+
+        timeDatasetChart.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                resetTimeLimits();
+            }
+        });
+    }
+
+    private void resetTimeLimits() {
+        leftBorderTextField.setText(chosenTimeSeriesDataSource.getTimeStamps1().getFirst() + "");
+        rightBorderTextField.setText(chosenTimeSeriesDataSource.getTimeStamps1().getLast() + "");
+        redrawDatasetChart();
     }
 }

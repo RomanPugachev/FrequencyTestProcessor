@@ -47,7 +47,13 @@
                             <NumberAxis fx:id="yAxisTime" side="LEFT" />
                           </yAxis>
                         </LineChart>
-                        <Rectangle fx:id="selectionTimeLimitsRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE" visible="false" />
+                        <Rectangle fx:id="selectionTimeLimitsRectangle"
+                                   arcHeight="5.0"
+                                   arcWidth="5.0"
+                                   fill="rgba(30,144,255,0.3)"
+                                   stroke="BLACK"
+                                   strokeType="INSIDE"
+                                   visible="false"/>  <!-- DODGERBLUE with 30% opacity -->
                      </children>
                   </StackPane>
                   <StackPane>

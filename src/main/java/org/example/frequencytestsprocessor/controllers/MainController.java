@@ -645,6 +645,12 @@ public class MainController {
                 }
             }
         });
+        languageSettings.getItems().forEach(item -> {
+            String languageStringOfItem = item.getId().split("_")[1];
+            item.setOnAction(event -> {
+
+            });
+        });
         sourcesTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
             @Override
             public void addListener(ChangeListener<? super String> listener) {

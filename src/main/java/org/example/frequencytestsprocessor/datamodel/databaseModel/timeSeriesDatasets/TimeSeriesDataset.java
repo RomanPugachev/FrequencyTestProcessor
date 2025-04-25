@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+//import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 
@@ -24,6 +25,12 @@ public class TimeSeriesDataset extends AbstractDataset {
     @Getter
     @Setter
     private String datasetName;
+
+//    @Getter
+//    @Setter
+//    @ManyToOne
+//    @JoinColumn(name = "parentAircraftModelId", insertable = false)
+//    private AircraftModel parentAircraftModelId;
 
     @Setter
     @ManyToOne

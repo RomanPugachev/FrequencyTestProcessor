@@ -841,6 +841,20 @@ public class MainController {
     private void saveUFFSourceFromFile(File chosenFile) {
         if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
                 chosenFile.getAbsolutePath().endsWith(".uff"))) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("");
+            dialog.setHeaderText("Пожалуйста, укажите название модели ЛА, к которому относятся данные:");
+            dialog.setContentText("Название модели:");
+
+            // Show the dialog and capture the input
+            Optional<String> result = dialog.showAndWait();
+
+            if (!result.isPresent() || result.get().isEmpty()) {
+                showAlert("Ошибка", "Ошибка загрузки данных", "Введите название модели ЛА");
+                return;
+            } else {
+                System.out.println("Input received: " + result.get());
+            }
             UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath());
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
@@ -855,6 +869,21 @@ public class MainController {
 
     private void saveTimeSeriesSourceFromFile(File chosenFile) {
         if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".csv")) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("");
+            dialog.setHeaderText("Пожалуйста, укажите название модели ЛА, к которому относятся данные:");
+            dialog.setContentText("Название модели:");
+
+            // Show the dialog and capture the input
+            Optional<String> result = dialog.showAndWait();
+
+            // Use the result
+            if (!result.isPresent() || result.get().isEmpty()) {
+                showAlert("Ошибка", "Ошибка загрузки данных", "Введите название модели ЛА");
+                return;
+            } else {
+                System.out.println("Input received: " + result.get());
+            }
             TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath());
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);

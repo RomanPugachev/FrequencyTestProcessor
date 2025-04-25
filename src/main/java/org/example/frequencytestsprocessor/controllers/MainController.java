@@ -346,57 +346,6 @@ public class MainController {
 
     public void initializeLanguageService() {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/mainApplicationLanguage.properties");
-        // Additional properties strings for glogal settings menu item. Temporary solution
-        String encodedIn88591 = "Глобальные настройки приложения";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("mainMenuBar.settings.glogalSettings.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("mainMenuBar.settings.glogalSettings.en", "Global application settings");
-
-        encodedIn88591 = "Частота, Гц";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodeAmplitude.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodeAmplitude.en", "Frequency, Hz");
-
-        encodedIn88591 = "Амплитуда";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodeAmplitude.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodeAmplitude.en", "Amplitude");
-
-        encodedIn88591 = "Частота, Гц";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodePhase.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisBodePhase.en", "Frequency, Hz");
-
-        encodedIn88591 = "Фаза";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodePhase.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisBodePhase.en", "Phase");
-
-        encodedIn88591 = "Действительная часть";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisNyquist.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsXAxisNyquist.en", "Real part");
-
-        encodedIn88591 = "Мнимая часть";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisNyquist.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsYAxisNyquist.en", "Imaginary part");
-
-        encodedIn88591 = "Амплитудная характеристика";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodeAmplitude.title.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodeAmplitude.title.en", "Amplitude frequency response");
-
-        encodedIn88591 = "Фазовая характеристика";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodePhase.title.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartBodePhase.title.en", "Phase frequency response");
-
-        encodedIn88591 = "Диаграмма Найквиста";
-        encodedIn88591 = new String(encodedIn88591.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartNyquist.title.ru", encodedIn88591);
-        languageNotifier.getLanaguagePropertyService().getProperties().setProperty("graphsLineChartNyquist.title.en", "Nyquist diagram");
-
         languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),

@@ -28,7 +28,7 @@ import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_TO_LANGUAGES;
 
-public class TimeDataSourceDialogController {
+public class GlobalSettingsDialogController {
 ////Objects of interface//////////////
 
     @FXML
@@ -95,22 +95,22 @@ public class TimeDataSourceDialogController {
     private Rectangle selectionTransformedDatasetRectangle;
 
     @FXML
-    private LineChart<Number, Number> timeDatasetChartInput;
+    private LineChart<Number, Number> timeDatasetChart;
 
     @FXML
-    private LineChart<Number, Number> transformedDatasetChartInput;
+    private LineChart<Number, Number> transformedDatasetChart;
 
     @FXML
-    private NumberAxis xAxisTimeInput;
+    private NumberAxis xAxisTime;
 
     @FXML
-    private NumberAxis yAxisTimeInput;
+    private NumberAxis yAxisTime;
 
     @FXML
-    private NumberAxis xAxisTransformedInput;
+    private NumberAxis xAxisTransformed;
 
     @FXML
-    private NumberAxis yAxisTransformedInput;
+    private NumberAxis yAxisTransformed;
 
     // Common parameters and objects
 
@@ -135,18 +135,18 @@ public class TimeDataSourceDialogController {
     }
 
     private void initializeLineCharts() {
-        xAxisTimeInput.setAutoRanging(false);
-        yAxisTimeInput.setAutoRanging(false);
-        xAxisTransformedInput.setAutoRanging(false);
-        yAxisTransformedInput.setAutoRanging(false);
+        xAxisTime.setAutoRanging(false);
+        yAxisTime.setAutoRanging(false);
+        xAxisTransformed.setAutoRanging(false);
+        yAxisTransformed.setAutoRanging(false);
 
-        timeDatasetChartInput.legendVisibleProperty().set(false);
-        transformedDatasetChartInput.legendVisibleProperty().set(false);
+        timeDatasetChart.legendVisibleProperty().set(false);
+        transformedDatasetChart.legendVisibleProperty().set(false);
 
-        timeDatasetChartInput.setCreateSymbols(false);
-        transformedDatasetChartInput.setCreateSymbols(false);
+        timeDatasetChart.setCreateSymbols(false);
+        transformedDatasetChart.setCreateSymbols(false);
 
-        makeChartZoomable(transformedDatasetChartInput);
+        makeChartZoomable(transformedDatasetChart);
 
         enableChooseLimitsOfTimeSeries();
     }
@@ -162,10 +162,10 @@ public class TimeDataSourceDialogController {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/timeDataSourceDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
-                        observeAxis(xAxisTimeInput),
-                        observeAxis(yAxisTimeInput),
-                        observeAxis(xAxisTransformedInput),
-                        observeAxis(yAxisTransformedInput),
+                        observeAxis(xAxisTime),
+                        observeAxis(yAxisTime),
+                        observeAxis(xAxisTransformed),
+                        observeAxis(yAxisTransformed),
                         new LanguageObserverDecorator<>(leftBorderLabel),
                         new LanguageObserverDecorator<>(rightBorderLabel),
                         new LanguageObserverDecorator<>(insertingFRFNameLabel),
@@ -213,10 +213,10 @@ public class TimeDataSourceDialogController {
         assert insertingFRFNameTextField != null : "fx:id=\"insertingFRFNameTextField\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert selectionTimeLimitsRectangle != null : "fx:id=\"selectionTimeLimitsRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
         assert selectionTransformedDatasetRectangle != null : "fx:id=\"selectionTransformedDatasetRectangle\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert timeDatasetChartInput != null : "fx:id=\"timeDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert transformedDatasetChartInput != null : "fx:id=\"transformedDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert xAxisTimeInput != null : "fx:id=\"xAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
-        assert yAxisTimeInput != null : "fx:id=\"yAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert timeDatasetChart != null : "fx:id=\"timeDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert transformedDatasetChart != null : "fx:id=\"transformedDatasetChart\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert xAxisTime != null : "fx:id=\"xAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
+        assert yAxisTime != null : "fx:id=\"yAxisTime\" was not injected: check your FXML file 'time_data_source_dialog.fxml'.";
     }
 
     private void setupWidgetsBehaviour(){
@@ -256,7 +256,7 @@ public class TimeDataSourceDialogController {
     }
 
     private void redrawDatasetChart() {
-        timeDatasetChartInput.getData().clear();
+        timeDatasetChart.getData().clear();
         XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
         timeSeries.setName("Current time series dataset");
 
@@ -300,8 +300,8 @@ public class TimeDataSourceDialogController {
             }
         }
         timeSeries.getData().addAll(dataPoints);
-        zoomToArea(timeDatasetChartInput, leftBorder, rightBorder, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
-        timeDatasetChartInput.getData().add(timeSeries);
+        zoomToArea(timeDatasetChart, leftBorder, rightBorder, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
+        timeDatasetChart.getData().add(timeSeries);
         updateTransformedData();
     }
 
@@ -318,7 +318,7 @@ public class TimeDataSourceDialogController {
     private void updateFourierTransformChart() {
 
         // Clear existing data from the chart and extracting timeStamps limit and number of points
-        transformedDatasetChartInput.getData().clear();
+        transformedDatasetChart.getData().clear();
         XYChart.Series<Number, Number> transformedSeries = new XYChart.Series<>();
         transformedSeries.setName("Transformed dataset");
         Double leftBorder = Double.valueOf(leftBorderTextField.getText()), rightBorder = Double.valueOf(rightBorderTextField.getText());
@@ -351,8 +351,8 @@ public class TimeDataSourceDialogController {
             dataPoints.add(new XYChart.Data<>(frequency, y));
         }
         transformedSeries.getData().addAll(dataPoints);
-        zoomToArea(transformedDatasetChartInput, minX, maxX, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
-        transformedDatasetChartInput.getData().add(transformedSeries);
+        zoomToArea(transformedDatasetChart, minX, maxX, minY - (maxY - minY) * 0.05, maxY + (maxY - minY) * 0.05);
+        transformedDatasetChart.getData().add(transformedSeries);
     }
 
     private void addSinusTimeSeriesInSource() {
@@ -461,7 +461,7 @@ public class TimeDataSourceDialogController {
     }
 
     private void resetZoom(LineChart<Number, Number> chart) {
-        ObservableList<XYChart.Data<Number, Number>> transformedData = transformedDatasetChartInput.getData().getFirst().getData();
+        ObservableList<XYChart.Data<Number, Number>> transformedData = transformedDatasetChart.getData().getFirst().getData();
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         double minX = 0, maxX = Double.MIN_VALUE;
         for (XYChart.Data<Number, Number> dataPoint : transformedData) {
@@ -482,7 +482,7 @@ public class TimeDataSourceDialogController {
         List<Double> dragStartValues = new ArrayList<>(Arrays.asList(0.0, 0.0));
         selectionTimeLimitsRectangle.setManaged(false);
 
-        timeDatasetChartInput.setOnMousePressed(event -> {
+        timeDatasetChart.setOnMousePressed(event -> {
             dragStartValues.set(0, event.getX());
             dragStartValues.set(1, event.getY());
 
@@ -493,7 +493,7 @@ public class TimeDataSourceDialogController {
             selectionTimeLimitsRectangle.setVisible(true);
         });
 
-        timeDatasetChartInput.setOnMouseDragged(event -> {
+        timeDatasetChart.setOnMouseDragged(event -> {
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 
@@ -503,22 +503,22 @@ public class TimeDataSourceDialogController {
             selectionTimeLimitsRectangle.setHeight(Math.abs(dragEndY - dragStartValues.get(1)));
         });
 
-        timeDatasetChartInput.setOnMouseReleased(event -> {
+        timeDatasetChart.setOnMouseReleased(event -> {
             selectionTimeLimitsRectangle.setVisible(false);
             double dragEndX = event.getX();
             double dragEndY = event.getY();
 
             if (Math.abs(dragStartValues.get(0) - dragEndX) > 5 && Math.abs(dragStartValues.get(1) - dragEndY) > 5) {
                 // Convert screen coords to axis values using plot area only
-                double xChartStart = timeDatasetChartInput.getXAxis().sceneToLocal(timeDatasetChartInput.localToScene(dragStartValues.get(0), 0)).getX();
-                double xChartEnd = timeDatasetChartInput.getXAxis().sceneToLocal(timeDatasetChartInput.localToScene(dragEndX, 0)).getX();
-                double yChartStart = timeDatasetChartInput.getYAxis().sceneToLocal(timeDatasetChartInput.localToScene(0, dragStartValues.get(1))).getY();
-                double yChartEnd = timeDatasetChartInput.getYAxis().sceneToLocal(timeDatasetChartInput.localToScene(0, dragEndY)).getY();
+                double xChartStart = timeDatasetChart.getXAxis().sceneToLocal(timeDatasetChart.localToScene(dragStartValues.get(0), 0)).getX();
+                double xChartEnd = timeDatasetChart.getXAxis().sceneToLocal(timeDatasetChart.localToScene(dragEndX, 0)).getX();
+                double yChartStart = timeDatasetChart.getYAxis().sceneToLocal(timeDatasetChart.localToScene(0, dragStartValues.get(1))).getY();
+                double yChartEnd = timeDatasetChart.getYAxis().sceneToLocal(timeDatasetChart.localToScene(0, dragEndY)).getY();
 
-                double xLowerZoom = ((NumberAxis) timeDatasetChartInput.getXAxis()).getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
-                double xUpperZoom = ((NumberAxis) timeDatasetChartInput.getXAxis()).getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
-                double yLowerZoom = ((NumberAxis) timeDatasetChartInput.getYAxis()).getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
-                double yUpperZoom = ((NumberAxis) timeDatasetChartInput.getYAxis()).getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
+                double xLowerZoom = ((NumberAxis) timeDatasetChart.getXAxis()).getValueForDisplay(Math.min(xChartStart, xChartEnd)).doubleValue();
+                double xUpperZoom = ((NumberAxis) timeDatasetChart.getXAxis()).getValueForDisplay(Math.max(xChartStart, xChartEnd)).doubleValue();
+                double yLowerZoom = ((NumberAxis) timeDatasetChart.getYAxis()).getValueForDisplay(Math.max(yChartStart, yChartEnd)).doubleValue(); // flipped because Y increases downward
+                double yUpperZoom = ((NumberAxis) timeDatasetChart.getYAxis()).getValueForDisplay(Math.min(yChartStart, yChartEnd)).doubleValue();
 
                 leftBorderTextField.setText(xLowerZoom + "");
                 rightBorderTextField.setText(xUpperZoom + "");
@@ -526,7 +526,7 @@ public class TimeDataSourceDialogController {
             }
         });
 
-        timeDatasetChartInput.setOnMouseClicked(event -> {
+        timeDatasetChart.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 resetTimeLimits();
             }

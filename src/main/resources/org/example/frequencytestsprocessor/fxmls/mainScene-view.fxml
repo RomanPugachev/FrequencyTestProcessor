@@ -40,7 +40,7 @@
                                 <MenuItem fx:id="language_en" mnemonicParsing="false" text="mainMenuBar.settings.languageSettings.language_en" />
                             </items>
                         </Menu>
-                        <MenuItem fx:id="glogalSettings" mnemonicParsing="false" text="mainMenuBar.settings.glogalSettings"/>
+                        <MenuItem fx:id="globalSettings" mnemonicParsing="false" text="mainMenuBar.settings.globalSettings"/>
                     </items>
                 </Menu>
             </menus>

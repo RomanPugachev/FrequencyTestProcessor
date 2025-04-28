@@ -32,6 +32,7 @@ import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.CalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
@@ -648,10 +649,10 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-        if (System.getenv("PRELOAD_PATH_CSV") != null) {
-            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
-            saveTimeSeriesSourceFromFile(preloadFile);
-        }
+//        if (System.getenv("PRELOAD_PATH_CSV") != null) {
+//            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
+//            saveTimeSeriesSourceFromFile(preloadFile);
+//        }
         if (System.getenv("PRELOAD_PATH_UFF") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH_UFF"));
             saveUFFSourceFromFile(preloadFile);
@@ -855,7 +856,11 @@ public class MainController {
             } else {
                 System.out.println("Input received: " + result.get());
             }
-            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath());
+
+//            AircraftModel aircraftModel = frfRepository.getAircraftModelByName(result.get(), true);
+
+            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel.getAircraftModelId());
+
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
             root.setExpanded(true);

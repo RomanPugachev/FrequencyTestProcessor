@@ -26,12 +26,6 @@ public class TimeSeriesDataset extends AbstractDataset {
     @Setter
     private String datasetName;
 
-//    @Getter
-//    @Setter
-//    @ManyToOne
-//    @JoinColumn(name = "parentAircraftModelId", insertable = false)
-//    private AircraftModel parentAircraftModelId;
-
     @Setter
     @ManyToOne
     @JoinColumn(name = "sourceId", insertable = false)

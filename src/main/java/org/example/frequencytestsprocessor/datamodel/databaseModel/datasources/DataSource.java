@@ -4,6 +4,7 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -32,6 +33,12 @@ public abstract class DataSource {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime lastUpdate;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "parentAircraftModelId", insertable = false)
+    private AircraftModel parentAircraftModel;
 
     public DataSource() {}
 

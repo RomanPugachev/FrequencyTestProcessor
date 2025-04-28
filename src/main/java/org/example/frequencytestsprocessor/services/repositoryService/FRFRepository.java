@@ -2,6 +2,7 @@ package org.example.frequencytestsprocessor.services.repositoryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.hibernate.Transaction;
@@ -45,13 +46,22 @@ public class FRFRepository {
         return frfRepositoryInstace;
     }
 
-    public UFFDataSource saveUFFSource(String fileAddress) {
+    public UFFDataSource saveUFFSource(String fileAddress, Long parentAircraftModelId) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
+
+            // Get the aircraft model
+            AircraftModel aircraftModel = session.get(AircraftModel.class, parentAircraftModelId);
+
+            // Create a new UFFDataSource object
             UFFDataSource resultUFF = new UFFDataSource(fileAddress);
             session.persist(resultUFF);
+
+            // Add the UFFDataSource to the aircraft model
+            aircraftModel.addDataSource(resultUFF);
+
             ObjectMapper objectMapper = MainController.getObjectMapper();
             //Read data with Python
             byte[] pythonOutput = getPythonOutputByteArray(pythonizePathToFile(fileAddress, CommonMethods.PathFrom.SYSTEM));
@@ -221,5 +231,39 @@ public class FRFRepository {
         pythonInterpreter.exec(pythonScript);
         pythonInterpreter.exec(String.format("parse_UFF('%s')", UFFPath));
         return pythonOutput.toByteArray();
+    }
+
+    /**
+     * Method for getting AircraftModel by name. If AircraftModel with given name doesn't exist, you can specify createIfNotExists flag to create new AircraftModel.
+     * @param aircraftModelName
+     * @return
+     */
+    public AircraftModel getAircraftModelByName(String aircraftModelName, boolean createIfNotExists) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+
+            // First try to find AircraftModel by name
+            AircraftModel aircraftModel = session.createQuery("select a from AircraftModel a where a.aircraftModelName = :name", AircraftModel.class)
+                    .setParameter("name", aircraftModelName)
+                    .uniqueResult();
+            // If AircraftModel doesn't exist and createIfNotExists is true, create new AircraftModel
+            if (aircraftModel != null) {
+                transaction.commit();
+                return aircraftModel;
+            }else if (aircraftModel == null && createIfNotExists) {
+                aircraftModel = new AircraftModel(aircraftModelName);
+                session.save(aircraftModel);
+                transaction.commit();
+                return aircraftModel;
+            } else {
+                transaction.rollback();
+                throw new RuntimeException("AircraftModel with name " + aircraftModelName + " already exists");
+            }
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
+        }
     }
 }

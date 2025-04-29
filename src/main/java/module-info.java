@@ -34,6 +34,7 @@ module org.example.frequencytestsprocessor {
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
     exports org.example.frequencytestsprocessor.services.idManagement;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
+    exports org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities;
     exports org.example.frequencytestsprocessor.converters;
 
 }

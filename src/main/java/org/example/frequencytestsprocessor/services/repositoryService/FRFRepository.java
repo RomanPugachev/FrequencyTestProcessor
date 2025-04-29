@@ -46,21 +46,15 @@ public class FRFRepository {
         return frfRepositoryInstace;
     }
 
-    public UFFDataSource saveUFFSource(String fileAddress, Long parentAircraftModelId) {
+    public UFFDataSource saveUFFSource(String fileAddress, AircraftModel parentAircraftModel) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
+            transaction = session.beginTransaction();
 
-            // Get the aircraft model
-            AircraftModel aircraftModel = session.get(AircraftModel.class, parentAircraftModelId);
-
-            // Create a new UFFDataSource object
+            // Merge is unnecessary since we just loaded it
             UFFDataSource resultUFF = new UFFDataSource(fileAddress);
             session.persist(resultUFF);
-
-            // Add the UFFDataSource to the aircraft model
-            aircraftModel.addDataSource(resultUFF);
+            parentAircraftModel.addDataSource(resultUFF);
 
             ObjectMapper objectMapper = MainController.getObjectMapper();
             //Read data with Python
@@ -154,12 +148,7 @@ public class FRFRepository {
                 for(int currentDatasetId = 0; currentDatasetId < resultTimeSeriesSource.getTimeSeriesDatasets().size(); currentDatasetId++) {
                     TimeSeriesDataset datasetForInserting = resultTimeSeriesSource.getTimeSeriesDatasets().get(currentDatasetId);
                     datasetForInserting.addTimeData(lineDoubles.get(currentDatasetId + 2));
-//                    session.persist(datasetForInserting);
                 }
-                // Debugging
-        //        if (line == dataLinesInFile.get(dataLinesInFile.size() - 1)) {
-        //            break;
-        //        }
             }
             // Check of existing datasets
             resultTimeSeriesSource.getTimeSeriesDatasets().stream()
@@ -235,35 +224,53 @@ public class FRFRepository {
 
     /**
      * Method for getting AircraftModel by name. If AircraftModel with given name doesn't exist, you can specify createIfNotExists flag to create new AircraftModel.
-     * @param aircraftModelName
-     * @return
+     * @param aircraftModelName - name of AircraftModel
+     * @return AircraftModel
      */
     public AircraftModel getAircraftModelByName(String aircraftModelName, boolean createIfNotExists) {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
+        AircraftModel aircraftModel = null;
 
-            // First try to find AircraftModel by name
-            AircraftModel aircraftModel = session.createQuery("select a from AircraftModel a where a.aircraftModelName = :name", AircraftModel.class)
-                    .setParameter("name", aircraftModelName)
-                    .uniqueResult();
-            // If AircraftModel doesn't exist and createIfNotExists is true, create new AircraftModel
-            if (aircraftModel != null) {
+        // First step: Check if model exists
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            try {
+                aircraftModel = session.createQuery("select a from AircraftModel a where a.aircraftModelName = :name", AircraftModel.class)
+                        .setParameter("name", aircraftModelName)
+                        .uniqueResult();
                 transaction.commit();
-                return aircraftModel;
-            }else if (aircraftModel == null && createIfNotExists) {
-                aircraftModel = new AircraftModel(aircraftModelName);
-                session.save(aircraftModel);
-                transaction.commit();
-                return aircraftModel;
-            } else {
+            } catch (Exception e) {
                 transaction.rollback();
-                throw new RuntimeException("AircraftModel with name " + aircraftModelName + " already exists");
+                throw new RuntimeException("Error checking for existing AircraftModel: " + e.getMessage(), e);
             }
+        }
+
+        // Second step: Create new model if it doesn't exist and flag is set
+        if (aircraftModel == null && createIfNotExists) {
+            try (Session session = sessionFactory.openSession()) {
+                transaction = session.beginTransaction();
+                try {
+                    aircraftModel = new AircraftModel(aircraftModelName);
+                    session.save(aircraftModel);
+                    transaction.commit();
+                } catch (Exception e) {
+                    transaction.rollback();
+                    throw new RuntimeException("Error creating new AircraftModel: " + e.getMessage(), e);
+                }
+            }
+        } else if (aircraftModel == null) {
+            throw new RuntimeException("AircraftModel with name " + aircraftModelName + " does not exist and createIfNotExists is false");
+        }
+        return aircraftModel;
+    }
+
+    public AircraftModel getAircraftModelById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(AircraftModel.class, id);
         } catch (Exception e) {
-            transaction.rollback();
-            throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
+            throw new RuntimeException("Error retrieving AircraftModel by ID: " + e.getMessage(), e);
         }
     }
+
+
 }

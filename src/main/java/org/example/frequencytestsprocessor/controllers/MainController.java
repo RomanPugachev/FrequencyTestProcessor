@@ -857,9 +857,9 @@ public class MainController {
                 System.out.println("Input received: " + result.get());
             }
 
-//            AircraftModel aircraftModel = frfRepository.getAircraftModelByName(result.get(), true);
+            AircraftModel aircraftModel = frfRepository.getAircraftModelByName(result.get(), true);
 
-            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel.getAircraftModelId());
+            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel);
 
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);

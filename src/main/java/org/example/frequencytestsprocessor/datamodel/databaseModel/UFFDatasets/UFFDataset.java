@@ -15,10 +15,12 @@ public class UFFDataset extends AbstractDataset {
     @Getter
     @Setter
     protected String type;
+
     @Setter
     @ManyToOne
-    @JoinColumn(name = "sourceId", insertable = false, updatable = false)
+    @JoinColumn(name = "sourceId", insertable = false)
     private UFFDataSource parentUFF;
+
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)

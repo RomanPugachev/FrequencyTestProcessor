@@ -22,8 +22,7 @@ public class AircraftModel {
     @Column(unique = true, nullable = false)
     private String aircraftModelName;
 
-    @OneToMany
-    @JoinColumn(name = "parentAircraftModelId")
+    @OneToMany(mappedBy = "parentAircraftModel", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DataSource> dataSources = new ArrayList<>();
 
     public AircraftModel(String aircraftModelName) {

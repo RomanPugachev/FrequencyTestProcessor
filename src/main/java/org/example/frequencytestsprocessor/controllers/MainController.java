@@ -24,7 +24,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +41,6 @@ import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTable;
-import org.example.frequencytestsprocessor.datamodel.dto.DataSourceTableDTO;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
@@ -895,7 +893,7 @@ public class MainController {
 
             TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath(), aircraftModel);
 
-//            TreeItem<DataSourceTableDTO>
+//            TreeItem<DataSourceDTO>
 
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);

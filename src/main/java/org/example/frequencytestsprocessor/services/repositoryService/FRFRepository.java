@@ -5,6 +5,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeri
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
+import org.hibernate.Hibernate;
 import org.hibernate.Transaction;
 import jep.Jep;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
@@ -54,6 +55,7 @@ public class FRFRepository {
             // Merge is unnecessary since we just loaded it
             UFFDataSource resultUFF = new UFFDataSource(fileAddress);
             session.persist(resultUFF);
+            session.merge(parentAircraftModel);
             parentAircraftModel.addDataSource(resultUFF);
 
             ObjectMapper objectMapper = MainController.getObjectMapper();
@@ -116,7 +118,7 @@ public class FRFRepository {
         return uffSource;
     }
 
-    public TimeSeriesDataSource saveTimeSeriesSourceFromCSV(String fileAddress) {
+    public TimeSeriesDataSource saveTimeSeriesSourceFromCSV(String fileAddress, AircraftModel parentAircraftModel) {
         if (fileAddress == null || fileAddress.isEmpty()) {
             throw new IllegalArgumentException("File address cannot be null or empty");
         }
@@ -129,6 +131,7 @@ public class FRFRepository {
             transaction.begin();
             TimeSeriesDataSource resultTimeSeriesSource = new TimeSeriesDataSource(fileAddress);
             session.persist(resultTimeSeriesSource);
+            parentAircraftModel.addDataSource(resultTimeSeriesSource);
 
             List<String[]> allLinesInFile = readAllLinesFromCSV(Path.of(resultTimeSeriesSource.getSourceAddress()), ";");
 

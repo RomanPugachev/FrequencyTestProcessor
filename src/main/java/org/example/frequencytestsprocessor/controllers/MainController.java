@@ -44,6 +44,8 @@ import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTab
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.AircraftModelProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceTableProxy;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
 import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
@@ -278,10 +280,10 @@ public class MainController {
     private HBox sourceAndDatasetsChoiseHBox;
 
     @FXML
-    private TreeTableColumn<DataSource, String> sourcesTreeTableColumn;
+    private TreeTableColumn<DataSourceTableProxy, String> sourcesTreeTableColumn;
 
     @FXML
-    private TreeTableView<DataSource> sourcesTreeTableView;
+    private TreeTableView<DataSourceTableProxy> sourcesTreeTableView;
 
     @Getter
     @FXML
@@ -331,6 +333,7 @@ public class MainController {
     public void initializeServices() {
         if (datasetsTreeTableView.getRoot() == null) {
             sourcesTreeTableView.setRoot(new TreeItem<>());
+
         }
         if (datasetsTreeTableView.getRoot() == null) {
             datasetsTreeTableView.setRoot(new TreeItem<>());
@@ -381,16 +384,17 @@ public class MainController {
                         new LanguageObserverDecorator<>(clearGraphsButton),
                         new LanguageObserverDecorator<>(sourcesTreeTableView),
                         new LanguageObserverDecorator<>(datasetsTreeTableView),
-                        (languageProperties, currentLanguage, previousLanguage) -> {
-                            ObservableList<TreeItem<DataSource>> dataSources = sourcesTreeTableView.getRoot().getChildren();
-                            for(TreeItem<DataSource> curSource : dataSources) {
-                                if (curSource.getValue().equals(calculatedFrequencyDataSource)) {
-                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
-                                    curSource.getValue().setSourceAddress(decodedText);
-                                    sourcesTreeTableView.refresh();
-                                }
-                            }
-                        },
+                        // TODO: implement listening of "calculated values tree table item"
+//                        (languageProperties, currentLanguage, previousLanguage) -> {
+//                            ObservableList<TreeItem<DataSource>> dataSources = sourcesTreeTableView.getRoot().getChildren();
+//                            for(TreeItem<DataSource> curSource : dataSources) {
+//                                if (curSource.getValue().equals(calculatedFrequencyDataSource)) {
+//                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
+//                                    curSource.getValue().setSourceAddress(decodedText);
+//                                    sourcesTreeTableView.refresh();
+//                                }
+//                            }
+//                        },
                         (languageProperties, currentLanguage, previousLanguage) -> {
                             languageSettings.getItems().forEach(item -> {
                                 String languageStringOfItem = item.getId().split("_")[1];
@@ -662,33 +666,35 @@ public class MainController {
         ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
         sourcesTreeTableView.setShowRoot(false);
-        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                DataSource selectedDataSource = newValue.getValue();
-                if (selectedDataSource instanceof UFFDataSource) {
-                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-                    UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
-
-                    // Set label which represents current source for calculations
-                    chosenFileLabel.setText(uffSource.getSourceAddress());
-
-                    // Delegate further updates to Refresher
-                    refresher.refreshOnChangeChosenUFFSource(uffSource);
-                    idManager.removeAllSlaves();
-                } else if (selectedDataSource instanceof TimeSeriesDataSource) {
-//                    TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
-                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-                    callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
-                } else if (selectedDataSource.equals(calculatedFrequencyDataSource)) {
-                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
-                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
-                    }
-                    // Ensure that datasetsTreeTableView is clear
-                    datasetsTreeTableView.getRoot().getChildren().clear();
-                    calculatedFrequencyDataSource.getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
-                }
-            }
-        });
+        sourcesTreeTableView.getRoot().setExpanded(true);
+        // TODO: implement listening of selecting new datasource
+//        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue != null) {
+//                DataSource selectedDataSource = newValue.getValue();
+//                if (selectedDataSource instanceof UFFDataSource) {
+//                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+//                    UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
+//
+//                    // Set label which represents current source for calculations
+//                    chosenFileLabel.setText(uffSource.getSourceAddress());
+//
+//                    // Delegate further updates to Refresher
+//                    refresher.refreshOnChangeChosenUFFSource(uffSource);
+//                    idManager.removeAllSlaves();
+//                } else if (selectedDataSource instanceof TimeSeriesDataSource) {
+////                    TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
+//                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+//                    callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
+//                } else if (selectedDataSource.equals(calculatedFrequencyDataSource)) {
+//                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
+//                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
+//                    }
+//                    // Ensure that datasetsTreeTableView is clear
+//                    datasetsTreeTableView.getRoot().getChildren().clear();
+//                    calculatedFrequencyDataSource.getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
+//                }
+//            }
+//        });
         languageSettings.getItems().forEach(item -> {
             String languageStringOfItem = item.getId().split("_")[1];
             item.setOnAction(event -> {
@@ -710,7 +716,7 @@ public class MainController {
 
             @Override
             public String getValue() {
-                return datasource.getValue().getValue().getSourceAddress();
+                return datasource.getValue().getValue().getTableColumnValue();
             }
 
             @Override
@@ -860,11 +866,7 @@ public class MainController {
 
             UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel);
 
-            TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
-            TreeItem<DataSource> item = new TreeItem<>(savedSource);
-            root.setExpanded(true);
-            root.getChildren().add(item);
-            sourcesTreeTableView.getSelectionModel().select(item);
+            insertUFFSourceIntoTable(aircraftModel, savedSource);
 //            refresher.refreshUIOnSourceChange(savedSource);
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
@@ -893,11 +895,10 @@ public class MainController {
 
             TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath(), aircraftModel);
 
-//            TreeItem<DataSourceDTO>
+//            TreeItem<DataSourceProxy>
 
             TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
             TreeItem<DataSource> item = new TreeItem<>(savedSource);
-            root.setExpanded(true);
             root.getChildren().add(item);
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .csv");
@@ -1020,5 +1021,17 @@ public class MainController {
             mainStage.setTitle(decodedTitle);
         }
         languageNotifier.changeLanguage(currentLanguage);
+    }
+
+    private void insertUFFSourceIntoTable(AircraftModel parentAircraftModel, UFFDataSource savedUFFDataSource) {
+        TreeItem<DataSourceTableProxy> root = sourcesTreeTableView.getRoot();
+        // Check if parentAircraftModel already exists
+        TreeItem<DataSourceTableProxy> existingItem = root.getChildren().stream()
+                .filter(item -> ((AircraftModelProxy) item.getValue()).getAircraftModel().getAircraftModelName().equals(parentAircraftModel.getAircraftModelName()))
+                .findFirst().orElse(null);
+        // TODO: implement inserting datasource
+//        TreeItem<DataSourceTableProxy> item = new TreeItem<>(savedSource);
+//        root.getChildren().add(item);
+//        sourcesTreeTableView.getSelectionModel().select(item);
     }
 }

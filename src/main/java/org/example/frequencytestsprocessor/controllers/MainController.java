@@ -45,6 +45,7 @@ import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.AircraftModelProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceProxy;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceTableProxy;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
 import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
@@ -339,7 +340,7 @@ public class MainController {
             datasetsTreeTableView.setRoot(new TreeItem<>());
         }
         sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-        addCalulcatedFRFSourceElement();
+        addCalculatedFRFSourceElement();
         initializeLanguageService();
         graphsService.initializeService();
         FRFRepository.setInstMainController(this);
@@ -866,7 +867,7 @@ public class MainController {
 
             UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel);
 
-            insertUFFSourceIntoTable(aircraftModel, savedSource);
+            insertSourceIntoTable(aircraftModel, savedSource);
 //            refresher.refreshUIOnSourceChange(savedSource);
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
@@ -895,11 +896,7 @@ public class MainController {
 
             TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath(), aircraftModel);
 
-//            TreeItem<DataSourceProxy>
-
-            TreeItem<DataSource> root = sourcesTreeTableView.getRoot();
-            TreeItem<DataSource> item = new TreeItem<>(savedSource);
-            root.getChildren().add(item);
+            insertSourceIntoTable(aircraftModel, savedSource);
         } else if (chosenFile != null) {
             showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .csv");
         }
@@ -1008,8 +1005,16 @@ public class MainController {
         ((List<CalculatedFrequencyDataRecord>) calculatedFrequencyDataSource.getDatasets()).add(incomingRec);
     }
 
-    private void addCalulcatedFRFSourceElement() {
-        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(calculatedFrequencyDataSource));
+    private void addCalculatedFRFSourceElement() {
+        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(new DataSourceTableProxy() {
+            @Getter
+            @Setter
+            private String valueForColumn = "DEFAULT VALUE";
+            @Override
+            public String getTableColumnValue() {
+                return valueForColumn;
+            }
+        }));
     }
 
     private void setCurrentLanguage(String newLanguage) {
@@ -1023,15 +1028,27 @@ public class MainController {
         languageNotifier.changeLanguage(currentLanguage);
     }
 
-    private void insertUFFSourceIntoTable(AircraftModel parentAircraftModel, UFFDataSource savedUFFDataSource) {
+    private void insertSourceIntoTable(AircraftModel parentAircraftModel, DataSource savedSource) {
         TreeItem<DataSourceTableProxy> root = sourcesTreeTableView.getRoot();
         // Check if parentAircraftModel already exists
-        TreeItem<DataSourceTableProxy> existingItem = root.getChildren().stream()
-                .filter(item -> ((AircraftModelProxy) item.getValue()).getAircraftModel().getAircraftModelName().equals(parentAircraftModel.getAircraftModelName()))
+        TreeItem<DataSourceTableProxy> existingModelItem = root.getChildren().stream()
+                .filter(item -> (item.getValue() instanceof AircraftModelProxy) && ((AircraftModelProxy) item.getValue()).getAircraftModel().getAircraftModelName().equals(parentAircraftModel.getAircraftModelName()))
                 .findFirst().orElse(null);
+        if (existingModelItem == null) {
+            // If parentAircraftModel doesn't exist, create a new TreeItem and add it to the root
+            existingModelItem = new TreeItem<>(new AircraftModelProxy(parentAircraftModel));
+            root.getChildren().add(existingModelItem);
+        }
+        // Check if savedSource already exists in the parentAircraftModel
+        TreeItem<DataSourceTableProxy> existingSourceItem = existingModelItem.getChildren().stream()
+                .filter(item -> ((DataSourceTableProxy) item.getValue()).getTableColumnValue().equals(savedSource.getSourceAddress()))
+                .findFirst().orElse(null);
+        if (existingSourceItem == null) {
+            // If savedSource doesn't exist, create a new TreeItem and add it to the parentAircraftModel
+            existingSourceItem = new TreeItem<>(new DataSourceProxy(savedSource));
+            existingModelItem.getChildren().add(existingSourceItem);
+        }
         // TODO: implement inserting datasource
-//        TreeItem<DataSourceTableProxy> item = new TreeItem<>(savedSource);
-//        root.getChildren().add(item);
-//        sourcesTreeTableView.getSelectionModel().select(item);
+        sourcesTreeTableView.getSelectionModel().select(existingSourceItem);
     }
 }

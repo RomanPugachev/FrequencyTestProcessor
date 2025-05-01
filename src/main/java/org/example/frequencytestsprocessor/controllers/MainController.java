@@ -45,6 +45,7 @@ import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.AircraftModelProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.CalculatedSourceProxy;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceProxy;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceTableProxy;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
@@ -310,26 +311,6 @@ public class MainController {
     private GraphsService graphsService = new GraphsService(this);
     private FRFRepository frfRepository = FRFRepository.getRepository();
     private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
-    private DataSource calculatedFrequencyDataSource = new DataSource() {
-
-        private final List<CalculatedFrequencyDataRecord> frequencyDataRecords = new ArrayList<>();
-        {
-            setSourceAddress("");
-        }
-
-        public List<CalculatedFrequencyDataRecord> getFrequencyDataRecords() {
-            return frequencyDataRecords;
-        }
-        @Override
-        public String getSourceAddress() {
-            return super.getSourceAddress();
-        }
-
-        @Override
-        public List<CalculatedFrequencyDataRecord> getDatasets(){
-            return frequencyDataRecords;
-        };
-    };
 
     public void initializeServices() {
         if (datasetsTreeTableView.getRoot() == null) {
@@ -385,17 +366,16 @@ public class MainController {
                         new LanguageObserverDecorator<>(clearGraphsButton),
                         new LanguageObserverDecorator<>(sourcesTreeTableView),
                         new LanguageObserverDecorator<>(datasetsTreeTableView),
-                        // TODO: implement listening of "calculated values tree table item"
-//                        (languageProperties, currentLanguage, previousLanguage) -> {
-//                            ObservableList<TreeItem<DataSource>> dataSources = sourcesTreeTableView.getRoot().getChildren();
-//                            for(TreeItem<DataSource> curSource : dataSources) {
-//                                if (curSource.getValue().equals(calculatedFrequencyDataSource)) {
-//                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
-//                                    curSource.getValue().setSourceAddress(decodedText);
-//                                    sourcesTreeTableView.refresh();
-//                                }
-//                            }
-//                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            ObservableList<TreeItem<DataSourceTableProxy>> dataSources = sourcesTreeTableView.getRoot().getChildren();
+                            for(TreeItem<DataSourceTableProxy> curSource : dataSources) {
+                                if (curSource.getValue() instanceof CalculatedSourceProxy) {
+                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
+                                    ((CalculatedSourceProxy) curSource.getValue()).setSourceAddress(decodedText);
+                                    sourcesTreeTableView.refresh();
+                                }
+                            }
+                        },
                         (languageProperties, currentLanguage, previousLanguage) -> {
                             languageSettings.getItems().forEach(item -> {
                                 String languageStringOfItem = item.getId().split("_")[1];
@@ -669,33 +649,34 @@ public class MainController {
         sourcesTreeTableView.setShowRoot(false);
         sourcesTreeTableView.getRoot().setExpanded(true);
         // TODO: implement listening of selecting new datasource
-//        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            if (newValue != null) {
-//                DataSource selectedDataSource = newValue.getValue();
-//                if (selectedDataSource instanceof UFFDataSource) {
-//                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-//                    UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
-//
-//                    // Set label which represents current source for calculations
-//                    chosenFileLabel.setText(uffSource.getSourceAddress());
-//
-//                    // Delegate further updates to Refresher
-//                    refresher.refreshOnChangeChosenUFFSource(uffSource);
-//                    idManager.removeAllSlaves();
-//                } else if (selectedDataSource instanceof TimeSeriesDataSource) {
-////                    TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
-//                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
-//                    callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
-//                } else if (selectedDataSource.equals(calculatedFrequencyDataSource)) {
-//                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
-//                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
-//                    }
-//                    // Ensure that datasetsTreeTableView is clear
-//                    datasetsTreeTableView.getRoot().getChildren().clear();
-//                    calculatedFrequencyDataSource.getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
-//                }
-//            }
-//        });
+        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                DataSourceTableProxy selectedDataSourceProxy = newValue.getValue();
+                if (selectedDataSourceProxy instanceof DataSourceProxy) {
+                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+                    DataSource selectedDataSource = ((DataSourceProxy) selectedDataSourceProxy).getDataSource();
+                    if (selectedDataSource instanceof UFFDataSource) {
+                        UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
+                        // Set label which represents current source for calculations
+                        chosenFileLabel.setText(uffSource.getSourceAddress());
+                        // Delegate further updates to Refresher
+                        refresher.refreshOnChangeChosenUFFSource(uffSource);
+                        idManager.removeAllSlaves();
+                    } else if (selectedDataSource instanceof TimeSeriesDataSource) {
+//                        TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
+                        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+                        callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
+                    }
+                } else if (selectedDataSourceProxy.equals(CalculatedSourceProxy.getInstance())) {
+                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
+                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
+                    }
+                    // Ensure that datasetsTreeTableView is clear
+                    datasetsTreeTableView.getRoot().getChildren().clear();
+                    CalculatedSourceProxy.getInstance().getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
+                }
+            }
+        });
         languageSettings.getItems().forEach(item -> {
             String languageStringOfItem = item.getId().split("_")[1];
             item.setOnAction(event -> {
@@ -1002,19 +983,11 @@ public class MainController {
     private void addTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
         TimeSeriesBasedCalculatedFrequencyDataRecord incomingRec = frfRepository.saveTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name).orElseThrow(() -> new RuntimeException("Can't save calculated frequency data record"));
 
-        ((List<CalculatedFrequencyDataRecord>) calculatedFrequencyDataSource.getDatasets()).add(incomingRec);
+        CalculatedSourceProxy.getInstance().getDatasets().add(incomingRec);
     }
 
     private void addCalculatedFRFSourceElement() {
-        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(new DataSourceTableProxy() {
-            @Getter
-            @Setter
-            private String valueForColumn = "DEFAULT VALUE";
-            @Override
-            public String getTableColumnValue() {
-                return valueForColumn;
-            }
-        }));
+        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(CalculatedSourceProxy.getInstance()));
     }
 
     private void setCurrentLanguage(String newLanguage) {
@@ -1048,7 +1021,6 @@ public class MainController {
             existingSourceItem = new TreeItem<>(new DataSourceProxy(savedSource));
             existingModelItem.getChildren().add(existingSourceItem);
         }
-        // TODO: implement inserting datasource
         sourcesTreeTableView.getSelectionModel().select(existingSourceItem);
     }
 }

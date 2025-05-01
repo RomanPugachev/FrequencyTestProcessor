@@ -31,6 +31,7 @@ public class StaticStrings {
     public static final String NYQUIST = "nyquist";
     public static final String DEFAULT_CALCULATED_DATA_SOURCE = "defaultCalculatedDataSource";
     public static final String TITLE = "title";
+    public static final String DEFAULT_CALCULATED_DATA_SOURCE_VALUE = "DEFAULT CALCULATED VALUE";
 
 
 

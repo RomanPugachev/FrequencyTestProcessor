@@ -49,10 +49,10 @@
             <children>
                 <ToolBar fx:id="dummyToolBar" prefHeight="26.0" prefWidth="1000.0">
                     <items>
-                        <Button fx:id="changeLanguageButton" minHeight="20.0" minWidth="80.0" mnemonicParsing="false" onMouseClicked="#updateLanguage" prefHeight="20.0" prefWidth="80.0" style="-fx-font-size: 10px;" text="changeLanguageButton">
-                            <font>
-                                <Font size="14.0" />
-                            </font></Button>
+<!--                        <Button fx:id="changeLanguageButton" minHeight="20.0" minWidth="80.0" mnemonicParsing="false" onMouseClicked="#updateLanguage" prefHeight="20.0" prefWidth="80.0" style="-fx-font-size: 10px;" text="changeLanguageButton">-->
+<!--                            <font>-->
+<!--                                <Font size="14.0" />-->
+<!--                            </font></Button>-->
                     </items>
                 </ToolBar>
                 <SplitPane fx:id="processAndVisualizeSplitPane" dividerPositions="0.5" VBox.vgrow="SOMETIMES">

@@ -91,8 +91,8 @@ public class MainController {
     @FXML
     private Button callPerformCalculationsDialogButton;
 
-    @FXML
-    private Button changeLanguageButton;
+//    @FXML
+//    private Button changeLanguageButton;
 
     @FXML
     private HBox chooseFileHBox;
@@ -334,7 +334,7 @@ public class MainController {
         languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
-                        new LanguageObserverDecorator<>(changeLanguageButton),
+//                        new LanguageObserverDecorator<>(changeLanguageButton),
                         new LanguageObserverDecorator<>(chosenFileLabel),
                         new LanguageObserverDecorator<>(manageDataBaseSourcesLabel),
                         SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
@@ -572,7 +572,7 @@ public class MainController {
         assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsTableContextMenu != null : "fx:id=\"availableSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert callPerformCalculationsDialogButton != null : "fx:id=\"callPerformCalculationsDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+//        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";

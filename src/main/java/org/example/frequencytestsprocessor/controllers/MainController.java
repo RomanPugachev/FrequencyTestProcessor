@@ -310,7 +310,7 @@ public class MainController {
     private Calculator calculator = new Calculator(this);
     private GraphsService graphsService = new GraphsService(this);
     private FRFRepository frfRepository = FRFRepository.getRepository();
-    private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
+    private UFFDataSource selectedUFFSource;
 
     public void initializeServices() {
         if (datasetsTreeTableView.getRoot() == null) {
@@ -515,17 +515,23 @@ public class MainController {
         }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
         calculatedFRFs = new HashMap<>();
+        String sectionName = sectionComboBox.getValue().getSectionName();
+        String typeName = typeComboBox.getValue().getTypeName();
         for (Long runId : chosenRuns) {
             List<Double> frequencies = calculator.getFrequencies(runId);
             calculatedFRFs.put(runId, new HashSet<>());
             for (String id : idSequence) {
-                calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
+                Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + id));
+                FRF calculatedFRF = calculator.calculateFRF(runId, id, frequencies, calculatedFRFs);
+                calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculatedFRF));
+                frfRepository.savePipelineCalculatedFrequencyDataRecord(selectedUFFSource, curentFormula, sectionName, typeName, runId, chosenSensorsTable.getItems(), calculatedFRF);
             }
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
         graphRunChoiceBox.getItems().clear(); // Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
         refresher.refreshGraphComboboxes(calculatedFRFs);
+
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();
@@ -633,10 +639,10 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-        if (System.getenv("PRELOAD_PATH_CSV") != null) {
-            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
-            saveTimeSeriesSourceFromFile(preloadFile);
-        }
+//        if (System.getenv("PRELOAD_PATH_CSV") != null) {
+//            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
+//            saveTimeSeriesSourceFromFile(preloadFile);
+//        }
         if (System.getenv("PRELOAD_PATH_UFF") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH_UFF"));
             saveUFFSourceFromFile(preloadFile);
@@ -662,6 +668,7 @@ public class MainController {
                         // Delegate further updates to Refresher
                         refresher.refreshOnChangeChosenUFFSource(uffSource);
                         idManager.removeAllSlaves();
+                        selectedUFFSource = uffSource;
                     } else if (selectedDataSource instanceof TimeSeriesDataSource) {
 //                        TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
                         sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);

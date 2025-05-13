@@ -27,7 +27,7 @@ public class UFF58Representation {
         sensorDataType = new SensorDataType(typeString);
         section = new Section(sectionString);
     }
-    private String extractSectionName(String input) {
+    public static String extractSectionName(String input) {
         String regex = "Record\\s+\\d+\\s+of section \"([^\"]+)\".*";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
         java.util.regex.Matcher matcher = pattern.matcher(input);
@@ -36,7 +36,7 @@ public class UFF58Representation {
         }
         return input; // Return original string if no match found
     }
-    private Long extractRunId(String id4) {
+    public static Long extractRunId(String id4) {
         String runPattern = ".*,\\s*run\\s*\"(\\w+)\".*";
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(runPattern);
         java.util.regex.Matcher matcher = pattern.matcher(id4);

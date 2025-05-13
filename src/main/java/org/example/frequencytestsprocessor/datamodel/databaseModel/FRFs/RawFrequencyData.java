@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.converters.ComplexListConverter;
+import org.example.frequencytestsprocessor.converters.DoubleListConverter;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public class RawFrequencyData {
-    @Convert(converter = ComplexListConverter.class)
+    @Convert(converter = DoubleListConverter.class)
     private List<Double> frequencies;
     @Convert(converter = ComplexListConverter.class)
     private List<Complex> complexValues;

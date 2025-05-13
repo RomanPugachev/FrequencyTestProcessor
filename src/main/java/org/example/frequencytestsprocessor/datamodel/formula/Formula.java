@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
@@ -9,6 +10,7 @@ import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 public abstract class Formula implements IdManager.HasId{
     protected String formulaString;
     @Setter
+    @JsonProperty("idForTable")
     protected String id;
     @Setter
     protected String comment;

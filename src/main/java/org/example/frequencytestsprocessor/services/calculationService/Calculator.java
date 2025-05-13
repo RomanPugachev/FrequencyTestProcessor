@@ -15,7 +15,7 @@ public class Calculator {
     private final MainController mainController;
     @Setter
     private TableView<Formula> formulaTable;
-//    TODO implement calculations based on other foumulas. suport time data
+
     public List<String> getCalculationIdSequence(List<String> basicIds){
         List<String> calculationIdSequence = new ArrayList<>();
         boolean addedNewPossibility = true;
@@ -73,7 +73,5 @@ public class Calculator {
     public Calculator(MainController mainController) {
         this.mainController = mainController;
     }
-
-
 
 }

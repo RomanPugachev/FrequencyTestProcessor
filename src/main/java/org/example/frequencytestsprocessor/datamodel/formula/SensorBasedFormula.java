@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.control.TableView;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +12,10 @@ import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import java.util.*;
 
 public class SensorBasedFormula extends Formula {
-
+    @JsonIgnore
     List<Token> tokensList;
 
+    @JsonIgnore
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
@@ -312,7 +314,5 @@ public class SensorBasedFormula extends Formula {
                     return 0;
             }
         }
-
-
     }
 }

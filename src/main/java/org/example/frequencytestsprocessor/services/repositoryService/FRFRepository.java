@@ -1,10 +1,21 @@
 package org.example.frequencytestsprocessor.services.repositoryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.beans.Observable;
+import javafx.collections.ObservableList;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.UFF58Representation;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.PipelineCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
+import org.example.frequencytestsprocessor.datamodel.formula.Formula;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.hibernate.Hibernate;
 import org.hibernate.Transaction;
 import jep.Jep;
@@ -28,8 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.pythonizePathToFile;
-import static org.example.frequencytestsprocessor.commons.CommonMethods.readAllLinesFromCSV;
+import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.BASE_UFF_TYPES_CALSS_PATH;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.PATH_OF_PYTHON_SCRIPT_FOR_UFF;
 
@@ -223,6 +233,41 @@ public class FRFRepository {
         pythonInterpreter.exec(pythonScript);
         pythonInterpreter.exec(String.format("parse_UFF('%s')", UFFPath));
         return pythonOutput.toByteArray();
+    }
+
+    public Optional<PipelineCalculatedFrequencyDataRecord> savePipelineCalculatedFrequencyDataRecord(UFFDataSource uffDataSource, Formula formula, String sectionName, String typeName, Long currentRunId, ObservableList<Sensor> chosenSensors, FRF calculatedFRF) {
+        Transaction transaction = null;
+        PipelineCalculatedFrequencyDataRecord incomingRecord = null;
+//        List<UFF58> uff58List = uffDataSource.getDatasets().stream()
+//                .filter(uffDataset -> uffDataset instanceof UFF58)
+//                .map(uffDataset -> (UFF58) uffDataset)
+//                .filter(uff58 -> {
+//                    String[] typeAndSensorStr = uff58.getId1().split(" ");
+//                    String sectionString = UFF58Representation.extractSectionName(uff58.getId4()), typeString = typeAndSensorStr[0], sensorWithDataString = typeAndSensorStr[typeAndSensorStr.length - 1];
+//                    Long runId = UFF58Representation.extractRunId(uff58.getId4());
+//                    if (typeString.equals("Harmonic")) typeString += "Spectrum";
+//                    return sectionString.equals(sectionName) && typeString.equals(typeName) && runId.equals(currentRunId);
+//                })
+//                .toList();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            session.merge(uffDataSource);
+            try {
+                incomingRecord = new PipelineCalculatedFrequencyDataRecord(formula, sectionName, typeName, currentRunId, uffDataSource, calculatedFRF);
+                session.merge(incomingRecord);
+            } catch (Exception e) {
+                transaction.rollback();
+                throw new RuntimeException("Error processing saving pipelineCalculatedFrequencyDataRecord: " + e.getMessage(), e);
+            }
+            transaction.commit();
+            return Optional.of(incomingRecord);
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Error saving pipelineCalculatedFrequencyDataRecord: " + e.getMessage(), e);
+        }
     }
 
     /**

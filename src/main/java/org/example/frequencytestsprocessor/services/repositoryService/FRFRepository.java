@@ -10,6 +10,7 @@ import org.example.frequencytestsprocessor.datamodel.UFF58Repr.UFF58Representati
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.PipelineCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.UFFBasedFRF;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
@@ -63,10 +64,10 @@ public class FRFRepository {
             transaction = session.beginTransaction();
 
             // Merge is unnecessary since we just loaded it
-            UFFDataSource resultUFF = new UFFDataSource(fileAddress);
-            session.persist(resultUFF);
+            UFFDataSource resultUFFsource = new UFFDataSource(fileAddress);
+            session.persist(resultUFFsource);
             session.merge(parentAircraftModel);
-            parentAircraftModel.addDataSource(resultUFF);
+            parentAircraftModel.addDataSource(resultUFFsource);
 
             ObjectMapper objectMapper = MainController.getObjectMapper();
             //Read data with Python
@@ -98,8 +99,17 @@ public class FRFRepository {
                     try {
                         Class<?> uffClass = Class.forName(BASE_UFF_TYPES_CALSS_PATH + datasetType);
                         UFFDataset uffData = (UFFDataset) objectMapper.readValue(line, uffClass);
+
                         session.persist(uffData);
-                        resultUFF.addUFFDataset(uffData);
+                        session.flush();
+                        if (uffData instanceof UFF58) {
+                            UFFBasedFRF uffBasedFRF = new UFFBasedFRF();
+                            // prevent appearing error: jakarta.persistence.OptimisticLockException: org.hibernate.exception.LockAcquisitionException: error performing isolated work [[SQLITE_BUSY] The database file is locked (database is locked)] [n/a]
+                            session.persist(uffBasedFRF);
+                            uffBasedFRF.setParentUFF58Dataset((UFF58) uffData);
+                        }
+
+                        resultUFFsource.addUFFDataset(uffData);
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException("Unsupported type of dataset: " + datasetType + "\n" + e.getMessage(), e);
                     }
@@ -109,7 +119,7 @@ public class FRFRepository {
                 throw new RuntimeException("Error processing UNV file: " + e.getMessage(), e);
             }
             transaction.commit();
-            return resultUFF;
+            return resultUFFsource;
         } catch (Exception e) {
             throw new RuntimeException("Error saving UNV file: " + e.getMessage(), e);
         }
@@ -235,37 +245,18 @@ public class FRFRepository {
         return pythonOutput.toByteArray();
     }
 
-    public Optional<PipelineCalculatedFrequencyDataRecord> savePipelineCalculatedFrequencyDataRecord(UFFDataSource uffDataSource, Formula formula, String sectionName, String typeName, Long currentRunId, ObservableList<Sensor> chosenSensors, FRF calculatedFRF) {
+    public synchronized Optional<PipelineCalculatedFrequencyDataRecord> savePipelineCalculatedFrequencyDataRecord(UFFDataSource uffDataSource, Formula formula, String sectionName, String typeName, Long currentRunId, ObservableList<Sensor> chosenSensors, FRF calculatedFRF) {
         Transaction transaction = null;
         PipelineCalculatedFrequencyDataRecord incomingRecord = null;
-//        List<UFF58> uff58List = uffDataSource.getDatasets().stream()
-//                .filter(uffDataset -> uffDataset instanceof UFF58)
-//                .map(uffDataset -> (UFF58) uffDataset)
-//                .filter(uff58 -> {
-//                    String[] typeAndSensorStr = uff58.getId1().split(" ");
-//                    String sectionString = UFF58Representation.extractSectionName(uff58.getId4()), typeString = typeAndSensorStr[0], sensorWithDataString = typeAndSensorStr[typeAndSensorStr.length - 1];
-//                    Long runId = UFF58Representation.extractRunId(uff58.getId4());
-//                    if (typeString.equals("Harmonic")) typeString += "Spectrum";
-//                    return sectionString.equals(sectionName) && typeString.equals(typeName) && runId.equals(currentRunId);
-//                })
-//                .toList();
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            session.merge(uffDataSource);
-            try {
-                incomingRecord = new PipelineCalculatedFrequencyDataRecord(formula, sectionName, typeName, currentRunId, uffDataSource, calculatedFRF);
-                session.merge(incomingRecord);
-            } catch (Exception e) {
-                transaction.rollback();
-                throw new RuntimeException("Error processing saving pipelineCalculatedFrequencyDataRecord: " + e.getMessage(), e);
-            }
+            incomingRecord = new PipelineCalculatedFrequencyDataRecord(formula, sectionName, typeName, currentRunId, uffDataSource, calculatedFRF);
+            session.persist(incomingRecord);
             transaction.commit();
+            session.detach(incomingRecord);
             return Optional.of(incomingRecord);
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             throw new RuntimeException("Error saving pipelineCalculatedFrequencyDataRecord: " + e.getMessage(), e);
         }
     }

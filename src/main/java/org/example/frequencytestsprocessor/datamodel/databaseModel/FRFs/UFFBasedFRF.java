@@ -29,4 +29,19 @@ public class UFFBasedFRF extends FrequencyDataRecord {
     public String getDatasetName() {
         return uff58.getDatasetName();
     }
+
+    public UFFBasedFRF() {
+    }
+
+    public UFFBasedFRF(UFF58 uff58) {
+        this.uff58 = uff58;
+        uff58.setUffBasedFRF(this);
+    }
+
+    public void setParentUFF58Dataset(UFF58 uff58) {
+        this.uff58 = uff58;
+        if (!uff58.getUffBasedFRF().equals(this)) {
+            uff58.setUffBasedFRF(this);
+        }
+    }
 }

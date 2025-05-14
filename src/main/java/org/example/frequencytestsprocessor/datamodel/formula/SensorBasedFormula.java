@@ -45,7 +45,7 @@ public class SensorBasedFormula extends Formula {
         }
     }
 
-    public Set<String> getDependentIds() {
+    public Set<String> defineDependentIds() {
         Set<String> dependentIds = new HashSet<>();
         tokensList.forEach(token -> {
             if (token.getType().equals(Token.Type.IDENTIFIER)) dependentIds.add((String) token.getValue());

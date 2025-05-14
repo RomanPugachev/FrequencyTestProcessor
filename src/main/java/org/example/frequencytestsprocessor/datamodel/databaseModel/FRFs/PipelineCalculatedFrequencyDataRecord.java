@@ -39,6 +39,9 @@ public class PipelineCalculatedFrequencyDataRecord extends CalculatedFrequencyDa
 
     private Long runId;
 
+    @Embedded
+    private RawFrequencyData calculatedData;
+
     // TODO: implement relationship with UFFDataSource
     @ManyToOne
     @JoinColumn(name = "sourceId")
@@ -53,6 +56,7 @@ public class PipelineCalculatedFrequencyDataRecord extends CalculatedFrequencyDa
     @Override
     public void refreshRawFrequencyData() {
         // TODO: implement fetching and calculating raw frequency data from formula and source
+        setRawFrequencyData(calculatedData);
     }
 
     public PipelineCalculatedFrequencyDataRecord(Formula formula, String sectionName, String sensorDataTypeName, Long runId, UFFDataSource source, FRF calculatedFRF) {
@@ -62,6 +66,7 @@ public class PipelineCalculatedFrequencyDataRecord extends CalculatedFrequencyDa
         this.sensorDataTypeName = sensorDataTypeName;
         this.runId = runId;
         this.source = source;
-        setRawFrequencyData(new RawFrequencyData(calculatedFRF.getFrequencies(), calculatedFRF.getComplexValues()));
+        calculatedData = new RawFrequencyData(calculatedFRF.getFrequencies(), calculatedFRF.getComplexValues());
+        setRawFrequencyData(calculatedData);
     }
 }

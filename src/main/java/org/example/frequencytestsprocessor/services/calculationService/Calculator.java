@@ -30,7 +30,7 @@ public class Calculator {
                     addedNewPossibility = true;
                     numberOfPosbileCalculations++;
                 } else if (formula instanceof SensorBasedFormula) {
-                    Set<String> depIds = ((SensorBasedFormula) formula).getDependentIds();
+                    Set<String> depIds = ((SensorBasedFormula) formula).defineDependentIds();
                     if (depIds.stream().allMatch(id -> basicIds.contains(id) || calculationIdSequence.contains(id))) {
                         calculationIdSequence.add(formula.getId());
                         numberOfPosbileCalculations++;

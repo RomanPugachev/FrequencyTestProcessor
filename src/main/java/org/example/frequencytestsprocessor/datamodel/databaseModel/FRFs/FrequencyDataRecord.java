@@ -21,7 +21,7 @@ import java.util.Set;
 public abstract class FrequencyDataRecord extends AbstractDataset {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String recordId;
+    private Long recordId;
 
     @Embedded
     @Transient

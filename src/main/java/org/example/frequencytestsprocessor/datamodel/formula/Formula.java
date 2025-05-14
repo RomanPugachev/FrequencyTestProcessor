@@ -7,7 +7,7 @@ import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Repre
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 @Getter
-public abstract class Formula implements IdManager.HasId{
+public class Formula implements IdManager.HasId{
     protected String formulaString;
     @Setter
     @JsonProperty("idForTable")
@@ -38,6 +38,14 @@ public abstract class Formula implements IdManager.HasId{
         this.comment = comment;
         this.formulaType = formulaType;
     }
-    public abstract boolean validate(String formulaString);
-    public abstract void setFormulaString(String formulaString);
+
+
+    public boolean validate(String formulaString){
+        System.out.println("DEFAULT VALIDATION");
+        return false;
+    }
+
+    public void setFormulaString(String formulaString) {
+        System.out.println("DEFAULT SET FORMULA STRING");
+    }
 }

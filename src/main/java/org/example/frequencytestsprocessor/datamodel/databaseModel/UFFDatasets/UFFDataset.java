@@ -11,6 +11,11 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntitie
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "dataset_type", discriminatorType = DiscriminatorType.INTEGER)
 public class UFFDataset extends AbstractDataset {
+    @Id
+    @Getter
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long datasetId;
+
     @Transient
     @Getter
     @Setter
@@ -21,10 +26,6 @@ public class UFFDataset extends AbstractDataset {
     @JoinColumn(name = "sourceId", insertable = false)
     private UFFDataSource parentUFF;
 
-    @Id
-    @Getter
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long datasetId;
     @Getter
     @Setter
     private String rawDataset;

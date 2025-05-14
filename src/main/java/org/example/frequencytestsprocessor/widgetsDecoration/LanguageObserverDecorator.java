@@ -1,5 +1,7 @@
 package org.example.frequencytestsprocessor.widgetsDecoration;
 
+import javafx.css.Styleable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
@@ -10,13 +12,13 @@ import java.util.Properties;
 import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
-public class LanguageObserverDecorator<T extends Control> extends WidgetDecorator<T> implements LanguageObserver {
+public class LanguageObserverDecorator<T extends Styleable> extends WidgetDecorator<T> implements LanguageObserver {
     public LanguageObserverDecorator(T widget) {
         super(widget);
     }
 
     @Override
-    public void updateLanguage(Properties languageProperties, String currentLanguage) {
+    public void updateLanguage(Properties languageProperties, String currentLanguage, String previousLanguage) {
         String key = widget.getId() + DOT;
         String text;
         switch (widget) {
@@ -91,7 +93,53 @@ public class LanguageObserverDecorator<T extends Control> extends WidgetDecorato
             case MenuBar menuBar -> {
                 for (Menu menu : menuBar.getMenus()) {
                     updateMenu(menu, languageProperties, currentLanguage, key);
+                } break;
+            }
+            case TableColumnBase<?, ?> treeTableColumn -> {
+                text = languageProperties.getProperty(key + currentLanguage);
+                if (text != null) {
+                    byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                    String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                    treeTableColumn.setText(decodedText);
+                } else {
+                    throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                 }
+                break;
+            }
+            case TreeTableView<?> tableView -> {
+                text = languageProperties.getProperty(key + currentLanguage);
+                if (text != null) {
+                    byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                    String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                    tableView.setPlaceholder(new Label(decodedText));
+                } else {
+                    throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                }
+                for (TreeTableColumn<?, ?> column : tableView.getColumns()) {
+                    text = languageProperties.getProperty(key + column.getId() + DOT + currentLanguage);
+                    if (text != null) {
+                        byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                        String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                        column.setText(decodedText);
+                    } else {
+                        throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+                    }
+                }
+                // Update context menu
+                ContextMenu contextMenu = tableView.getContextMenu();
+                if (contextMenu != null) {
+                    for (MenuItem item : contextMenu.getItems()) {
+                        text = languageProperties.getProperty(key + item.getId() + DOT + currentLanguage);
+                        if (text != null) {
+                            byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                            String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                            item.setText(decodedText);
+                        } else {
+                            throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key + item.getId()));
+                        }
+                    }
+                }
+                break;
             }
             case null, default -> throw new RuntimeException("This method is not implemented yet.");
         }

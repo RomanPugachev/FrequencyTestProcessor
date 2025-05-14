@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 @NoArgsConstructor
 public class Section {
     public static final Section DEFAULT_SECTION = (new Section("DEFAULT SECTION"));
-    public static final LanguageObserver DEFAULT_SECTION_LANGUAGE_OBSERVER = (languageProperties, currentLanguage) -> {
+    public static final LanguageObserver DEFAULT_SECTION_LANGUAGE_OBSERVER = (languageProperties, currentLanguage, previousLanguage) -> {
         String key = DEFAULT_SECTION_ID + DOT;
         String text = languageProperties.getProperty(key + currentLanguage);
         if (text != null) {

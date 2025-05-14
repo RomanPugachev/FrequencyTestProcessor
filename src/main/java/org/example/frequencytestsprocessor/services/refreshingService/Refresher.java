@@ -2,9 +2,10 @@ package org.example.frequencytestsprocessor.services.refreshingService;
 
 import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,11 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 @AllArgsConstructor
 public class Refresher {
     private MainController mainController;
-    public void refreshOnChangeFilePath() {
+    public void refreshOnChangeChosenUFFSource(UFFDataSource selectedUFF) {
         var sectionComboBox = mainController.getSectionComboBox();
-        var uff = mainController.getUff();
-
-
         setDefaultComboBoxes();
         UFF58Representation currentRepresentation;
-        for (UFF58 currentUFF58 : uff) {
+        for (UFF58 currentUFF58 : selectedUFF) {
             try {
                 currentRepresentation = new UFF58Representation(currentUFF58); final Section currentSectionInRepr = currentRepresentation.section;
                 final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;
@@ -68,9 +66,10 @@ public class Refresher {
         graphRunChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + mainController.getCurrentLanguage()));
         graphRunChoiceBox.setValue(graphRunChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().clear();
-        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + mainController.getCurrentLanguage()));
-        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
+//        graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + mainController.getCurrentLanguage()));
+//        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT + mainController.getCurrentLanguage()));
+        graphTypeChoiceBox.setValue(graphTypeChoiceBox.getItems().getFirst());
         graphTypeChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT + mainController.getCurrentLanguage()));
 
     }

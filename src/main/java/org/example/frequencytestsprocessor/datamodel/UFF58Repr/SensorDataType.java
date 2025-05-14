@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 @EqualsAndHashCode(exclude = {"parentSection", "sensors"})
 public class SensorDataType {
     public static final SensorDataType DEFAULT_TYPE = new SensorDataType("DEFAULT TYPE");
-    public static final LanguageObserver DEFAULT_TYPE_LANGUAGE_OBSERVER = (languageProperties, currentLanguage) -> {
+    public static final LanguageObserver DEFAULT_TYPE_LANGUAGE_OBSERVER = (languageProperties, currentLanguage, previousLanguage) -> {
         String key = DEFAULT_TYPE_ID + DOT;
         String text = languageProperties.getProperty(key + currentLanguage);
         if (text != null) {

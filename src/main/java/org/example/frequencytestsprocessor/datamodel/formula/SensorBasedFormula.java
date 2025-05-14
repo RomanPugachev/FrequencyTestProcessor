@@ -1,27 +1,25 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.control.TableView;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.CalculatedFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
-import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
-import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.*;
-import java.util.function.Predicate;
-public class SensorBasedFormula extends Formula {
 
+public class SensorBasedFormula extends Formula {
+    @JsonIgnore
     List<Token> tokensList;
 
+    @JsonIgnore
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
-        super("(F2-F1)/F0", "Add some comments here", FormulaType.SENSOR_BASED);
+        super("(F2-F1)/F0", "Формула по данным датчиков", FormulaType.SENSOR_BASED);
         updateInformation();
     }
 
@@ -47,7 +45,7 @@ public class SensorBasedFormula extends Formula {
         }
     }
 
-    public Set<String> getDependentIds() {
+    public Set<String> defineDependentIds() {
         Set<String> dependentIds = new HashSet<>();
         tokensList.forEach(token -> {
             if (token.getType().equals(Token.Type.IDENTIFIER)) dependentIds.add((String) token.getValue());
@@ -56,7 +54,6 @@ public class SensorBasedFormula extends Formula {
     }
 
     public FRF calculate(Long runNumber, TableView<Sensor> chosenSensorsTable, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
-        // TODO: Debug this case: (F2-F1)/INTEGRATE(F0)
         if (rpnTokens == null) {
             throw new IllegalStateException("Formula has not been parsed to RPN.");
         }
@@ -70,7 +67,8 @@ public class SensorBasedFormula extends Formula {
                     try {
                         String id = (String) token.getValue();
                         FRF frfToPush = null;
-                        Sensor sensorById = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst().orElseGet(null);
+                        Optional<Sensor> temp = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst();
+                        Sensor sensorById = temp.orElseGet(() -> null);
                         if (sensorById != null) {
                             frfToPush = ((SensorProxyForTable) sensorById).getOriginalSensor().getData().get(runNumber);
                             if (frfToPush != null) { stack.push(frfToPush); continue; }
@@ -210,7 +208,7 @@ public class SensorBasedFormula extends Formula {
                     buffer.setLength(0);
                 } else if (ch == '(' || ch == ')') {
                     tokens.add(new Token(Token.Type.PARENTHESIS, String.valueOf(ch)));
-                } else if ("+-*/".indexOf(ch) >= 0) {
+                } else if ("+-*/^".indexOf(ch) >= 0) {
                     tokens.add(new Token(Token.Type.OPERATOR, String.valueOf(ch)));
                 } else if (Character.isLetter(ch)) {
                     buffer.append(ch);
@@ -316,10 +314,5 @@ public class SensorBasedFormula extends Formula {
                     return 0;
             }
         }
-
-
     }
 }
-//    How to parse formula and perform calculations in Java, including taking into account brackets '(', ')', some function operators, such as 'INTEGRATE', which must accept one argument in brackets? Also it is important to include opportunity to parse identifiers as thing, which can also be calculated. For example, this formula:
-//INTEGRATE(DIFFERENTIATE(F0) - 2) / (-2) must be parsed and performed validly. Suppose, that using 'F0' I mean some identifier, which represents my object with data, which allows to be summed, devided, ITEGRATEd etc. with similar object or number.
-//Please, provide algorythm, which will allow me to perform calculations

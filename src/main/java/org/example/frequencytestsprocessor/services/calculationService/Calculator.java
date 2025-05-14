@@ -1,19 +1,15 @@
 package org.example.frequencytestsprocessor.services.calculationService;
 
 import javafx.scene.control.TableView;
-import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.NotImplementedException;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class Calculator {
     private final MainController mainController;
@@ -30,14 +26,16 @@ public class Calculator {
             for (Formula formula : formulaList) {
                 if (calculationIdSequence.contains(formula.getId())) continue;
                 if (formula instanceof AnalyticalFormula) {
-                    basicIds.add(formula.getId());
-                    addedNewPossibility = true;
-                    numberOfPosbileCalculations++;
-                    continue;
-                } else if (formula instanceof SensorBasedFormula && ((SensorBasedFormula)formula).getDependentIds().stream().allMatch(basicIds::contains)) {
                     calculationIdSequence.add(formula.getId());
-                    numberOfPosbileCalculations++;
                     addedNewPossibility = true;
+                    numberOfPosbileCalculations++;
+                } else if (formula instanceof SensorBasedFormula) {
+                    Set<String> depIds = ((SensorBasedFormula) formula).defineDependentIds();
+                    if (depIds.stream().allMatch(id -> basicIds.contains(id) || calculationIdSequence.contains(id))) {
+                        calculationIdSequence.add(formula.getId());
+                        numberOfPosbileCalculations++;
+                        addedNewPossibility = true;
+                    }
                 }
             }
         }
@@ -60,22 +58,20 @@ public class Calculator {
 
     public FRF calculateFRF(Long runId, String currentId, List<Double> frequencies, Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs) {
         Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(currentId)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + currentId));
-        FRF calculatedFrf = null;
+        FRF frf = null;
         if (curentFormula instanceof SensorBasedFormula) {
-            calculatedFrf = ((SensorBasedFormula) curentFormula).calculate(runId, mainController.getChosenSensorsTable(), calculatedFRFs);
+            frf = ((SensorBasedFormula) curentFormula).calculate(runId, mainController.getChosenSensorsTable(), calculatedFRFs);
         } else if (curentFormula instanceof AnalyticalFormula) {
-            throw new NotImplementedException("This formula type calculation is not implemented yet");
+            frf = ((AnalyticalFormula) curentFormula).extractFRFByFrequencies(frequencies);
         } else {
             throw new RuntimeException("Unknown formula type");
         }
-        if (calculatedFrf != null) return calculatedFrf;
+        if (frf != null) return frf;
         else throw new RuntimeException("Failed to calculate FRF");
     }
 
     public Calculator(MainController mainController) {
         this.mainController = mainController;
     }
-
-
 
 }

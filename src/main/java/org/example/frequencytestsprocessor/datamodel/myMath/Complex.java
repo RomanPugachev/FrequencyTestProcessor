@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 public class Complex implements Cloneable{
     private double real;
@@ -85,7 +84,7 @@ public class Complex implements Cloneable{
         if (c2.getImag() == 0) {
             return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
         }
-        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getModuleAsComplex(c2));
+        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsComplex(c2));
     }
 
     public static Complex divisionResult(Complex c, Double d) {
@@ -95,7 +94,7 @@ public class Complex implements Cloneable{
 
     public static Complex divisionResult(Double d, Complex c) {
         if (d == 0) throw new ArithmeticException("Division by zero");
-        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getModuleAsComplex(c));
+        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsComplex(c));
     }
 
     public static Complex poweringResult(Complex c, Double n) {
@@ -112,12 +111,39 @@ public class Complex implements Cloneable{
         return new Complex(Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag()), 0);
     }
 
+    public static Double getModuleAsDouble(Complex c) {
+        return Math.sqrt(c.getReal() * c.getReal() + c.getImag() * c.getImag());
+    }
+
+    public static Complex getSquaredModuleAsComplex(Complex c) {
+        return new Complex(c.getReal() * c.getReal() + c.getImag() * c.getImag(), 0);
+    }
+
+    public static Double getSquaredModuleAsDouble(Complex c) {
+        return c.getReal() * c.getReal() + c.getImag() * c.getImag();
+    }
+
     public static Double getAngle(Complex c) {
         return Math.atan2(c.getImag(), c.getReal());
     }
 
     public static Complex ofModuleAndAngle(Double module, Double angle) {
         return new Complex(module * Math.cos(angle), module * Math.sin(angle));
+    }
+
+    @Override
+    public String toString() {
+        return real + "+" + imag + "i";
+    }
+
+    public static Complex fromString(String s) {
+        String[] parts = s.split("\\+");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid complex number format");
+        }
+        double real = Double.parseDouble(parts[0]);
+        double imag = Double.parseDouble(parts[1].substring(0, parts[1].length() - 1));
+        return new Complex(real, imag);
     }
 
     protected boolean canEqual(final Object other) {

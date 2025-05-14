@@ -1,277 +1,264 @@
 package org.example.frequencytestsprocessor.services.graphsService;
 
+import javafx.animation.ScaleTransition;
 import javafx.beans.binding.Bindings;
+import javafx.fxml.FXML;
 import javafx.geometry.VPos;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.Node;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
+import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Canvas2DPrintable;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-// TODO: implement Bode diagram visualization
+// TODO: Implement unpinning of graph
 public class GraphsService {
+    // TODO: implement showing tooltip on hovering -> https://habr.com/ru/articles/242009/
     private MainController mainController;
-    private Canvas canvas;
-    private GraphicsContext gc;
-    private Map<String, Canvas2DPrintable> canvas2DPrintableDataSets = new HashMap<>();
-    private double minX;
-    private double maxX;
-    private double minY;
-    private double maxY;
-    private final double additionalPersentage = 0.1/2;
+    private LineChart lineChart;
+    private Map<String, FRF> FRFsForVisualization = new HashMap<>();
+    @Getter
+    private Map<String, FRF> pinnedFRFs = new HashMap<>();
     private List<Paint> colorPreset;
-    private boolean showGrid=true;
+    private boolean drawNyquistLimitation;
+    // Charts from main controller
+    private LineChart<Number, Number> graphsLineChartNyquist;
+
+    private LineChart<Number, Number> graphsLineChartBodeAmplitude;
+
+    private LineChart<Number, Number> graphsLineChartBodePhase;
+
 
     public GraphsService(MainController mainController) {
         this.mainController = mainController;
     }
 
-    public void updateDataSets(Map<String, Canvas2DPrintable> canvas2DPrintableDataSets, boolean connectPoints) {
-        this.setCanvas2DPrintableDataSets(canvas2DPrintableDataSets);
-        visualizeDataSets(connectPoints);
+    public void updateDataSets(Map<String, FRF> FRFsForVisualization) {
+        this.FRFsForVisualization = FRFsForVisualization;
+        redrawGraphs();
+    }
+
+    public void pinCurrentGraph(Map<String, FRF> FRFsForVisualization) {
+        pinnedFRFs.putAll(FRFsForVisualization);
+        redrawGraphs();
     }
 
     public void initializeService() {
-        canvas = mainController.getGraphsCanvas();
-        gc = canvas.getGraphicsContext2D();
-        canvas.setOnMouseMoved(event -> handleMouseMoved(event));
+        graphsLineChartBodeAmplitude = mainController.getGraphsLineChartBodeAmplitude();
+        graphsLineChartBodeAmplitude.setTitle("Amplidude frequency response");
+//        graphsLineChartBodeAmplitude.getXAxis().setLabel("Frequency, Hz");
+//        graphsLineChartBodeAmplitude.getYAxis().setLabel("Amlitude");
+        graphsLineChartBodePhase = mainController.getGraphsLineChartBodePhase();
+        graphsLineChartBodePhase.setTitle("Phase frequency response");
+//        graphsLineChartBodePhase.getXAxis().setLabel("Frequency, Hz");
+//        graphsLineChartBodePhase.getYAxis().setLabel("Phase");
+        graphsLineChartNyquist = mainController.getGraphsLineChartNyquist();
+        graphsLineChartNyquist.setTitle("Nyquist diagram");
+//        graphsLineChartNyquist.getXAxis().setLabel("Real");
+//        graphsLineChartNyquist.getYAxis().setLabel("Imaginary");
+        graphsLineChartNyquist.setAxisSortingPolicy(LineChart.SortingPolicy.NONE);
+        drawNyquistLimitation = false;
         colorPreset = new ArrayList<>();
         colorPreset.add(Paint.valueOf("red"));
         colorPreset.add(Paint.valueOf("blue"));
         colorPreset.add(Paint.valueOf("green"));
         colorPreset.add(Paint.valueOf("yellow"));
         colorPreset.add(Paint.valueOf("orange"));
-
-        canvas.widthProperty().bind(mainController.getGraphsVBox().widthProperty());
-        canvas.heightProperty().bind(Bindings.createDoubleBinding(() -> {
-            return mainController.getGraphsVBox().getHeight() - mainController.getGraphToolBar().getHeight();
-        }, mainController.getGraphsVBox().heightProperty(), mainController.getGraphToolBar().heightProperty()));
-
-        canvas.widthProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
-        canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawCanvas());
-        initializeAxes(-1, -1, 1, 1);
-        updateDataSets(new HashMap<>(), true);
+        updateDataSets(new HashMap<>());
     }
 
-    public void saveCanvasToFile(String absPath){
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void clearCharts(){
+        graphsLineChartBodeAmplitude.getData().clear();
+        graphsLineChartBodePhase.getData().clear();
+        graphsLineChartNyquist.getData().clear();
     }
+    private void redrawGraphs() {
+        graphsLineChartBodeAmplitude.getData().clear();
+        graphsLineChartBodePhase.getData().clear();
+        graphsLineChartNyquist.getData().clear();
+        FRFsForVisualization.forEach((idAndRunOfFRF, frf) -> {
+            XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
+            seriesBodeAmplitude.setName("Датасет " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
+            seriesBodePhase.setName("Датасет " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
+            seriesNyquist.setName("Датасет " + idAndRunOfFRF);
 
-    public void clearGraphicsContext() {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-    }
-
-    public void clearGraphicsContext(boolean hasFurtherProcessing) {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        if (!hasFurtherProcessing) {
-            showOnlyTextInCenter("Choose some data sets to visualize");
-        }
-    }
-
-    private void setCanvas2DPrintableDataSets(Map<String, Canvas2DPrintable> canvas2DPrintableDataSets) {
-        if (canvas2DPrintableDataSets.isEmpty()) {
-            minX = -1;
-            maxX = 1;
-            minY = -1;
-            maxY = 1;
-            this.canvas2DPrintableDataSets = canvas2DPrintableDataSets;
-            return;
-        }
-        this.canvas2DPrintableDataSets = canvas2DPrintableDataSets;
-        minX = Double.MAX_VALUE;
-        maxX = Double.MIN_VALUE;
-        minY = Double.MAX_VALUE;
-        maxY = Double.MIN_VALUE;
-        this.canvas2DPrintableDataSets.values().forEach(canvas2DPrintable -> {
-            List<Double> xData = canvas2DPrintable.getXData();
-            List<Double> yData = canvas2DPrintable.getYData();
-            xData.forEach(x -> {
-                minX = Math.min(minX, x);
-                maxX = Math.max(maxX, x);
-            });
-            yData.forEach(y -> {
-                minY = Math.min(minY, y);
-                maxY = Math.max(maxY, y);
-            });
+            addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
         });
-        double deltaX = maxX - minX;
-        double deltaY = maxY - minY;
-        if (deltaX > 0) {
-            maxX += deltaX * additionalPersentage;
-            minX -= deltaX * additionalPersentage;
-        } else {
-            maxX += 0.00001;
-            minX -= 0.00001;
-        }
-        if (deltaY > 0) {
-            maxY += deltaY * additionalPersentage;
-            minY -= deltaY * additionalPersentage;
-        } else {
-            maxY += 0.00001;
-            minY -= 0.00001;
-        }
-    }
+        pinnedFRFs.forEach((idAndRunOfFRF, frf) -> {
+            XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
+            seriesBodeAmplitude.setName("Закрепленный датасет " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
+            seriesBodePhase.setName("Закрепленный датасет " + idAndRunOfFRF);
+            XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
+            seriesNyquist.setName("Закрепленный датасет " + idAndRunOfFRF);
 
-    public void setShowGrid(boolean showGrid) {
-        this.showGrid = showGrid;
-        redrawCanvas();
-    }
-
-    private void visualizeDataSets(boolean connectPoints) {
-        clearGraphicsContext(true);
-        initializeAxes(minX, minY, maxX, maxY);
-        if (showGrid) drawGrid();
-        int paintNumber = 0;
-        canvas2DPrintableDataSets.values()
-                .forEach((canvas2DPrintableDataSet) -> {
-                    this.plotData(canvas2DPrintableDataSet.getXData(), canvas2DPrintableDataSet.getYData(), colorPreset.get(paintNumber % colorPreset.size()), connectPoints);
-                });
-    }
-
-    private void drawGrid() {
-        gc.setStroke(Paint.valueOf("gray"));
-        gc.setLineWidth(0.5);
-        double wdth = canvas.getWidth();
-        double hght = canvas.getHeight();
-        if (wdth == 0 || hght == 0) return;
-        double stepX = wdth / 10;
-        double stepY = hght / 10;
-        for (double x = 0; x <= wdth; x += stepX) {
-            gc.strokeLine(x, 0, x, hght);
-        }
-        for (double y = 9; y <= hght; y += stepY) {
-            gc.strokeLine(0, y, wdth, y);
-        }
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-    }
-
-    public void generateExample(int numberOfPoints, double linearCoefficient, boolean connectPoints){
-        List<Double> xData = new ArrayList<>(numberOfPoints);
-        List<Double> yData = new ArrayList<>(numberOfPoints);
-        for (int i=0; i<numberOfPoints;i++){
-            xData.add(i * 1.0);
-            yData.add(linearCoefficient * xData.get(i));
-        }
-        HashMap<String, Canvas2DPrintable> canvas2DPrintableDataSets = new HashMap<>();
-        canvas2DPrintableDataSets.put("Example1", new RepresentableDataset(xData, yData) {
-            @Override
-            public List<Double> getXData() {
-                return xData;
-            }
-            @Override
-            public List<Double> getYData() {
-                return yData;
-            }
+            addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
         });
-        canvas2DPrintableDataSets.put("Example2", new RepresentableDataset(xData, yData) {
-            @Override
-            public List<Double> getXData() {
-                return xData.stream().map(x -> x  - 0.3).collect(Collectors.toList());
-            }
-            @Override
-            public List<Double> getYData() {
-                return yData.stream().map(y -> y * 2 + 0.2).collect(Collectors.toList());
-            }
-        });
-        updateDataSets(canvas2DPrintableDataSets, connectPoints);
     }
 
-    private void redrawCanvas() {
-        visualizeDataSets(true);
-//        showOnlyTextInCenter("Choose some data sets to visualize");
+    private void addFRFSeries(FRF frf, XYChart.Series<Number, Number> seriesBodeAmplitude, XYChart.Series<Number, Number> seriesBodePhase, XYChart.Series<Number, Number> seriesNyquist) {
+        List<Double> currentFrequencies = frf.getFrequencies();
+        List<Complex> currentValues = frf.getComplexValues();
+
+        double currentReal, currentImag;
+
+        for (int i =0; i<currentFrequencies.size(); i++) {
+            currentReal = currentValues.get(i).getReal();
+            currentImag = currentValues.get(i).getImag();
+            seriesBodeAmplitude.getData().add(new XYChart.Data<>(
+                    currentFrequencies.get(i),
+                    Complex.getModuleAsDouble(currentValues.get(i)))
+            );
+            seriesBodePhase.getData().add(new XYChart.Data<>(
+                    currentFrequencies.get(i),
+                    Complex.getAngle(currentValues.get(i)))
+            );
+            seriesNyquist.getData().add(new XYChart.Data<>(
+                    currentReal,
+                    currentImag)
+            );
+        }
+
+        graphsLineChartBodeAmplitude.getData().add(seriesBodeAmplitude);
+        graphsLineChartBodePhase.getData().add(seriesBodePhase);
+        graphsLineChartNyquist.getData().add(seriesNyquist);
+
+        applyDragAndDrop(seriesBodeAmplitude, (NumberAxis) graphsLineChartBodeAmplitude.getXAxis(), (NumberAxis) graphsLineChartBodeAmplitude.getYAxis());
+        applyDragAndDrop(seriesBodePhase, (NumberAxis) graphsLineChartBodePhase.getXAxis(), (NumberAxis) graphsLineChartBodePhase.getYAxis());
+        applyDragAndDrop(seriesNyquist, (NumberAxis) graphsLineChartNyquist.getXAxis(), (NumberAxis) graphsLineChartNyquist.getYAxis());
     }
 
-    private void initializeAxes(double minX, double minY, double maxX, double maxY) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
+    private void applyDragAndDrop(XYChart.Series<Number, Number> series, NumberAxis xAxis, NumberAxis yAxis) {
+        for (XYChart.Data<Number, Number> data : series.getData()) {
+            Node node = data.getNode();
 
-        // Draw X-axis
-        gc.beginPath();
-        gc.moveTo(0, canvas.getHeight() / 2);
-        gc.lineTo(canvas.getWidth(), canvas.getHeight() / 2);
-        gc.stroke();
-        gc.closePath();
-
-        // Draw Y-axis
-        gc.beginPath();
-        gc.moveTo(canvas.getWidth() / 2, 0);
-        gc.lineTo(canvas.getWidth() / 2, canvas.getHeight());
-        gc.stroke();
-        gc.closePath();
-
-        // Add labels for X-axis
-        double xStep = (maxX - minX) / 10;
-        for (int i = 0; i <= 10; i++) {
-            double x = minX + i * xStep;
-            double xPos = (i / 10.0) * canvas.getWidth();
-            gc.strokeText(String.format("%.2f", x), xPos, canvas.getHeight() / 2 + 20);
-        }
-
-        // Add labels for Y-axis
-        double yStep = (maxY - minY) / 10;
-        for (int i = 0; i <= 10; i++) {
-            double y = minY + i * yStep;
-            double yPos = canvas.getHeight() - (i / 10.0) * canvas.getHeight();
-            gc.strokeText(String.format("%.2f", y), canvas.getWidth() / 2 + 5, yPos);
-        }
-    }
-
-    private void plotData(List<Double> xData, List<Double> yData, Paint color, boolean connectPoints) {
-        if (color == null) {
-            color = colorPreset.get(new Random().nextInt(colorPreset.size()));
-        }
-        gc.beginPath();
-        double canvasWidth = canvas.getWidth();
-        double canvasHeight = canvas.getHeight();
-
-        double xRange = maxX - minX;
-        double yRange = maxY - minY;
-
-        if (xRange == 0.0) xRange = 1.0;  // Avoid division by zero or scaling issues when all x-values the same.
-        if (yRange == 0.0) yRange = 1.0;  // Avoid division by zero or scaling issues when all y-values the same.
-
-        for (int i = 0; i < xData.size(); i++) {
-            double x = (xData.get(i) - minX) / xRange * canvasWidth;
-            double y = canvasHeight - (yData.get(i) - minY) / yRange * canvasHeight;
-
-            if (i == 0) {
-                gc.moveTo(x, y);
+            // Ensure the node exists.  Sometimes it takes a rendering cycle for it to be created.
+            if (node != null) {
+                makeDraggable(node, data, xAxis, yAxis);
             } else {
-                gc.lineTo(x, y);
+                // If node is null, defer the setup until it exists using a Platform.runLater() call.
+                // This happens during initial setup if the chart renders before all data points
+                javafx.application.Platform.runLater(() -> {
+                    Node dataNode = data.getNode();  //Try to get the node again
+                    if(dataNode != null) {
+                        makeDraggable(dataNode, data, xAxis, yAxis);
+                    } else {
+                        System.err.println("Could not get data node for " + data); //Print Error if even after deferring, the node isn't found
+                    }
+                });
             }
 
-            gc.fillOval(x - 3, y - 3, 6, 6); // Draw point
-        }
 
-        if(connectPoints) {
-            gc.stroke();
+            // Add a Tooltip to display the data values
+            // Tooltip will now be handled inside makeDraggable
         }
-        gc.closePath();
     }
 
-    private void handleMouseMoved(javafx.scene.input.MouseEvent event) {
-        double mouseX = event.getX();
-        double mouseY = event.getY();
-    }
+    private void makeDraggable(Node node, XYChart.Data<Number, Number> data, NumberAxis xAxis, NumberAxis yAxis) {
+        final double[] dragDelta = new double[2];  // use an array to store deltas
+        final double originalNodeSize = 6; //  or whatever the default size is
+        final double hoverScaleFactor = 1.5; // How much to scale up on hover
+        final Duration animationDuration = Duration.millis(100); // Animation speed
 
-    private void showOnlyTextInCenter(String text) {
-        clearGraphicsContext(true);
-        gc.setFill(Color.BLACK);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.fillText(text, canvas.getWidth() / 2, canvas.getHeight() / 2);
+        // Use ScaleTransition for smooth size changes
+        ScaleTransition hoverScaleUp = new ScaleTransition(animationDuration, node);
+        hoverScaleUp.setFromX(1.0);
+        hoverScaleUp.setFromY(1.0);
+        hoverScaleUp.setToX(hoverScaleFactor);
+        hoverScaleUp.setToY(hoverScaleFactor);
+
+
+        ScaleTransition hoverScaleDown = new ScaleTransition(animationDuration, node);
+        hoverScaleDown.setFromX(hoverScaleFactor);
+        hoverScaleDown.setFromY(hoverScaleFactor);
+        hoverScaleDown.setToX(1.0);
+        hoverScaleDown.setToY(1.0);
+
+        // Create and install the tooltip
+        Tooltip tooltip = new Tooltip(String.format("(%.2f, %.2f)", data.getXValue().doubleValue(), data.getYValue().doubleValue()));
+        Tooltip.install(node, tooltip);
+
+        node.setOnMousePressed(event -> {
+            graphsLineChartBodeAmplitude.setAnimated(false);
+            graphsLineChartBodePhase.setAnimated(false);
+            graphsLineChartNyquist.setAnimated(false);
+
+            dragDelta[0] = node.getLayoutX() - event.getSceneX();
+            dragDelta[1] = node.getLayoutY() - event.getSceneY();
+            node.setCursor(javafx.scene.Cursor.MOVE);
+
+            hoverScaleUp.stop();
+            hoverScaleDown.stop();
+
+            //  Ensure the node is at its normal size before starting a drag
+            node.setScaleX(1.0);
+            node.setScaleY(1.0);
+        });
+
+        node.setOnMouseReleased(event -> {
+            node.setCursor(javafx.scene.Cursor.HAND);
+            graphsLineChartBodeAmplitude.setAnimated(true);
+            graphsLineChartBodePhase.setAnimated(true);
+            graphsLineChartNyquist.setAnimated(true);
+
+        });
+
+        node.setOnMouseDragged(event -> {
+            double newX = event.getSceneX() + dragDelta[0];
+            double newY = event.getSceneY() + dragDelta[1];
+
+            // Clamp the new X and Y positions to the chart's bounds.
+            double xLowerBound = xAxis.getLowerBound();
+            double xUpperBound = xAxis.getUpperBound();
+            double yLowerBound = yAxis.getLowerBound();
+            double yUpperBound = yAxis.getUpperBound();
+
+            double xValue = xAxis.getValueForDisplay(newX).doubleValue();
+            double yValue = yAxis.getValueForDisplay(newY).doubleValue();
+
+            if (xValue >= xLowerBound && xValue <= xUpperBound &&
+                    yValue >= yLowerBound && yValue <= yUpperBound) {
+
+                data.setXValue(xValue);
+                data.setYValue(yValue);
+
+                //Force the chart to update, otherwise dragged location isn't correct.
+                xAxis.requestAxisLayout();
+                yAxis.requestAxisLayout();
+            }
+        });
+
+        node.setOnMouseEntered(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.HAND);
+                hoverScaleUp.play();
+            }
+        });
+
+        node.setOnMouseExited(event -> {
+            if (!event.isPrimaryButtonDown()) { // Only scale if not dragging
+                node.setCursor(javafx.scene.Cursor.DEFAULT);
+                hoverScaleDown.play();
+            }
+        });
     }
 }

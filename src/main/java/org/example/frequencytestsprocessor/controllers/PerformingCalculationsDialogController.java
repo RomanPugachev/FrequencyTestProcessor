@@ -3,7 +3,6 @@ package org.example.frequencytestsprocessor.controllers;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
@@ -15,8 +14,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Section;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorDataType;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
@@ -93,7 +90,7 @@ public class PerformingCalculationsDialogController {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/calculationsFileDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
-                        (languageProperties, languageToSet) -> {
+                        (languageProperties, languageToSet, previousLanguage) -> {
                             String key = availableRunsText.getId() + DOT;
                             String text = languageProperties.getProperty(key + languageToSet);
                             if (text != null) {
@@ -104,7 +101,7 @@ public class PerformingCalculationsDialogController {
                                 throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
                             }
                         },
-                        (languageProperties, languageToSet) -> {
+                        (languageProperties, languageToSet, previousLanguage) -> {
                             String key = insertRunsForCalculationLabelTooltip.getId() + DOT;
                             String text = languageProperties.getProperty(key + languageToSet);
                             if (text != null) {

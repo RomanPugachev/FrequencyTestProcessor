@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane fx:id="mainAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="100.0" minWidth="100.0" prefHeight="444.0" prefWidth="641.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frequencytestsprocessor.controllers.TimeDataSourceDialogController">
+   <children>
+      <VBox fx:id="mainVbox" layoutY="2.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox alignment="CENTER">
+               <children>
+                  <Label fx:id="headerLabel" alignment="CENTER_RIGHT" contentDisplay="CENTER" text="DEFAULT_HEADER_LABEL" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <ChoiceBox fx:id="datasetChoiseBox" prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+               <children>
+                  <StackPane>
+                     <children>
+                        <LineChart fx:id="timeDatasetChartInput">
+                          <xAxis>
+                            <NumberAxis side="BOTTOM" fx:id="xAxisTimeInput" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxisTimeInput" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                        <Rectangle fx:id="selectionTimeLimitsRectangle"
+                                   arcHeight="5.0"
+                                   arcWidth="5.0"
+                                   fill="rgba(30,144,255,0.3)"
+                                   stroke="BLACK"
+                                   strokeType="INSIDE"
+                                   visible="false"/>  <!-- DODGERBLUE with 30% opacity -->
+                     </children>
+                  </StackPane>
+                  <StackPane>
+                     <children>
+                        <LineChart fx:id="transformedDatasetChartInput">
+                           <xAxis>
+                              <NumberAxis side="BOTTOM" fx:id="xAxisTransformedInput" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxisTransformedInput" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <Rectangle fx:id="selectionTransformedDatasetRectangle"
+                                   arcHeight="5.0"
+                                   arcWidth="5.0"
+                                   fill="rgba(30,144,255,0.3)"
+                                   stroke="BLACK"
+                                   strokeType="INSIDE"
+                                   visible="false"/>  <!-- DODGERBLUE with 30% opacity -->
+                     </children>
+                  </StackPane>
+               </children>
+            </HBox>
+            <HBox fx:id="controlHBox" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="45.0" VBox.vgrow="NEVER">
+               <children>
+                  <Label fx:id="leftBorderLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_LEFT_LIMIT">
+                     <tooltip>
+                        <Tooltip fx:id="insertRunsForCalculationLabelTooltip1" text="Empty Tooltip" textAlignment="CENTER" />
+                     </tooltip>
+                  </Label>
+                  <TextField fx:id="leftBorderTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Label fx:id="rightBorderLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_RIGHT_LIMIT">
+                     <tooltip>
+                        <Tooltip fx:id="insertRunsForCalculationLabelTooltip2" text="Empty Tooltip" textAlignment="CENTER" />
+                     </tooltip>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+                  <TextField fx:id="rightBorderTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="100.0" top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Label fx:id="insertingFRFNameLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="DEFAULT_NAME_LABEL" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <tooltip>
+                        <Tooltip fx:id="insertRunsForCalculationLabelTooltip" text="Empty Tooltip" textAlignment="CENTER" />
+                     </tooltip>
+                  </Label>
+                  <TextField fx:id="insertingFRFNameTextField" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="50.0" top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <VBox.margin>
+                  <Insets left="30.0" right="30.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox fx:id="confirmationHBox" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="45.0" VBox.vgrow="NEVER">
+               <children>
+                  <Button fx:id="cancelButton" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#invokeHandlingCancel" style="-fx-background-color: red;" text="DEFAULT_CANCEL" textFill="WHITE" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="130.0" right="40.0" top="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="confirmButton" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#invokeHandlingConfirmation" style="-fx-background-color: green;" text="DEFAULT_CONFIM" textAlignment="CENTER" textFill="WHITE" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="40.0" right="130.0" top="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

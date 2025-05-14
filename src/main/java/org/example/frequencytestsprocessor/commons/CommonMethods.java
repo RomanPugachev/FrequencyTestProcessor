@@ -1,19 +1,26 @@
 package org.example.frequencytestsprocessor.commons;
 
+import com.opencsv.CSVReader;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
-import static org.example.frequencytestsprocessor.commons.StaticStrings.OTHER;
+import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
 public class CommonMethods {
     public static void print(Object ... objects) {
@@ -45,7 +52,7 @@ public class CommonMethods {
        showAlert("Ошибка", "Ошибка повторения существующего элемента", detailedMessage);
     }
     public static void showAlertUnimplemented(){
-        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована");
+        showAlert("Ошибка", "Ошибка выполнения функции", "Пока что данная функция не реализована.");
     }
     public static void printByteArrayOutputStram(ByteArrayOutputStream outputStream) throws IOException {
         var resultByteArray = outputStream.toByteArray();
@@ -86,12 +93,221 @@ public class CommonMethods {
         } else throw new RuntimeException("Unsupported pathFrom value");
     }
 
+    public static String convertComplexListToString(List<Complex> complexList) {
+        if (complexList == null || complexList.isEmpty()) return "";
+        return complexList.stream()
+                .map(Complex::toString) // Convert each Complex to string
+                .collect(Collectors.joining(";")); // Join using semicolon
+    }
+
+    public static List<Complex> convertStringToComplexList(String complexesString) {
+        if (complexesString == null || complexesString.isEmpty()) return List.of();
+        return Arrays.stream(complexesString.split(";"))
+                .map(Complex::fromString) // Convert each string to Complex
+                .collect(Collectors.toList());
+    }
+
+    public static String convertListOfDoubleToString(List<Double> doubles) {
+        if (doubles == null || doubles.isEmpty()) return "";
+        return doubles.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+    }
+
+    public static List<Double> convertStringToListOfDouble(String doublesString) {
+        if (doublesString == null || doublesString.isEmpty()) return List.of();
+        return Arrays.stream(doublesString.split(";"))
+                .map(Double::valueOf)
+                .toList();
+    }
+
+    public static String convertListOfLongToString(List<Long> longs) {
+        if (longs == null || longs.isEmpty()) return "";
+        return longs.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+    }
+
+    public static List<Long> convertStringToListOfLong(String longsString) {
+        if (longsString == null || longsString.isEmpty()) return List.of();
+        return Arrays.stream(longsString.split(";"))
+                .map(Long::valueOf)
+                .toList();
+    }
+
     public static enum PathFrom {
         JAVA,
         PYTHON,
         SYSTEM
     }
 
+
+    public static Charset defineCSVHeadersCharset(Path filePath, String valueDelimiter) {
+        if (Files.notExists(filePath)) {
+            throw new RuntimeException("File not found: " + filePath);
+        }
+        if (!Files.isReadable(filePath)) {
+            throw new RuntimeException("File is not readable: " + filePath);
+        }
+        if (!filePath.getFileName().toString().endsWith(".csv")) {
+            throw new RuntimeException("File is not CSV: " + filePath);
+        }
+
+        Charset[] charsets = {StandardCharsets.UTF_8, Charset.forName("windows-1251")};
+
+        for (Charset charset : charsets) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), charset))) {
+                String firstLine = reader.readLine();
+                if (firstLine != null) {
+                    String[] headers = firstLine.split(valueDelimiter);
+                    boolean validEncoding = true;
+                    for (String header : headers) {
+                        if (!isValidHeader(header)) {
+                            validEncoding = false;
+                            break;
+                        }
+                    }
+                    if (validEncoding && containsCyrillicCharacters(firstLine)) {
+                        return charset;
+                    }
+                }
+            } catch (IOException e) {
+                // Continue to the next charset if there's an error
+            }
+        }
+
+        // If no valid charset is found, return UTF-8 as a default
+        return StandardCharsets.UTF_8;
+    }
+
+    private static boolean isValidHeader(String header) {
+        // Check if the header contains only valid characters (Latin, Cyrillic, digits, and common symbols)
+        return header.matches("^[\\p{L}\\p{N}\\s_№.]+$") && !header.contains("�");
+    }
+
+    private static boolean containsCyrillicCharacters(String text) {
+        return text.matches(".*[А-Яа-я].*");
+    }
+
+
+    public static List<String[]> readAllLinesFromCSV(Path filePath, String valueDelimiter) {
+        if (Files.notExists(filePath)) {
+            throw new RuntimeException("File not found: " + filePath);
+        }
+        if (!Files.isReadable(filePath)) {
+            throw new RuntimeException("File is not readable: " + filePath);
+        }
+        if (!filePath.getFileName().toString().endsWith(".csv")) {
+            throw new RuntimeException("File is not CSV: " + filePath);
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(filePath), defineCSVHeadersCharset(filePath, valueDelimiter)))) {
+            List<String[]> lines = new ArrayList<>();
+            while (reader.ready()) {
+                String line = reader.readLine();
+                String[] values = line.split(valueDelimiter);
+                // Process the values as needed
+                lines.add(values);
+            }
+
+            return lines;
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
+        }
+    }
+
+    public static double getTimeRangeOfBorderedSeries(List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+        Double firstTimeStamp = null;
+        Double lastTimeStamp = null;
+        int numberOfTimeStamps = 0;
+
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                if (firstTimeStamp == null) {
+                    firstTimeStamp = timeStamp;
+                }
+                numberOfTimeStamps++;
+                lastTimeStamp = timeStamp;
+            } else if (timeStamp > rightBorder) {
+                break;
+            }
+        }
+        return lastTimeStamp - firstTimeStamp;
+    }
+
+    public static List<Double> getFrequenciesOfBorderedSeries(List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        double timeRange = getTimeRangeOfBorderedSeries(timeStamps, leftBorder, rightBorder);
+        List<Double> frequencies = new LinkedList<>();
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+        long acceptedTimeStamps = 0;
+        while (sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                frequencies.add(acceptedTimeStamps / timeRange);
+                acceptedTimeStamps++;
+            } else if (timeStamp > rightBorder) {
+                break;
+            }
+        }
+        return frequencies;
+    }
+
+    public static List<Double> getDataForFourierTransforms(List<Double> timeData, List<Double> timeStamps, Double leftBorder, Double rightBorder) {
+        List<Double> dataForTransformation =new LinkedList<>();
+
+        Iterator<Double> timeDataIterator = timeData.iterator();
+        Iterator<Double> sourceTimeStampsIterator = timeStamps.iterator();
+
+        while (timeDataIterator.hasNext() && sourceTimeStampsIterator.hasNext()) {
+            double timeStamp = sourceTimeStampsIterator.next();
+            double datasetValue = timeDataIterator.next();
+            if (timeStamp >= leftBorder && timeStamp <= rightBorder) {
+                dataForTransformation.add(datasetValue);
+            }
+        }
+        return dataForTransformation;
+    }
+
+
+    // Begin to write here javadoc string
+    /**
+     *  These functions must support LineChart features
+     */
+    public static void zoomToArea(LineChart<Number, Number> chart, double xMin, double xMax, double yMin, double yMax) {
+        ((NumberAxis) chart.getXAxis()).setLowerBound(xMin);
+        ((NumberAxis) chart.getXAxis()).setUpperBound(xMax);
+        ((NumberAxis) chart.getYAxis()).setLowerBound(yMin);
+        ((NumberAxis) chart.getYAxis()).setUpperBound(yMax);
+    }
+
+    public static LanguageObserver observeAxis(NumberAxis axis) {
+        return (languageProperties, languageToSet, previousLanguage) -> {
+            String key = axis.getId() + DOT;
+            String text = languageProperties.getProperty(key + languageToSet);
+            if (text != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                axis.setLabel(decodedText);
+            } else {
+                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+            }
+        };
+    }
+
+    public static LanguageObserver observeChartTitle(LineChart<?, ?> chart) {
+        return (languageProperties, languageToSet, previousLanguage) -> {
+            String key = chart.getId() + DOT + TITLE + DOT;
+            String text = languageProperties.getProperty(key + languageToSet);
+            if (text != null) {
+                byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
+                String decodedText = new String(bytes, StandardCharsets.UTF_8);
+                chart.setTitle(decodedText);
+            } else {
+                throw new RuntimeException(String.format("It seems, renaming impossible for object with id %s", key));
+            }
+        };
+    }
 
 //    public static void main(String[] args) {
 //        String pathPython = "C:\\\\Temp\\\\test_uff.uff";

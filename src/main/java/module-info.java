@@ -16,7 +16,7 @@ module org.example.frequencytestsprocessor {
     requires commons.math3;
 
     opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
-    opens org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs to org.hibernate.orm.core; // javafx.fxml, com.fasterxml.jackson.databind;
+    opens org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs to org.hibernate.orm.core, com.fasterxml.jackson.databind; // javafx.fxml, com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets to javafx.fxml, com.fasterxml.jackson.databind, org.hibernate.orm.core;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents to org.hibernate.orm.core;
     opens org.example.frequencytestsprocessor.datamodel.myMath to com.fasterxml.jackson.databind;

@@ -113,7 +113,6 @@ public class UFF58 extends UFFDataset {
     @Convert(converter = ComplexListConverter.class)
     @Column(nullable = false)
     private List<Complex> complexValues;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "uff_frf_id")
+    @OneToOne(mappedBy = "parentUff58")
     private UFFBasedFRF uffBasedFRF;
 }

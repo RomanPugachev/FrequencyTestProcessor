@@ -101,13 +101,13 @@ public class FRFRepository {
                         UFFDataset uffData = (UFFDataset) objectMapper.readValue(line, uffClass);
 
                         session.persist(uffData);
-                        session.flush();
-                        if (uffData instanceof UFF58) {
-                            UFFBasedFRF uffBasedFRF = new UFFBasedFRF();
-                            // prevent appearing error: jakarta.persistence.OptimisticLockException: org.hibernate.exception.LockAcquisitionException: error performing isolated work [[SQLITE_BUSY] The database file is locked (database is locked)] [n/a]
-                            session.persist(uffBasedFRF);
-                            uffBasedFRF.setParentUFF58Dataset((UFF58) uffData);
-                        }
+//                        TODO: implement saving FRF from UFF58
+//                        if (uffData instanceof UFF58) {
+//                            UFFBasedFRF uffBasedFRF = new UFFBasedFRF();
+//                             prevent appearing error: jakarta.persistence.OptimisticLockException: org.hibernate.exception.LockAcquisitionException: error performing isolated work [[SQLITE_BUSY] The database file is locked (database is locked)] [n/a]
+//                            session.persist(uffBasedFRF);
+//                            uffBasedFRF.setParentUFF58Dataset((UFF58) uffData);
+//                        }
 
                         resultUFFsource.addUFFDataset(uffData);
                     } catch (ClassNotFoundException e) {

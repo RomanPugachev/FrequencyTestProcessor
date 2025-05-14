@@ -14,6 +14,7 @@ public class UFFDataset extends AbstractDataset {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "uff_dataset_id")
     private Long datasetId;
 
     @Transient

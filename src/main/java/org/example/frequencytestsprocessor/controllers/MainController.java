@@ -322,11 +322,9 @@ public class MainController {
         }
         sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
         addCalculatedFRFSourceElement();
-        initializeLanguageService();
         graphsService.initializeService();
         FRFRepository.setInstMainController(this);
-
-
+        initializeLanguageService();
     }
 
     public void initializeLanguageService() {
@@ -396,7 +394,7 @@ public class MainController {
                         observeAxis(graphsYAxisNyquist)
                 )
         );
-        currentLanguage = RU;
+        currentLanguage = EN;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
     }
@@ -639,10 +637,10 @@ public class MainController {
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-//        if (System.getenv("PRELOAD_PATH_CSV") != null) {
-//            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
-//            saveTimeSeriesSourceFromFile(preloadFile);
-//        }
+        if (System.getenv("PRELOAD_PATH_CSV") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
+            saveTimeSeriesSourceFromFile(preloadFile);
+        }
         if (System.getenv("PRELOAD_PATH_UFF") != null) {
             File preloadFile = new File(System.getenv("PRELOAD_PATH_UFF"));
             saveUFFSourceFromFile(preloadFile);

@@ -95,21 +95,21 @@ public class GraphsService {
         graphsLineChartNyquist.getData().clear();
         FRFsForVisualization.forEach((idAndRunOfFRF, frf) -> {
             XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
-            seriesBodeAmplitude.setName("Dataset " + idAndRunOfFRF);
+            seriesBodeAmplitude.setName("Датасет " + idAndRunOfFRF);
             XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
-            seriesBodePhase.setName("Dataset " + idAndRunOfFRF);
+            seriesBodePhase.setName("Датасет " + idAndRunOfFRF);
             XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
-            seriesNyquist.setName("Dataset " + idAndRunOfFRF);
+            seriesNyquist.setName("Датасет " + idAndRunOfFRF);
 
             addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
         });
         pinnedFRFs.forEach((idAndRunOfFRF, frf) -> {
             XYChart.Series<Number, Number> seriesBodeAmplitude = new XYChart.Series<>();
-            seriesBodeAmplitude.setName("Pinned dataset " + idAndRunOfFRF);
+            seriesBodeAmplitude.setName("Закрепленный датасет " + idAndRunOfFRF);
             XYChart.Series<Number, Number> seriesBodePhase = new XYChart.Series<>();
-            seriesBodePhase.setName("Pinned dataset " + idAndRunOfFRF);
+            seriesBodePhase.setName("Закрепленный датасет " + idAndRunOfFRF);
             XYChart.Series<Number, Number> seriesNyquist = new XYChart.Series<>();
-            seriesNyquist.setName("Pinned dataset " + idAndRunOfFRF);
+            seriesNyquist.setName("Закрепленный датасет " + idAndRunOfFRF);
 
             addFRFSeries(frf, seriesBodeAmplitude, seriesBodePhase, seriesNyquist);
         });

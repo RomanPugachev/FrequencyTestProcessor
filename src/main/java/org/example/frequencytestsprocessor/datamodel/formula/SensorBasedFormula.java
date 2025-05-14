@@ -19,7 +19,7 @@ public class SensorBasedFormula extends Formula {
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
-        super("(F2-F1)/F0", "Add some comments here", FormulaType.SENSOR_BASED);
+        super("(F2-F1)/F0", "Формула по данным датчиков", FormulaType.SENSOR_BASED);
         updateInformation();
     }
 

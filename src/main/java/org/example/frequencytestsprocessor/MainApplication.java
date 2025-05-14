@@ -32,6 +32,7 @@ public class MainApplication extends Application {
         stage.setScene(scene);
         stage.show();
         controller.loadImages();
+        controller.updateLanguage();
     }
 
     public Image getImage(String path) {

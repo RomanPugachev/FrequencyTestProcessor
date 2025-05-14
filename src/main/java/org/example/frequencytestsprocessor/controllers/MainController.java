@@ -396,11 +396,10 @@ public class MainController {
         );
         currentLanguage = EN;
         calculator.setFormulaTable(formulaTable);
-        updateLanguage();
     }
 
     @FXML
-    private void updateLanguage() {
+    public void updateLanguage() {
         String newLanguage;
         if (currentLanguage.equals(RU)) {
             newLanguage = EN;

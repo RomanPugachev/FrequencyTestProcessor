@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 public class Complex implements Cloneable{
     private double real;
@@ -130,6 +129,21 @@ public class Complex implements Cloneable{
 
     public static Complex ofModuleAndAngle(Double module, Double angle) {
         return new Complex(module * Math.cos(angle), module * Math.sin(angle));
+    }
+
+    @Override
+    public String toString() {
+        return real + "+" + imag + "i";
+    }
+
+    public static Complex fromString(String s) {
+        String[] parts = s.split("\\+");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid complex number format");
+        }
+        double real = Double.parseDouble(parts[0]);
+        double imag = Double.parseDouble(parts[1].substring(0, parts[1].length() - 1));
+        return new Complex(real, imag);
     }
 
     protected boolean canEqual(final Object other) {

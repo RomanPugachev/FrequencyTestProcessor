@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

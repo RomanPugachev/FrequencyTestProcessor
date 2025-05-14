@@ -1,6 +1,9 @@
 package org.example.frequencytestsprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -8,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -23,22 +27,34 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.RuntimeEnvironment;
-import org.apache.commons.lang3.tuple.Pair;
 import org.example.frequencytestsprocessor.MainApplication;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Canvas2DPrintable;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.CalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
 import org.example.frequencytestsprocessor.datamodel.formula.SensorBasedFormula;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.AircraftModelProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.CalculatedSourceProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceProxy;
+import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceTableProxy;
 import org.example.frequencytestsprocessor.services.calculationService.Calculator;
 import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
 import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
 import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
-import org.example.frequencytestsprocessor.services.uffFilesProcService.UFF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
+import org.example.frequencytestsprocessor.services.repositoryService.FRFRepository;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;
@@ -46,7 +62,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.*;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
@@ -76,8 +91,8 @@ public class MainController {
     @FXML
     private Button callPerformCalculationsDialogButton;
 
-    @FXML
-    private Button changeLanguageButton;
+//    @FXML
+//    private Button changeLanguageButton;
 
     @FXML
     private HBox chooseFileHBox;
@@ -105,7 +120,16 @@ public class MainController {
     private TableColumn<Formula, String> commentToFormulaColumn;
 
     @FXML
+    private VBox dataBaseInteractionVBox;
+
+    @FXML
     private VBox dataProcessVBox;
+
+    @FXML
+    private TreeTableColumn<AbstractDataset, String> datasetsTreeTableColumn;
+
+    @FXML
+    private TreeTableView<AbstractDataset> datasetsTreeTableView;
 
     @FXML
     private MenuItem deleteChosenSensorsMenuItem;
@@ -124,9 +148,6 @@ public class MainController {
 
     @FXML
     private Menu file;
-
-    @FXML
-    private Button fileDialogButton;
 
     @FXML
     private MenuItem formulaAdditionAnalithicalMenuItem;
@@ -148,6 +169,24 @@ public class MainController {
 
     @FXML
     private Button graphPinButton;
+
+    @FXML
+    private NumberAxis graphsXAxisBodeAmplitude;
+
+    @FXML
+    private NumberAxis graphsYAxisBodeAmplitude;
+
+    @FXML
+    private NumberAxis graphsXAxisBodePhase;
+
+    @FXML
+    private NumberAxis graphsYAxisBodePhase;
+
+    @FXML
+    private NumberAxis graphsXAxisNyquist;
+
+    @FXML
+    private NumberAxis graphsYAxisNyquist;
 
     @Getter
     @FXML
@@ -187,7 +226,7 @@ public class MainController {
     private VBox graphsVBox;
 
     @FXML
-    private VBox graphsVBoxtBode;
+    private VBox graphsVBoxBode;
 
     @FXML
     private Menu languageSettings;
@@ -199,6 +238,12 @@ public class MainController {
     private MenuItem language_ru;
 
     @FXML
+    private Button loadTimeDataButton;
+
+    @FXML
+    private Button loadUFFSourceButton;
+
+    @FXML
     private AnchorPane mainAnchorPane;
 
     @FXML
@@ -206,6 +251,12 @@ public class MainController {
 
     @FXML
     private VBox mainVBox;
+
+    @FXML
+    private Label manageDataBaseSourcesLabel;
+
+    @FXML
+    private HBox manageSourcesHBox;
 
     @FXML
     private SplitPane processAndVisualizeSplitPane;
@@ -228,31 +279,51 @@ public class MainController {
 
     @Getter
     @FXML
+    private HBox sourceAndDatasetsChoiseHBox;
+
+    @FXML
+    private TreeTableColumn<DataSourceTableProxy, String> sourcesTreeTableColumn;
+
+    @FXML
+    private TreeTableView<DataSourceTableProxy> sourcesTreeTableView;
+
+    @Getter
+    @FXML
     private ComboBox<SensorDataType> typeComboBox;
     ////////////////////////////////////////////////////////
     /// Common static objects //////////////////////////////
     @Getter
     public static ObjectMapper objectMapper = new ObjectMapper();
 
-    // Common application parameters
-    private File chosenFile;
-    @Getter
-    private UFF uff;
+    // Common application parameters and objects //
     private Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs;
     @Getter
     private String currentLanguage = RU;
     @Getter
     private LanguageNotifier languageNotifier;
     private Stage mainStage = Optional.ofNullable(new Stage()).orElseGet(() -> new Stage());
+    @Getter
     private MainApplication mainApplication;
     private Refresher refresher = new Refresher(this);
     @Getter
     private IdManager idManager = new IdManager(this);
     private Calculator calculator = new Calculator(this);
     private GraphsService graphsService = new GraphsService(this);
-    private Map<Long, List<RepresentableDataset>> representableDatasets = new HashMap<>();
+    private FRFRepository frfRepository = FRFRepository.getRepository();
+    private UFFDataSource selectedUFFSource;
 
     public void initializeServices() {
+        if (datasetsTreeTableView.getRoot() == null) {
+            sourcesTreeTableView.setRoot(new TreeItem<>());
+
+        }
+        if (datasetsTreeTableView.getRoot() == null) {
+            datasetsTreeTableView.setRoot(new TreeItem<>());
+        }
+        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+        addCalculatedFRFSourceElement();
+        graphsService.initializeService();
+        FRFRepository.setInstMainController(this);
         initializeLanguageService();
     }
 
@@ -261,8 +332,9 @@ public class MainController {
         languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
                         new LanguageObserverDecorator<>(mainMenuBar),
-                        new LanguageObserverDecorator<>(changeLanguageButton),
+//                        new LanguageObserverDecorator<>(changeLanguageButton),
                         new LanguageObserverDecorator<>(chosenFileLabel),
+                        new LanguageObserverDecorator<>(manageDataBaseSourcesLabel),
                         SensorDataType.DEFAULT_TYPE_LANGUAGE_OBSERVER,
                         Section.DEFAULT_SECTION_LANGUAGE_OBSERVER,
                         (languageProperties, currentLanguage,previousLanguage) -> {
@@ -289,35 +361,66 @@ public class MainController {
 //                            changeDefaultGraphChoice(graphTypeChoiceBox, DEFAULT_GRAPHS_TYPE_CHOICE, languageProperties, currentLanguage, previousLanguage);
                         },
                         new LanguageObserverDecorator<>(exportGraphsButton),
-                        new LanguageObserverDecorator<>(clearGraphsButton)
+                        new LanguageObserverDecorator<>(clearGraphsButton),
+                        new LanguageObserverDecorator<>(sourcesTreeTableView),
+                        new LanguageObserverDecorator<>(datasetsTreeTableView),
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            ObservableList<TreeItem<DataSourceTableProxy>> dataSources = sourcesTreeTableView.getRoot().getChildren();
+                            for(TreeItem<DataSourceTableProxy> curSource : dataSources) {
+                                if (curSource.getValue() instanceof CalculatedSourceProxy) {
+                                    String decodedText = getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_CALCULATED_DATA_SOURCE + DOT + currentLanguage);
+                                    ((CalculatedSourceProxy) curSource.getValue()).setSourceAddress(decodedText);
+                                    sourcesTreeTableView.refresh();
+                                }
+                            }
+                        },
+                        (languageProperties, currentLanguage, previousLanguage) -> {
+                            languageSettings.getItems().forEach(item -> {
+                                String languageStringOfItem = item.getId().split("_")[1];
+                                if (item.getText().startsWith("* ")) item.setText(item.getText().replace("* ", ""));
+                                if (languageStringOfItem.equals(currentLanguage)) {
+                                    item.setText("* " + item.getText());
+                                }
+                            });
+                        },
+                        observeChartTitle(graphsLineChartBodeAmplitude),
+                        observeChartTitle(graphsLineChartBodePhase),
+                        observeChartTitle(graphsLineChartNyquist),
+                        observeAxis(graphsXAxisBodeAmplitude),
+                        observeAxis(graphsYAxisBodeAmplitude),
+                        observeAxis(graphsXAxisBodePhase),
+                        observeAxis(graphsYAxisBodePhase),
+                        observeAxis(graphsXAxisNyquist),
+                        observeAxis(graphsYAxisNyquist)
                 )
         );
-        currentLanguage = RU;
+        currentLanguage = EN;
         calculator.setFormulaTable(formulaTable);
         updateLanguage();
-        graphsService.initializeService();
     }
 
     @FXML
     private void updateLanguage() {
+        String newLanguage;
         if (currentLanguage.equals(RU)) {
-            currentLanguage = EN;
+            newLanguage = EN;
         } else {
-            currentLanguage = RU;
+            newLanguage = RU;
         }
-        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
-        if (newTitle != null) {
-            byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
-            String decodedTitle = new String(bytes, StandardCharsets.UTF_8);
-            mainStage.setTitle(decodedTitle);
-        }
-        languageNotifier.changeLanguage(currentLanguage);
+        setCurrentLanguage(newLanguage);
     }
 
     @FXML
-    private void callFileDialog(MouseEvent event) {
+    private void saveUFFSourceFromFileDialog(MouseEvent event) {
         File chosenFile = getFileFromDialog();
-        setChosenFile(chosenFile);
+        saveUFFSourceFromFile(chosenFile);
+    }
+
+
+    @FXML
+    private void saveTimeSeriesSourceFromFileDialog(MouseEvent event) {
+        File chosenFile = getFileFromDialog();
+        saveTimeSeriesSourceFromFile(chosenFile);
     }
 
     @FXML
@@ -391,8 +494,8 @@ public class MainController {
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
         tempStage.setTitle(
-                new String(languageNotifier.getLanaguagePropertyService().
-                        getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
+                new String(languageNotifier.getLanaguagePropertyService()
+                        .getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
                         .getBytes(StandardCharsets.ISO_8859_1),
                         StandardCharsets.UTF_8
                 )
@@ -410,17 +513,23 @@ public class MainController {
         }
         List<String> idSequence = calculator.getCalculationIdSequence(chosenSensorsTable.getItems().stream().map(s -> ((SensorProxyForTable)s).getId()).collect(Collectors.toList()));
         calculatedFRFs = new HashMap<>();
+        String sectionName = sectionComboBox.getValue().getSectionName();
+        String typeName = typeComboBox.getValue().getTypeName();
         for (Long runId : chosenRuns) {
             List<Double> frequencies = calculator.getFrequencies(runId);
             calculatedFRFs.put(runId, new HashSet<>());
             for (String id : idSequence) {
-                calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculator.calculateFRF(runId, id, frequencies, calculatedFRFs)));
+                Formula curentFormula = formulaTable.getItems().stream().filter(formula -> formula.getId().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("Cannot find formula with id " + id));
+                FRF calculatedFRF = calculator.calculateFRF(runId, id, frequencies, calculatedFRFs);
+                calculatedFRFs.get(runId).add(new AbstractMap.SimpleEntry<>(id, calculatedFRF));
+                frfRepository.savePipelineCalculatedFrequencyDataRecord(selectedUFFSource, curentFormula, sectionName, typeName, runId, chosenSensorsTable.getItems(), calculatedFRF);
             }
         }
         showSuccess("Success", "Success", "Calculations performed successfully");
         System.out.println(calculatedFRFs);
         graphRunChoiceBox.getItems().clear(); // Map<Long, Set<Map.Entry<String, FRF>>> calculatedFRFs
         refresher.refreshGraphComboboxes(calculatedFRFs);
+
     }
     private void performOnlyPossibleCalculations(Collection<Long> chosenRuns) {
         showAlertUnimplemented();
@@ -429,18 +538,32 @@ public class MainController {
 
     public void loadImages(){
         try {
-            Image image = mainApplication.getImage("images/" + "package.jpg");
+
+//            Image image = mainApplication.getImage("images" + "/ms" + "/processing_status.svg");
+//            ImageView imageView = new ImageView(image);
+//            imageView.setFitWidth(20);
+//            imageView.setFitHeight(20);
+//            imageView.setPreserveRatio(true);
+//            imageView.setSmooth(true);
+//            loadTimeDataButton.setGraphic(imageView);
+            Image image = mainApplication.getImage("images" + "/package.jpg");
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
-            fileDialogButton.setGraphic(imageView);
-            imageView = new ImageView(mainApplication.getImage("images/" + "pin.png"));
+            loadUFFSourceButton.setGraphic(imageView);
+
+            imageView = new ImageView(mainApplication.getImage("images" + "/pin.png"));
             imageView.setFitWidth(20);
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
             graphPinButton.setGraphic(imageView);
 
+            imageView = new ImageView(mainApplication.getImage("images" + "/ms" + "/processing_status.png"));
+            imageView.setFitWidth(20);
+            imageView.setFitHeight(20);
+            imageView.setPreserveRatio(true);
+            loadTimeDataButton.setGraphic(imageView);
         } catch (Exception e) {
             System.err.println("Error loading image: " + e.getMessage());
         }
@@ -453,7 +576,7 @@ public class MainController {
         assert availableSensorsTable != null : "fx:id=\"availableSensorsTable\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert availableSensorsTableContextMenu != null : "fx:id=\"availableSensorsTableContextMenu\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert callPerformCalculationsDialogButton != null : "fx:id=\"callPerformCalculationsDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+//        assert changeLanguageButton != null : "fx:id=\"changeLanguageButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chooseFileHBox != null : "fx:id=\"chooseFileHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert choseTypeAndSectionHBox != null : "fx:id=\"choseTypeAndSectionHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert chosenFileLabel != null : "fx:id=\"chosenFileLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -462,14 +585,16 @@ public class MainController {
         assert clearGraphsButton != null : "fx:id=\"clearGraphsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert close != null : "fx:id=\"close\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert commentToFormulaColumn != null : "fx:id=\"commentToFormulaColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert dataBaseInteractionVBox != null : "fx:id=\"dataBaseInteractionVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dataProcessVBox != null : "fx:id=\"dataProcessVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert datasetsTreeTableColumn != null : "fx:id=\"datasetsTreeTableColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert datasetsTreeTableView != null : "fx:id=\"datasetsTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert deleteChosenSensorsMenuItem != null : "fx:id=\"deleteChosenSensorsMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert deleteFormulaMenuItem != null : "fx:id=\"deleteFormulaMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyHBox != null : "fx:id=\"dummyHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert dummyToolBar != null : "fx:id=\"dummyToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert exportGraphsButton != null : "fx:id=\"exportGraphsButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert file != null : "fx:id=\"file\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert fileDialogButton != null : "fx:id=\"fileDialogButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaAdditionAnalithicalMenuItem != null : "fx:id=\"formulaAdditionAnalithicalMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaAdditionSensorMenuItem != null : "fx:id=\"formulaAdditionSensorMenuItem\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert formulaIdColumn != null : "fx:id=\"formulaIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
@@ -482,37 +607,142 @@ public class MainController {
         assert graphToolBar != null : "fx:id=\"graphToolBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphTypeChoiceBox != null : "fx:id=\"graphTypeChoiceBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsAnchorPane != null : "fx:id=\"graphsAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsLineChartNyquist != null : "fx:id=\"graphsLineChartNyquist\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsLineChartBodeAmplitude != null : "fx:id=\"graphsLineChartBodeAmplitude\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsLineChartBodePhase != null : "fx:id=\"graphsLineChartBodePhase\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsLineChartNyquist != null : "fx:id=\"graphsLineChartNyquist\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsStackPane != null : "fx:id=\"graphsStackPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert graphsVBox != null : "fx:id=\"graphsVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
-        assert graphsVBoxtBode != null : "fx:id=\"graphsVBoxtBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert graphsVBoxBode != null : "fx:id=\"graphsVBoxtBode\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert languageSettings != null : "fx:id=\"languageSettings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_en != null : "fx:id=\"language_en\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert language_ru != null : "fx:id=\"language_ru\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert loadTimeDataButton != null : "fx:id=\"loadTimeDataButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert loadUFFSourceButton != null : "fx:id=\"loadUFFSourceButton\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainAnchorPane != null : "fx:id=\"mainAnchorPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainMenuBar != null : "fx:id=\"mainMenuBar\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert mainVBox != null : "fx:id=\"mainVBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert manageDataBaseSourcesLabel != null : "fx:id=\"manageDataBaseSourcesLabel\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert manageSourcesHBox != null : "fx:id=\"manageSourcesHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert processAndVisualizeSplitPane != null : "fx:id=\"processAndVisualizeSplitPane\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sectionComboBox != null : "fx:id=\"sectionComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorIdColumn != null : "fx:id=\"sensorIdColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorNameColumn != null : "fx:id=\"sensorNameColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert sensorsChoiseHBox != null : "fx:id=\"sensorsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert settings != null : "fx:id=\"settings\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sourceAndDatasetsChoiseHBox != null : "fx:id=\"sourceAndDatasetsChoiseHBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sourcesTreeTableColumn != null : "fx:id=\"sourcesTreeTableColumn\" was not injected: check your FXML file 'mainScene-view.fxml'.";
+        assert sourcesTreeTableView != null : "fx:id=\"sourcesTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
 
         initializeServices();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
-        if (System.getenv("PRELOAD_PATH") != null) {
-            File preloadFile = new File(System.getenv("PRELOAD_PATH"));
-            setChosenFile(preloadFile);
+        if (System.getenv("PRELOAD_PATH_CSV") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH_CSV"));
+            saveTimeSeriesSourceFromFile(preloadFile);
+        }
+        if (System.getenv("PRELOAD_PATH_UFF") != null) {
+            File preloadFile = new File(System.getenv("PRELOAD_PATH_UFF"));
+            saveUFFSourceFromFile(preloadFile);
         }
     }
 
     private void setupWidgetsBehaviour() {
+        ////////////////////////////////////////////
         // Setting up of tables and their cells behaviour: https://www.youtube.com/watch?v=GNsBTP2ZXrU, https://stackoverflow.com/questions/22582706/javafx-select-multiple-rows
+        sourcesTreeTableView.setShowRoot(false);
+        sourcesTreeTableView.getRoot().setExpanded(true);
+        // TODO: implement listening of selecting new datasource
+        sourcesTreeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                DataSourceTableProxy selectedDataSourceProxy = newValue.getValue();
+                if (selectedDataSourceProxy instanceof DataSourceProxy) {
+                    sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+                    DataSource selectedDataSource = ((DataSourceProxy) selectedDataSourceProxy).getDataSource();
+                    if (selectedDataSource instanceof UFFDataSource) {
+                        UFFDataSource uffSource = (UFFDataSource) selectedDataSource;
+                        // Set label which represents current source for calculations
+                        chosenFileLabel.setText(uffSource.getSourceAddress());
+                        // Delegate further updates to Refresher
+                        refresher.refreshOnChangeChosenUFFSource(uffSource);
+                        idManager.removeAllSlaves();
+                        selectedUFFSource = uffSource;
+                    } else if (selectedDataSource instanceof TimeSeriesDataSource) {
+//                        TimeSeriesDataSource timeSeriesSource = (TimeSeriesDataSource) selectedDataSource;
+                        sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
+                        callTimeDataSourceDialog((TimeSeriesDataSource) selectedDataSource);
+                    }
+                } else if (selectedDataSourceProxy.equals(CalculatedSourceProxy.getInstance())) {
+                    if (!sourceAndDatasetsChoiseHBox.getChildren().contains(datasetsTreeTableView)) {
+                        sourceAndDatasetsChoiseHBox.getChildren().add(datasetsTreeTableView);
+                    }
+                    // Ensure that datasetsTreeTableView is clear
+                    datasetsTreeTableView.getRoot().getChildren().clear();
+                    CalculatedSourceProxy.getInstance().getDatasets().forEach(elem -> datasetsTreeTableView.getRoot().getChildren().add(new TreeItem<>(elem)));
+                }
+            }
+        });
+        languageSettings.getItems().forEach(item -> {
+            String languageStringOfItem = item.getId().split("_")[1];
+            item.setOnAction(event -> {
+                if (!currentLanguage.equals(languageStringOfItem)) {
+                    setCurrentLanguage(languageStringOfItem);
+                }
+            });
+        });
+        sourcesTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
+            @Override
+            public void addListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public void removeListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public String getValue() {
+                return datasource.getValue().getValue().getTableColumnValue();
+            }
+
+            @Override
+            public void addListener(InvalidationListener listener) {
+
+            }
+
+            @Override
+            public void removeListener(InvalidationListener listener) {
+
+            }
+        });
+        datasetsTreeTableView.setShowRoot(false);
+        datasetsTreeTableColumn.setCellValueFactory((datasource) -> new ObservableValue<String>() {
+            @Override
+            public void addListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public void removeListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public String getValue() {
+                return datasource.getValue().getValue().getDatasetName();
+            }
+
+            @Override
+            public void addListener(InvalidationListener listener) {
+
+            }
+
+            @Override
+            public void removeListener(InvalidationListener listener) {
+
+            }
+        });
         availableSensorsColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         availableSensorsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         sensorNameColumn.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
@@ -583,18 +813,6 @@ public class MainController {
         } else { return new ArrayList<>(); }
     }
 
-    private void setChosenFile(File chosenFile) {
-        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
-                chosenFile.getAbsolutePath().endsWith(".uff"))) {
-            this.chosenFile = chosenFile;
-            chosenFileLabel.setText(chosenFile.getAbsolutePath());
-            this.uff = UFF.readUNVFile(this.chosenFile.getAbsolutePath());
-            refresher.refreshOnChangeFilePath();
-        } else if (chosenFile != null) {
-            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
-        }
-    }
-
     // Function of changing language in graphChoiseBox
     private void changeDefaultGraphChoice(ChoiceBox<String> curentChoiceBox, String PROPERTY_ID, Properties languageProperties, String currentLanguage, String previousLanguage) {
         Iterator<String> it = curentChoiceBox.getItems().iterator();
@@ -613,16 +831,75 @@ public class MainController {
         if (chooseDefault) curentChoiceBox.setValue(decodedText);
     }
 
+    private void saveUFFSourceFromFile(File chosenFile) {
+        if (chosenFile != null && (chosenFile.getAbsolutePath().endsWith(".unv") ||
+                chosenFile.getAbsolutePath().endsWith(".uff"))) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("");
+            dialog.setHeaderText("Пожалуйста, укажите название модели ЛА, к которому относятся данные:");
+            dialog.setContentText("Название модели:");
+
+            // Show the dialog and capture the input
+            Optional<String> result = dialog.showAndWait();
+
+            if (!result.isPresent() || result.get().isEmpty()) {
+                showAlert("Ошибка", "Ошибка загрузки данных", "Введите название модели ЛА");
+                return;
+            } else {
+                System.out.println("Input received: " + result.get());
+            }
+
+            AircraftModel aircraftModel = frfRepository.getAircraftModelByName(result.get(), true);
+
+            UFFDataSource savedSource = frfRepository.saveUFFSource(chosenFile.getAbsolutePath(), aircraftModel);
+
+            insertSourceIntoTable(aircraftModel, savedSource);
+//            refresher.refreshUIOnSourceChange(savedSource);
+        } else if (chosenFile != null) {
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .uff");
+        }
+    }
+
+    private void saveTimeSeriesSourceFromFile(File chosenFile) {
+        if (chosenFile != null && chosenFile.getAbsolutePath().endsWith(".csv")) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("");
+            dialog.setHeaderText("Пожалуйста, укажите название модели ЛА, к которому относятся данные:");
+            dialog.setContentText("Название модели:");
+
+            // Show the dialog and capture the input
+            Optional<String> result = dialog.showAndWait();
+
+            // Use the result
+            if (!result.isPresent() || result.get().isEmpty()) {
+                showAlert("Ошибка", "Ошибка загрузки данных", "Введите название модели ЛА");
+                return;
+            } else {
+                System.out.println("Input received: " + result.get());
+            }
+
+            AircraftModel aircraftModel = frfRepository.getAircraftModelByName(result.get(), true);
+
+            TimeSeriesDataSource savedSource = frfRepository.saveTimeSeriesSourceFromCSV(chosenFile.getAbsolutePath(), aircraftModel);
+
+            insertSourceIntoTable(aircraftModel, savedSource);
+        } else if (chosenFile != null) {
+            showAlert("Ошибка", "Ошибка открытия файла", "Попробуйте открыть файл формата .csv");
+        }
+    }
+
+
+
     public void clearLineChart(MouseEvent event){
         graphsService.clearCharts();
     }
 
     private void switchStackPaneLayout(String extractedTypeOfGraphs) {
         if ("bode".equalsIgnoreCase(extractedTypeOfGraphs)) {
-            graphsVBoxtBode.setVisible(true);
+            graphsVBoxBode.setVisible(true);
             graphsLineChartNyquist.setVisible(false);
         } else if ("nyquist".equalsIgnoreCase(extractedTypeOfGraphs)) {
-            graphsVBoxtBode.setVisible(false);
+            graphsVBoxBode.setVisible(false);
             graphsLineChartNyquist.setVisible(true);
         } else {
             System.err.println("Invalid graph type: " + extractedTypeOfGraphs);
@@ -646,6 +923,34 @@ public class MainController {
             result.remove(key);
         });
         graphsService.pinCurrentGraph(result);
+    }
+
+    private void callTimeDataSourceDialog(TimeSeriesDataSource selectedDataSource) {
+        FXMLLoader tempLoader = new FXMLLoader(mainApplication.getClass().getResource("fxmls/time_data_source_dialog.fxml"));
+        Scene tempScene = null;
+        try {
+            tempScene = new Scene(tempLoader.load());
+            TimeDataSourceDialogController tempController = tempLoader.getController();
+            tempController.setTimedialogCommitHandler((parentTimeSeriesDataset, leftLimit, rightLimit, name) -> {
+                addTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
+            });
+            tempController.initializeServices(currentLanguage, selectedDataSource);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlertUnimplemented();
+        }
+        Stage tempStage = new Stage();
+        tempStage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("images/calculator(not_free).jpg")));
+        tempStage.initOwner(mainStage);
+        tempStage.setScene(tempScene);
+        tempStage.setTitle(
+                new String(languageNotifier.getLanaguagePropertyService().
+                        getProperties().getProperty(TIMESERIES_FRF_EXTRACTION_DIALOG_TITLE + DOT + currentLanguage)
+                        .getBytes(StandardCharsets.ISO_8859_1),
+                        StandardCharsets.UTF_8
+                )
+        );
+        tempStage.showAndWait();
     }
 
     private void extractFRFForGraphs(Map<String, FRF> result) {
@@ -678,5 +983,49 @@ public class MainController {
                     })
             );
         }
+    }
+
+    private void addTimeSeriesBasedCalculatedFrequencyDataRecord(TimeSeriesDataset parentTimeSeriesDataset, Double leftLimit, Double rightLimit, String name) {
+        TimeSeriesBasedCalculatedFrequencyDataRecord incomingRec = frfRepository.saveTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name).orElseThrow(() -> new RuntimeException("Can't save calculated frequency data record"));
+
+        CalculatedSourceProxy.getInstance().getDatasets().add(incomingRec);
+    }
+
+    private void addCalculatedFRFSourceElement() {
+        sourcesTreeTableView.getRoot().getChildren().add(new TreeItem<>(CalculatedSourceProxy.getInstance()));
+    }
+
+    private void setCurrentLanguage(String newLanguage) {
+        currentLanguage = newLanguage;
+        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
+        if (newTitle != null) {
+            byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
+            String decodedTitle = new String(bytes, StandardCharsets.UTF_8);
+            mainStage.setTitle(decodedTitle);
+        }
+        languageNotifier.changeLanguage(currentLanguage);
+    }
+
+    private void insertSourceIntoTable(AircraftModel parentAircraftModel, DataSource savedSource) {
+        TreeItem<DataSourceTableProxy> root = sourcesTreeTableView.getRoot();
+        // Check if parentAircraftModel already exists
+        TreeItem<DataSourceTableProxy> existingModelItem = root.getChildren().stream()
+                .filter(item -> (item.getValue() instanceof AircraftModelProxy) && ((AircraftModelProxy) item.getValue()).getAircraftModel().getAircraftModelName().equals(parentAircraftModel.getAircraftModelName()))
+                .findFirst().orElse(null);
+        if (existingModelItem == null) {
+            // If parentAircraftModel doesn't exist, create a new TreeItem and add it to the root
+            existingModelItem = new TreeItem<>(new AircraftModelProxy(parentAircraftModel));
+            root.getChildren().add(existingModelItem);
+        }
+        // Check if savedSource already exists in the parentAircraftModel
+        TreeItem<DataSourceTableProxy> existingSourceItem = existingModelItem.getChildren().stream()
+                .filter(item -> ((DataSourceTableProxy) item.getValue()).getTableColumnValue().equals(savedSource.getSourceAddress()))
+                .findFirst().orElse(null);
+        if (existingSourceItem == null) {
+            // If savedSource doesn't exist, create a new TreeItem and add it to the parentAircraftModel
+            existingSourceItem = new TreeItem<>(new DataSourceProxy(savedSource));
+            existingModelItem.getChildren().add(existingSourceItem);
+        }
+        sourcesTreeTableView.getSelectionModel().select(existingSourceItem);
     }
 }

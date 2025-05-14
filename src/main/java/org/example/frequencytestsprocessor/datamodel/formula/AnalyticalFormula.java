@@ -2,20 +2,14 @@ package org.example.frequencytestsprocessor.datamodel.formula;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.CalculatedFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.*;
 import java.util.function.Predicate;
 
-import static org.example.frequencytestsprocessor.datamodel.formula.AnalyticalFormula.Token.Type.S;
-
-// TODO: implement this type of formula
 public class AnalyticalFormula extends Formula{
 
     List<AnalyticalFormula.Token> tokensList;
@@ -25,7 +19,7 @@ public class AnalyticalFormula extends Formula{
     private static final Predicate<String> functionCondition = supportedFunctionsStrings::contains;
 
     public AnalyticalFormula() {
-        super("(1 + S^2)/(1 + S^3) + S", "This is test analytical formula", FormulaType.ANALYTICAL);
+        super("(1 + S^2)/(1 + S^3) + S", "Аналитическая формула", FormulaType.ANALYTICAL);
         updateInformation();
     }
 

@@ -1,7 +1,6 @@
-package org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr;
+package org.example.frequencytestsprocessor.datamodel.UFF58Repr;
 import lombok.*;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
-import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.HashMap;

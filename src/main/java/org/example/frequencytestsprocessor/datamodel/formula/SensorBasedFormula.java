@@ -1,27 +1,25 @@
 package org.example.frequencytestsprocessor.datamodel.formula;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.control.TableView;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.SensorProxyForTable;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorProxyForTable;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.CalculatedFRF;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
-import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
-import org.example.frequencytestsprocessor.services.idManagement.IdManager;
 
 import java.util.*;
-import java.util.function.Predicate;
-public class SensorBasedFormula extends Formula {
 
+public class SensorBasedFormula extends Formula {
+    @JsonIgnore
     List<Token> tokensList;
 
+    @JsonIgnore
     private List<Token> rpnTokens;
 
     public SensorBasedFormula() {
-        super("(F2-F1)/F0", "Add some comments here", FormulaType.SENSOR_BASED);
+        super("(F2-F1)/F0", "Формула по данным датчиков", FormulaType.SENSOR_BASED);
         updateInformation();
     }
 
@@ -47,7 +45,7 @@ public class SensorBasedFormula extends Formula {
         }
     }
 
-    public Set<String> getDependentIds() {
+    public Set<String> defineDependentIds() {
         Set<String> dependentIds = new HashSet<>();
         tokensList.forEach(token -> {
             if (token.getType().equals(Token.Type.IDENTIFIER)) dependentIds.add((String) token.getValue());
@@ -69,7 +67,8 @@ public class SensorBasedFormula extends Formula {
                     try {
                         String id = (String) token.getValue();
                         FRF frfToPush = null;
-                        Sensor sensorById = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst().orElseGet(null);
+                        Optional<Sensor> temp = chosenSensorsTable.getItems().stream().filter(sensor -> ((SensorProxyForTable) sensor).getId().equals(id)).findFirst();
+                        Sensor sensorById = temp.orElseGet(() -> null);
                         if (sensorById != null) {
                             frfToPush = ((SensorProxyForTable) sensorById).getOriginalSensor().getData().get(runNumber);
                             if (frfToPush != null) { stack.push(frfToPush); continue; }
@@ -315,7 +314,5 @@ public class SensorBasedFormula extends Formula {
                     return 0;
             }
         }
-
-
     }
 }

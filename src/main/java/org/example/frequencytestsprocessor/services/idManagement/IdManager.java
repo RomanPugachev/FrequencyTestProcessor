@@ -47,6 +47,10 @@ public class IdManager {
         this.slaves.removeAll(slaves);
     }
 
+    public void removeAllSlaves() {
+        slaves.clear();
+    }
+
     public interface HasId {
         String getId();
 

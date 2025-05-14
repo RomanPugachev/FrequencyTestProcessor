@@ -2,9 +2,10 @@ package org.example.frequencytestsprocessor.services.refreshingService;
 
 import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58;
-import org.example.frequencytestsprocessor.datamodel.UFFDatasets.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.UFF58Repr.*;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
+import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,11 @@ import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 @AllArgsConstructor
 public class Refresher {
     private MainController mainController;
-    public void refreshOnChangeFilePath() {
+    public void refreshOnChangeChosenUFFSource(UFFDataSource selectedUFF) {
         var sectionComboBox = mainController.getSectionComboBox();
-        var uff = mainController.getUff();
-
-
         setDefaultComboBoxes();
         UFF58Representation currentRepresentation;
-        for (UFF58 currentUFF58 : uff) {
+        for (UFF58 currentUFF58 : selectedUFF) {
             try {
                 currentRepresentation = new UFF58Representation(currentUFF58); final Section currentSectionInRepr = currentRepresentation.section;
                 final SensorDataType currentTypeRepresentation = currentRepresentation.sensorDataType;

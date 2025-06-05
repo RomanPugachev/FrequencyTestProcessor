@@ -1,5 +1,6 @@
 package org.example.frequencytestsprocessor.datamodel.myMath;
 
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
@@ -10,6 +11,7 @@ import java.util.List;
 public class FourierTransforms {
     public static Complex[] fft(List<Double> timeSeries) {
         int n = timeSeries.size();
+        int cut_number = n / 2;
         double[] realTimeSeries = new double[n];
 
         Iterator<Double> iterator = timeSeries.iterator();
@@ -17,31 +19,56 @@ public class FourierTransforms {
             realTimeSeries[i] = iterator.next();
         }
 
+        // Remove DC component (mean)
+        removeMean(realTimeSeries);
+
+        // Apply Hanning window
+        double[] windowedTimeSeries = applyHanningWindow(realTimeSeries);
+
         if (isPowerOfTwo(n)) {
             FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
-            org.apache.commons.math3.complex.Complex[] result = fft.transform(realTimeSeries, TransformType.FORWARD);
+            org.apache.commons.math3.complex.Complex[] result = fft.transform(windowedTimeSeries, TransformType.FORWARD);
 
-            Complex[] complexResult = new Complex[n];
-            for (int i = 0; i < n; i++) {
+            Complex[] complexResult = new Complex[cut_number];
+            for (int i = 0; i < cut_number; i++) {
                 complexResult[i] = new Complex(result[i].getReal(), result[i].getImaginary());
             }
 
             return complexResult;
+
         } else {
             int nextPowerOfTwo = nextPowerOfTwo(n);
             double[] paddedTimeSeries = new double[nextPowerOfTwo];
-            System.arraycopy(realTimeSeries, 0, paddedTimeSeries, 0, n);
+            System.arraycopy(windowedTimeSeries, 0, paddedTimeSeries, 0, n);  // use windowed data
 
             FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.UNITARY);
             org.apache.commons.math3.complex.Complex[] result = fft.transform(paddedTimeSeries, TransformType.FORWARD);
 
-            Complex[] complexResult = new Complex[n];
-            for (int i = 0; i < n; i++) {
+            Complex[] complexResult = new Complex[cut_number];
+            for (int i = 0; i < cut_number; i++) {
                 complexResult[i] = new Complex(result[i].getReal(), result[i].getImaginary());
             }
 
             return complexResult;
         }
+    }
+
+    private static void removeMean(double[] data) {
+        Mean meanCalc = new Mean();
+        double mean = meanCalc.evaluate(data);
+        for (int i = 0; i < data.length; i++) {
+            data[i] -= mean;
+        }
+    }
+
+    private static double[] applyHanningWindow(double[] data) {
+        int n = data.length;
+        double[] windowed = new double[n];
+        for (int i = 0; i < n; i++) {
+            double multiplier = 0.5 * (1 - Math.cos(2 * Math.PI * i / (n - 1)));
+            windowed[i] = data[i] * multiplier;
+        }
+        return windowed;
     }
 
     private static int nextPowerOfTwo(int n) {

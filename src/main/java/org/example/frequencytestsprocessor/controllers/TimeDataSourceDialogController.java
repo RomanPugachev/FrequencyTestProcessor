@@ -335,17 +335,19 @@ public class TimeDataSourceDialogController {
             }
         }
 
-        int sampleRate = Math.max(numberOfTimeStamps / 1000, 1);
-        int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRate);
+        int sampleRateFromData2Chart = Math.max(numberOfTimeStamps / 1000, 1);
+        int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRateFromData2Chart);
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Creating DataPoints for the chart with sample rate and setting limits
         List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(graphPointsNumber);
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         double minX = 0, maxX = (transformedData.length - 1) / transformTimeRange;
-        for (int i = 0; i < transformedData.length / sampleRate; i++) {
-            double frequency = (i * sampleRate) / transformTimeRange;
-            double y = Complex.getModuleAsDouble(transformedData[i * sampleRate]);
+        double[] frequencyAxis = new double[graphPointsNumber];
+        for (int i = 0; i < transformedData.length / sampleRateFromData2Chart; i++) {
+            double frequency = (i * sampleRateFromData2Chart) / transformTimeRange;
+            frequencyAxis[i] = frequency;
+            double y = Complex.getModuleAsDouble(transformedData[i * sampleRateFromData2Chart]);
             minY = Math.min(minY, y);
             maxY = Math.max(maxY, y);
             dataPoints.add(new XYChart.Data<>(frequency, y));

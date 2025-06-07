@@ -1025,6 +1025,6 @@ public class MainController {
             existingSourceItem = new TreeItem<>(new DataSourceProxy(savedSource));
             existingModelItem.getChildren().add(existingSourceItem);
         }
-        sourcesTreeTableView.getSelectionModel().select(existingSourceItem);
+//        sourcesTreeTableView.getSelectionModel().select(existingSourceItem);
     }
 }

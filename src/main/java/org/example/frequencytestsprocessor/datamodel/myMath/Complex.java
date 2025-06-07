@@ -18,13 +18,7 @@ public class Complex implements Cloneable{
 
     @Override
     public Complex clone() {
-        Complex cloneComplex;
-        try {
-            cloneComplex = (Complex) super.clone(); // Shallow copy
-            return cloneComplex;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Couldn't clone Complex", e);
-        }
+        return new Complex(this);
     }
 
     public static Complex additionResult(Complex c1, Complex c2) {
@@ -84,7 +78,7 @@ public class Complex implements Cloneable{
         if (c2.getImag() == 0) {
             return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
         }
-        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsComplex(c2));
+        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsDouble(c2));
     }
 
     public static Complex divisionResult(Complex c, Double d) {
@@ -94,7 +88,7 @@ public class Complex implements Cloneable{
 
     public static Complex divisionResult(Double d, Complex c) {
         if (d == 0) throw new ArithmeticException("Division by zero");
-        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsComplex(c));
+        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsDouble(c));
     }
 
     public static Complex poweringResult(Complex c, Double n) {
@@ -133,16 +127,24 @@ public class Complex implements Cloneable{
 
     @Override
     public String toString() {
-        return real + "+" + imag + "i";
+        return real + (imag >= 0 ? "+" : "") + imag + "i";
     }
 
     public static Complex fromString(String s) {
-        String[] parts = s.split("\\+");
-        if (parts.length != 2) {
+        int plusIndex = s.indexOf('+');
+        int minusIndex = s.indexOf('-', 1); // Start from index 1 to skip potential negative at start
+        int separatorIndex = plusIndex >= 0 ? plusIndex : minusIndex;
+
+        if (separatorIndex == -1) {
             throw new IllegalArgumentException("Invalid complex number format");
         }
-        double real = Double.parseDouble(parts[0]);
-        double imag = Double.parseDouble(parts[1].substring(0, parts[1].length() - 1));
+
+        String realPart = s.substring(0, separatorIndex);
+        String imagPart = s.substring(separatorIndex, s.length() - 1); // Remove 'i'
+
+        double real = Double.parseDouble(realPart);
+        double imag = Double.parseDouble(imagPart);
+
         return new Complex(real, imag);
     }
 

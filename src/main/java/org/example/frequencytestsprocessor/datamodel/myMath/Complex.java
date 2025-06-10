@@ -127,24 +127,16 @@ public class Complex implements Cloneable{
 
     @Override
     public String toString() {
-        return real + (imag >= 0 ? "+" : "") + imag + "i";
+        return real + "+" + imag + "i";
     }
 
     public static Complex fromString(String s) {
-        int plusIndex = s.indexOf('+');
-        int minusIndex = s.indexOf('-', 1); // Start from index 1 to skip potential negative at start
-        int separatorIndex = plusIndex >= 0 ? plusIndex : minusIndex;
-
-        if (separatorIndex == -1) {
+        String[] parts = s.split("\\+");
+        if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid complex number format");
         }
-
-        String realPart = s.substring(0, separatorIndex);
-        String imagPart = s.substring(separatorIndex, s.length() - 1); // Remove 'i'
-
-        double real = Double.parseDouble(realPart);
-        double imag = Double.parseDouble(imagPart);
-
+        double real = Double.parseDouble(parts[0]);
+        double imag = Double.parseDouble(parts[1].substring(0, parts[1].length() - 1));
         return new Complex(real, imag);
     }
 

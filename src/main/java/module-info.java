@@ -12,8 +12,8 @@ module org.example.frequencytestsprocessor {
     requires org.hibernate.orm.core;
     requires jakarta.transaction;
     requires org.reflections;
-    requires com.opencsv;
     requires commons.math3;
+    requires JTransforms;
 
     opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs to org.hibernate.orm.core, com.fasterxml.jackson.databind; // javafx.fxml, com.fasterxml.jackson.databind;

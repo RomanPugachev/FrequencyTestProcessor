@@ -4,6 +4,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
+import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,24 +20,33 @@ public class FourierTransforms {
             realTimeSeries[i] = iterator.next();
         }
 
-        removeMean(realTimeSeries);
+//        removeMean(realTimeSeries);
+//        double[] windowedTimeSeries = applyHanningWindow(realTimeSeries);
 
-        double[] windowedTimeSeries = applyHanningWindow(realTimeSeries);
+        DoubleFFT_1D fft = new DoubleFFT_1D(n);
+        double[] fftData = new double[n * 2]; // Stores real & imaginary parts
 
-        Complex[] complexResult = new Complex[cutNumber];
+        System.arraycopy(realTimeSeries, 0, fftData, 0, n);
+        fft.realForwardFull(fftData); // Computes FFT (matches SciPy's real FFT)
 
-        for (int k = 0; k < cutNumber; k++) {
-            double real = 0;
-            double imag = 0;
-            for (int t = 0; t < n; t++) {
-                double angle = 2 * Math.PI * t * k / n;
-                real += windowedTimeSeries[t] * Math.cos(angle) / cutNumber;
-                imag -= windowedTimeSeries[t] * Math.sin(angle) / cutNumber;
-            }
-            complexResult[k] = new Complex(real, imag);
+        // Convert to Complex[] (SciPy-like format)
+        Complex[] result = new Complex[cutNumber];
+        for (int i = 0; i < cutNumber; i++) {
+            result[i] = new Complex(fftData[2 * i] * 2 / n, fftData[2 * i + 1] * 2 / n);
         }
+        return result;
 
-        return complexResult;
+//
+//
+//
+//
+//        FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.UNITARY);
+//        org.apache.commons.math3.complex.Complex[] result = fft.transform(windowedTimeSeries, TransformType.FORWARD);
+//        Complex[] complexResult = new Complex[cutNumber];
+//        for (int i = 0; i < cutNumber; i++) {
+//            complexResult[i] = new Complex(result[i].getReal(), result[i].getImaginary());
+//        }
+//        return complexResult;
     }
 
     private static void removeMean(double[] data) {

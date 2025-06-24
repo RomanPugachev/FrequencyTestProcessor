@@ -1,6 +1,5 @@
 package org.example.frequencytestsprocessor.commons;
 
-import com.opencsv.CSVReader;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Alert;

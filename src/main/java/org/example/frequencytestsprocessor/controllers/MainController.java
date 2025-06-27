@@ -29,14 +29,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.frequencytestsprocessor.MainApplication;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.CalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.DataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities.AbstractDataset;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
@@ -48,13 +46,13 @@ import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.CalculatedSourceProxy;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceProxy;
 import org.example.frequencytestsprocessor.datamodel.proxy.dataSourceTableProxy.DataSourceTableProxy;
-import org.example.frequencytestsprocessor.services.calculationService.Calculator;
-import org.example.frequencytestsprocessor.services.graphsService.GraphsService;
-import org.example.frequencytestsprocessor.services.idManagement.IdManager;
-import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
-import org.example.frequencytestsprocessor.services.refreshingService.Refresher;
+import org.example.frequencytestsprocessor.helpers.Calculator;
+import org.example.frequencytestsprocessor.helpers.GraphsHelper;
+import org.example.frequencytestsprocessor.helpers.IdManager;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageNotifier;
+import org.example.frequencytestsprocessor.helpers.Refresher;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
-import org.example.frequencytestsprocessor.services.repositoryService.FRFRepository;
+import org.example.frequencytestsprocessor.repositories.FRFRepository;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.io.*;
@@ -308,11 +306,11 @@ public class MainController {
     @Getter
     private IdManager idManager = new IdManager(this);
     private Calculator calculator = new Calculator(this);
-    private GraphsService graphsService = new GraphsService(this);
+    private GraphsHelper graphsHelper = new GraphsHelper(this);
     private FRFRepository frfRepository = FRFRepository.getRepository();
     private UFFDataSource selectedUFFSource;
 
-    public void initializeServices() {
+    public void initializeDependencies() {
         if (datasetsTreeTableView.getRoot() == null) {
             sourcesTreeTableView.setRoot(new TreeItem<>());
 
@@ -322,12 +320,12 @@ public class MainController {
         }
         sourceAndDatasetsChoiseHBox.getChildren().remove(datasetsTreeTableView);
         addCalculatedFRFSourceElement();
-        graphsService.initializeService();
+        graphsHelper.initializeHelper();
         FRFRepository.setInstMainController(this);
-        initializeLanguageService();
+        initializeLanguageHelper();
     }
 
-    public void initializeLanguageService() {
+    public void initializeLanguageHelper() {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/mainApplicationLanguage.properties");
         languageNotifier.addObserver( // Adding observers to language notifier with known values for each supported language in props file
                 List.of(
@@ -483,7 +481,7 @@ public class MainController {
                 // Here will be handled dialog parameters properly
                 if (showErrors) performCalculations(chosenRuns); else performOnlyPossibleCalculations(chosenRuns);
             });
-            tempController.initializeServices(currentLanguage, getSharedRuns());
+            tempController.initializeDependencies(currentLanguage, getSharedRuns());
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();
@@ -493,7 +491,7 @@ public class MainController {
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
         tempStage.setTitle(
-                new String(languageNotifier.getLanaguagePropertyService()
+                new String(languageNotifier.getLanaguagePropertyProvider()
                         .getProperties().getProperty(CALCULATIONS_DIALOG_TITLE + DOT + currentLanguage)
                         .getBytes(StandardCharsets.ISO_8859_1),
                         StandardCharsets.UTF_8
@@ -633,7 +631,7 @@ public class MainController {
         assert sourcesTreeTableView != null : "fx:id=\"sourcesTreeTableView\" was not injected: check your FXML file 'mainScene-view.fxml'.";
         assert typeComboBox != null : "fx:id=\"typeComboBox\" was not injected: check your FXML file 'mainScene-view.fxml'.";
 
-        initializeServices();
+        initializeDependencies();
         setupWidgetsBehaviour();
         refresher.setDefaultComboBoxes();
         if (System.getenv("PRELOAD_PATH_CSV") != null) {
@@ -793,8 +791,8 @@ public class MainController {
         graphTypeChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(newValue);
             String graphType = "";
-            final String bode = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT +currentLanguage);
-            final String nyquist = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT +currentLanguage);
+            final String bode = getDecodedProperty(languageNotifier.getLanaguagePropertyProvider().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + BODE + DOT +currentLanguage);
+            final String nyquist = getDecodedProperty(languageNotifier.getLanaguagePropertyProvider().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_TYPE_CHOICE + DOT + NYQUIST + DOT +currentLanguage);
             if (newValue == null) graphType = BODE;
             else if (newValue.equals(bode)) graphType = BODE;
             else if (newValue.equals(nyquist)) graphType = NYQUIST;
@@ -890,7 +888,7 @@ public class MainController {
 
 
     public void clearLineChart(MouseEvent event){
-        graphsService.clearCharts();
+        graphsHelper.clearCharts();
     }
 
     private void switchStackPaneLayout(String extractedTypeOfGraphs) {
@@ -908,20 +906,20 @@ public class MainController {
     private void updateLineChart(){
         Map<String, FRF> result = new HashMap<>();
         extractFRFForGraphs(result);
-        graphsService.updateDataSets(result);
+        graphsHelper.updateDataSets(result);
     }
 
     @FXML
     private void pinCurrentGraph(MouseEvent event){
         Map<String, FRF> result = new HashMap<>();
         extractFRFForGraphs(result);
-        Map<String, FRF> pinnedFRFs = graphsService.getPinnedFRFs();
+        Map<String, FRF> pinnedFRFs = graphsHelper.getPinnedFRFs();
         Set<String> keys = result.keySet().stream().filter(pinnedFRFs::containsKey).collect(Collectors.toSet());
         keys.forEach(key -> {
             pinnedFRFs.remove(key);
             result.remove(key);
         });
-        graphsService.pinCurrentGraph(result);
+        graphsHelper.pinCurrentGraph(result);
     }
 
     private void callTimeDataSourceDialog(TimeSeriesDataSource selectedDataSource) {
@@ -933,7 +931,7 @@ public class MainController {
             tempController.setTimedialogCommitHandler((parentTimeSeriesDataset, leftLimit, rightLimit, name) -> {
                 addTimeSeriesBasedCalculatedFrequencyDataRecord(parentTimeSeriesDataset, leftLimit, rightLimit, name);
             });
-            tempController.initializeServices(currentLanguage, selectedDataSource);
+            tempController.initializeDependencies(currentLanguage, selectedDataSource);
         } catch (IOException e) {
             e.printStackTrace();
             showAlertUnimplemented();
@@ -943,7 +941,7 @@ public class MainController {
         tempStage.initOwner(mainStage);
         tempStage.setScene(tempScene);
         tempStage.setTitle(
-                new String(languageNotifier.getLanaguagePropertyService().
+                new String(languageNotifier.getLanaguagePropertyProvider().
                         getProperties().getProperty(TIMESERIES_FRF_EXTRACTION_DIALOG_TITLE + DOT + currentLanguage)
                         .getBytes(StandardCharsets.ISO_8859_1),
                         StandardCharsets.UTF_8
@@ -955,8 +953,8 @@ public class MainController {
     private void extractFRFForGraphs(Map<String, FRF> result) {
         Long run;
         String sensorStr;
-        String defaultRun = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
-        String defaultSensor = getDecodedProperty(languageNotifier.getLanaguagePropertyService().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + currentLanguage);
+        String defaultRun = getDecodedProperty(languageNotifier.getLanaguagePropertyProvider().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_RUN_CHOICE + DOT + currentLanguage);
+        String defaultSensor = getDecodedProperty(languageNotifier.getLanaguagePropertyProvider().getProperties(), OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + currentLanguage);
         try {
             run = Long.valueOf(graphRunChoiceBox.getValue());
             sensorStr = graphSensorChoiceBox.getValue();
@@ -996,7 +994,7 @@ public class MainController {
 
     private void setCurrentLanguage(String newLanguage) {
         currentLanguage = newLanguage;
-        String newTitle = languageNotifier.getLanaguagePropertyService().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
+        String newTitle = languageNotifier.getLanaguagePropertyProvider().getProperties().getProperty(MAIN_APPLICATION_NAME + DOT + currentLanguage);
         if (newTitle != null) {
             byte[] bytes = newTitle.getBytes(StandardCharsets.ISO_8859_1);
             String decodedTitle = new String(bytes, StandardCharsets.UTF_8);

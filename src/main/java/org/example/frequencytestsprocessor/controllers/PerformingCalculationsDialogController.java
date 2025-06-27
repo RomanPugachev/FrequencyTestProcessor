@@ -14,7 +14,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import static org.example.frequencytestsprocessor.commons.CommonMethods.showAlert;
@@ -79,14 +79,14 @@ public class PerformingCalculationsDialogController {
 
     List<? extends Number> sharedRuns;
 
-    public void initializeServices(String currentLanguage, List<? extends Number> sharedRuns) {
-        initializeLanguageService(currentLanguage);
+    public void initializeDependencies(String currentLanguage, List<? extends Number> sharedRuns) {
+        initializeLanguageHelper(currentLanguage);
         this.sharedRuns = sharedRuns;
         availableRunsText.setText(availableRunsText.getText() + this.sharedRuns.stream().sorted().map(String::valueOf).collect(Collectors.joining(", ")));
 
         setupWidgetsBehaviour();
     }
-    private void initializeLanguageService(String currentLanguage) {
+    private void initializeLanguageHelper(String currentLanguage) {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/calculationsFileDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(

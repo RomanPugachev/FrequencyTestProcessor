@@ -1,19 +1,19 @@
-package org.example.frequencytestsprocessor.services;
+package org.example.frequencytestsprocessor.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class PropertyService {
+public class PropertyProvider {
     private Properties properties;
 
-    public PropertyService(String pathToFile) {
+    public PropertyProvider(String pathToFile) {
         this.properties = loadProperties(pathToFile);
     }
 
     public Properties loadProperties(String pathToFile) {
         Properties properties = new Properties();
-        try (InputStream is = PropertyService.class.getResourceAsStream(pathToFile)) {
+        try (InputStream is = PropertyProvider.class.getResourceAsStream(pathToFile)) {
             properties.load(is);
         } catch (IOException e) {
             System.out.println("Couldn't read file by address " + pathToFile);

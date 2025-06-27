@@ -2,19 +2,15 @@ package org.example.frequencytestsprocessor.datamodel.databaseModel.datasources;
 
 
 import jakarta.persistence.*;
-import jep.Jep;
 import lombok.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFFDataset;
-import org.example.frequencytestsprocessor.services.PythonInterpreterService;
 
 
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

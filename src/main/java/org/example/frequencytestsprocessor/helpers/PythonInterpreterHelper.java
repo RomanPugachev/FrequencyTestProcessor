@@ -1,21 +1,20 @@
-package org.example.frequencytestsprocessor.services;
+package org.example.frequencytestsprocessor.helpers;
 
 import jep.Jep;
 import jep.JepConfig;
-import jep.MainInterpreter;
 import jep.SharedInterpreter;
 import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
 
 /**
- * Service class for Python interpreter.
+ * Helper class for Python interpreter.
  * This class provides methods to initialize and interact with a Python interpreter.
 * It also provides a method to execute Python code. Important note: for the interpreter to work, you need to set following environment variables:
   * 1. PYTHONPATH - path to Python packages: /home/user/.pyenv/versions/3.12.5/lib/python3.12/site-packages
   * 2. PYTHONHOME - path to Python installation: /home/user/.pyenv/versions/3.12.5
   * 3. JEP_HOME - path to JEP library: /home/user/.pyenv/versions/3.12.5/lib/python3.12/site-packages/jep/libjep.so */
-public class PythonInterpreterService {
+public class PythonInterpreterHelper {
     @Getter
     private static volatile Jep pythonInterpreter;  // Singleton instance of Jep interpreter
     @Getter

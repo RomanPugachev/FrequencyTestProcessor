@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.services.idManagement;
+package org.example.frequencytestsprocessor.helpers;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn;
@@ -18,10 +18,10 @@ public class IdManager {
 
     {
         Collections.addAll(forbiddenChars, "?", "-", "+", "/", "*", "=", "(", ")");
-        initializeValdatationConditions();
+        initializeValidationConditions();
     }
 
-    private void initializeValdatationConditions() {
+    private void initializeValidationConditions() {
         Predicate<String> notEmptyNotNull = id -> id != null && !id.isEmpty();
         Predicate<String> notContainsForbiddenChars = id -> !forbiddenChars.stream().anyMatch(id::contains);
         Predicate<String> startsWithLetter = id -> Character.isLetter(id.charAt(0));

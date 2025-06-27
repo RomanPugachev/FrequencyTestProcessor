@@ -1,30 +1,23 @@
-package org.example.frequencytestsprocessor.services.repositoryService;
+package org.example.frequencytestsprocessor.repositories;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.beans.Observable;
 import javafx.collections.ObservableList;
-import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Section;
 import org.example.frequencytestsprocessor.datamodel.UFF58Repr.Sensor;
-import org.example.frequencytestsprocessor.datamodel.UFF58Repr.SensorDataType;
-import org.example.frequencytestsprocessor.datamodel.UFF58Repr.UFF58Representation;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.PipelineCalculatedFrequencyDataRecord;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.TimeSeriesBasedCalculatedFrequencyDataRecord;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs.UFFBasedFRF;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF58;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents.AircraftModel;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.TimeSeriesDataSource;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.formula.Formula;
-import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
-import org.hibernate.Hibernate;
+import org.example.frequencytestsprocessor.helpers.HibernateUtil;
 import org.hibernate.Transaction;
 import jep.Jep;
 import org.example.frequencytestsprocessor.commons.CommonMethods;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFFDataset;
 import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.UFFDataSource;
-import org.example.frequencytestsprocessor.services.PythonInterpreterService;
+import org.example.frequencytestsprocessor.helpers.PythonInterpreterHelper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -34,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -237,8 +229,8 @@ public class FRFRepository {
     }
 
     protected byte[] getPythonOutputByteArray(String UFFPath) {
-        Jep pythonInterpreter = PythonInterpreterService.getPythonInterpreter();
-        ByteArrayOutputStream pythonOutput = PythonInterpreterService.getPythonOutputStream();
+        Jep pythonInterpreter = PythonInterpreterHelper.getPythonInterpreter();
+        ByteArrayOutputStream pythonOutput = PythonInterpreterHelper.getPythonOutputStream();
         String pythonScript = CommonMethods.getTextFileContent(PATH_OF_PYTHON_SCRIPT_FOR_UFF);
         pythonInterpreter.exec(pythonScript);
         pythonInterpreter.exec(String.format("parse_UFF('%s')", UFFPath));

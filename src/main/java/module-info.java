@@ -32,9 +32,9 @@ module org.example.frequencytestsprocessor {
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents to com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor.commons;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
-    exports org.example.frequencytestsprocessor.services.idManagement;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities;
     exports org.example.frequencytestsprocessor.converters;
+    exports org.example.frequencytestsprocessor.helpers;
 
 }

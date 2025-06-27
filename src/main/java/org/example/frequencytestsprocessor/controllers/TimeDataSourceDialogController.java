@@ -17,7 +17,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.T
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.datamodel.myMath.FourierTransforms;
-import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.net.URL;
@@ -123,12 +123,12 @@ public class TimeDataSourceDialogController {
 
     private Complex[] transformedData;
 
-    public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
+    public void initializeDependencies(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
         this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
         initializeTextFields();
         initializeLineCharts();
         initializeChoiceBox(chosenTimeSeriesDataSource);
-        initializeLanguageService(currentLanguage);
+        initializeLanguageHelper(currentLanguage);
         addSinusTimeSeriesInSource();
         setupWidgetsBehaviour();
         redrawDatasetChart();
@@ -158,7 +158,7 @@ public class TimeDataSourceDialogController {
         rightBorderTextField.setText(String.valueOf(rightBorder));
     }
 
-    private void initializeLanguageService(String currentLanguage) {
+    private void initializeLanguageHelper(String currentLanguage) {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/timeDataSourceDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(

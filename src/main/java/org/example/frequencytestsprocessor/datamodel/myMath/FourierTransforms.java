@@ -27,9 +27,8 @@ public class FourierTransforms {
         double[] fftData = new double[n * 2]; // Stores real & imaginary parts
 
         System.arraycopy(realTimeSeries, 0, fftData, 0, n);
-        fft.realForwardFull(fftData); // Computes FFT (matches SciPy's real FFT)
+        fft.realForwardFull(fftData);
 
-        // Convert to Complex[] (SciPy-like format)
         Complex[] result = new Complex[cutNumber];
         for (int i = 0; i < cutNumber; i++) {
             result[i] = new Complex(fftData[2 * i] * 2 / n, fftData[2 * i + 1] * 2 / n);

@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.services.calculationService;
+package org.example.frequencytestsprocessor.helpers;
 
 import javafx.scene.control.TableView;
 import lombok.Setter;

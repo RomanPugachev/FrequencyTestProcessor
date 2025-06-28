@@ -18,13 +18,7 @@ public class Complex implements Cloneable{
 
     @Override
     public Complex clone() {
-        Complex cloneComplex;
-        try {
-            cloneComplex = (Complex) super.clone(); // Shallow copy
-            return cloneComplex;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Couldn't clone Complex", e);
-        }
+        return new Complex(this);
     }
 
     public static Complex additionResult(Complex c1, Complex c2) {
@@ -84,7 +78,7 @@ public class Complex implements Cloneable{
         if (c2.getImag() == 0) {
             return new Complex(c1.getReal() / c2.getReal(), c1.getImag() / c2.getReal());
         }
-        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsComplex(c2));
+        return Complex.divisionResult(Complex.multiplicationResult(c1, Complex.getConjugated(c2)), Complex.getSquaredModuleAsDouble(c2));
     }
 
     public static Complex divisionResult(Complex c, Double d) {
@@ -94,7 +88,7 @@ public class Complex implements Cloneable{
 
     public static Complex divisionResult(Double d, Complex c) {
         if (d == 0) throw new ArithmeticException("Division by zero");
-        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsComplex(c));
+        return Complex.divisionResult(Complex.multiplicationResult(Complex.getConjugated(c), d), Complex.getSquaredModuleAsDouble(c));
     }
 
     public static Complex poweringResult(Complex c, Double n) {

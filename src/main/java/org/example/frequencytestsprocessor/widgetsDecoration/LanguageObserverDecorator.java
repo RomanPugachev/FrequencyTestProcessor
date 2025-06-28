@@ -1,15 +1,12 @@
 package org.example.frequencytestsprocessor.widgetsDecoration;
 
 import javafx.css.Styleable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.Properties;
 
-import static org.example.frequencytestsprocessor.commons.CommonMethods.print;
 import static org.example.frequencytestsprocessor.commons.StaticStrings.DOT;
 
 public class LanguageObserverDecorator<T extends Styleable> extends WidgetDecorator<T> implements LanguageObserver {

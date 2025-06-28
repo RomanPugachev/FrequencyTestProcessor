@@ -1,7 +1,6 @@
-package org.example.frequencytestsprocessor.services.repositoryService;
+package org.example.frequencytestsprocessor.helpers;
 
 import org.example.frequencytestsprocessor.MainApplication;
-import org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets.UFF151;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.reflections.Reflections;

@@ -1,4 +1,4 @@
-package org.example.frequencytestsprocessor.services.refreshingService;
+package org.example.frequencytestsprocessor.helpers;
 
 import lombok.AllArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
@@ -57,7 +57,7 @@ public class Refresher {
         var graphSensorChoiceBox = mainController.getGraphSensorChoiceBox();
         var graphRunChoiceBox = mainController.getGraphRunChoiceBox();
         var graphTypeChoiceBox = mainController.getGraphTypeChoiceBox();
-        var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyService().getProperties();
+        var languageProperties = mainController.getLanguageNotifier().getLanaguagePropertyProvider().getProperties();
 
         graphSensorChoiceBox.getItems().clear();
         graphSensorChoiceBox.getItems().add(getDecodedProperty(languageProperties, OTHER + DOT + DEFAULT_GRAPHS_SENSOR_CHOICE + DOT + mainController.getCurrentLanguage()));

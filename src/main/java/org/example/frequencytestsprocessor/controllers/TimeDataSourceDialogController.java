@@ -17,7 +17,7 @@ import org.example.frequencytestsprocessor.datamodel.databaseModel.datasources.T
 import org.example.frequencytestsprocessor.datamodel.databaseModel.timeSeriesDatasets.TimeSeriesDataset;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 import org.example.frequencytestsprocessor.datamodel.myMath.FourierTransforms;
-import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageNotifier;
 import org.example.frequencytestsprocessor.widgetsDecoration.LanguageObserverDecorator;
 
 import java.net.URL;
@@ -123,12 +123,12 @@ public class TimeDataSourceDialogController {
 
     private Complex[] transformedData;
 
-    public void initializeServices(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
+    public void initializeDependencies(String currentLanguage, TimeSeriesDataSource chosenTimeSeriesDataSource) {
         this.chosenTimeSeriesDataSource = chosenTimeSeriesDataSource;
         initializeTextFields();
         initializeLineCharts();
         initializeChoiceBox(chosenTimeSeriesDataSource);
-        initializeLanguageService(currentLanguage);
+        initializeLanguageHelper(currentLanguage);
         addSinusTimeSeriesInSource();
         setupWidgetsBehaviour();
         redrawDatasetChart();
@@ -158,7 +158,7 @@ public class TimeDataSourceDialogController {
         rightBorderTextField.setText(String.valueOf(rightBorder));
     }
 
-    private void initializeLanguageService(String currentLanguage) {
+    private void initializeLanguageHelper(String currentLanguage) {
         languageNotifier = new LanguageNotifier(PATH_TO_LANGUAGES + "/timeDataSourceDialogLanguage.properties");
         languageNotifier.addObserver(
                 List.of(
@@ -335,17 +335,19 @@ public class TimeDataSourceDialogController {
             }
         }
 
-        int sampleRate = Math.max(numberOfTimeStamps / 1000, 1);
-        int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRate);
+        int sampleRateFromData2Chart = Math.max(numberOfTimeStamps / 1000, 1);
+        int graphPointsNumber = (int) Math.ceil(transformedData.length / sampleRateFromData2Chart);
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Creating DataPoints for the chart with sample rate and setting limits
         List<XYChart.Data<Number, Number>> dataPoints = new ArrayList<>(graphPointsNumber);
         double minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         double minX = 0, maxX = (transformedData.length - 1) / transformTimeRange;
-        for (int i = 0; i < transformedData.length / sampleRate; i++) {
-            double frequency = (i * sampleRate) / transformTimeRange;
-            double y = Complex.getModuleAsDouble(transformedData[i * sampleRate]);
+        double[] frequencyAxis = new double[graphPointsNumber];
+        for (int i = 0; i < transformedData.length / sampleRateFromData2Chart; i++) {
+            double frequency = (i * sampleRateFromData2Chart) / transformTimeRange;
+            frequencyAxis[i] = frequency;
+            double y = Complex.getModuleAsDouble(transformedData[i * sampleRateFromData2Chart]);
             minY = Math.min(minY, y);
             maxY = Math.max(maxY, y);
             dataPoints.add(new XYChart.Data<>(frequency, y));

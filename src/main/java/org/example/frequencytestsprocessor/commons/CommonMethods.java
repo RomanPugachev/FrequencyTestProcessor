@@ -1,14 +1,12 @@
 package org.example.frequencytestsprocessor.commons;
 
-import com.opencsv.CSVReader;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
-import org.example.frequencytestsprocessor.services.languageService.LanguageNotifier;
-import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageObserver;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -16,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.example.frequencytestsprocessor.commons.StaticStrings.*;

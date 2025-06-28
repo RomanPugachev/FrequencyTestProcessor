@@ -12,8 +12,8 @@ module org.example.frequencytestsprocessor {
     requires org.hibernate.orm.core;
     requires jakarta.transaction;
     requires org.reflections;
-    requires com.opencsv;
     requires commons.math3;
+    requires JTransforms;
 
     opens org.example.frequencytestsprocessor to javafx.fxml, com.fasterxml.jackson.databind;
     opens org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs to org.hibernate.orm.core, com.fasterxml.jackson.databind; // javafx.fxml, com.fasterxml.jackson.databind;
@@ -32,9 +32,9 @@ module org.example.frequencytestsprocessor {
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.datasourceParents to com.fasterxml.jackson.databind;
     exports org.example.frequencytestsprocessor.commons;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.UFFDatasets;
-    exports org.example.frequencytestsprocessor.services.idManagement;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.FRFs;
     exports org.example.frequencytestsprocessor.datamodel.databaseModel.sharedEntities;
     exports org.example.frequencytestsprocessor.converters;
+    exports org.example.frequencytestsprocessor.helpers;
 
 }

@@ -1,7 +1,7 @@
-package org.example.frequencytestsprocessor.services.languageService;
+package org.example.frequencytestsprocessor.helpers.languageHelper;
 
 import lombok.Getter;
-import org.example.frequencytestsprocessor.services.PropertyService;
+import org.example.frequencytestsprocessor.helpers.PropertyProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,10 +14,10 @@ public class LanguageNotifier {
     private String previousLanguage = EN;
     private List<LanguageObserver> observers = new ArrayList<>();
     @Getter
-    private PropertyService lanaguagePropertyService;
+    private PropertyProvider lanaguagePropertyProvider;
 
     public LanguageNotifier (String pathToLanguages) {
-        lanaguagePropertyService = new PropertyService(pathToLanguages);
+        lanaguagePropertyProvider = new PropertyProvider(pathToLanguages);
     }
 
     public void addObserver(LanguageObserver observer) {
@@ -34,7 +34,7 @@ public class LanguageNotifier {
 
     public void notifyObservers() {
         for (LanguageObserver observer : observers) {
-            observer.updateLanguage(lanaguagePropertyService.getProperties(), currentLanguage, previousLanguage);
+            observer.updateLanguage(lanaguagePropertyProvider.getProperties(), currentLanguage, previousLanguage);
         }
     }
 

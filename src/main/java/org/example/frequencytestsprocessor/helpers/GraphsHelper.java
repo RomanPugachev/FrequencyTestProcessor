@@ -1,35 +1,23 @@
-package org.example.frequencytestsprocessor.services.graphsService;
+package org.example.frequencytestsprocessor.helpers;
 
 import javafx.animation.ScaleTransition;
-import javafx.beans.binding.Bindings;
-import javafx.fxml.FXML;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.example.frequencytestsprocessor.controllers.MainController;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.FRF;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.Canvas2DPrintable;
-import org.example.frequencytestsprocessor.datamodel.datasetRepresentation.RepresentableDataset;
 import org.example.frequencytestsprocessor.datamodel.myMath.Complex;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 // TODO: Implement unpinning of graph
-public class GraphsService {
+public class GraphsHelper {
     // TODO: implement showing tooltip on hovering -> https://habr.com/ru/articles/242009/
     private MainController mainController;
     private LineChart lineChart;
@@ -46,7 +34,7 @@ public class GraphsService {
     private LineChart<Number, Number> graphsLineChartBodePhase;
 
 
-    public GraphsService(MainController mainController) {
+    public GraphsHelper(MainController mainController) {
         this.mainController = mainController;
     }
 
@@ -60,7 +48,7 @@ public class GraphsService {
         redrawGraphs();
     }
 
-    public void initializeService() {
+    public void initializeHelper() {
         graphsLineChartBodeAmplitude = mainController.getGraphsLineChartBodeAmplitude();
         graphsLineChartBodeAmplitude.setTitle("Amplidude frequency response");
 //        graphsLineChartBodeAmplitude.getXAxis().setLabel("Frequency, Hz");

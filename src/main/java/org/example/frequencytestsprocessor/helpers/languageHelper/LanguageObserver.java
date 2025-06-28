@@ -1,8 +1,6 @@
-package org.example.frequencytestsprocessor.services.languageService;
+package org.example.frequencytestsprocessor.helpers.languageHelper;
 
-import java.util.Locale;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 public interface LanguageObserver {
     void updateLanguage(Properties languageProperties, String currentLanguage, String previousLanguage);

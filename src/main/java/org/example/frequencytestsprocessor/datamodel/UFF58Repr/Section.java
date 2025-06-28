@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.frequencytestsprocessor.services.languageService.LanguageObserver;
+import org.example.frequencytestsprocessor.helpers.languageHelper.LanguageObserver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;

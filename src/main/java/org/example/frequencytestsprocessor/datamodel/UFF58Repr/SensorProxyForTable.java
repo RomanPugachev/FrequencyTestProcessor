@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.example.frequencytestsprocessor.datamodel.controlTheory.DiscreteFRF;
-import org.example.frequencytestsprocessor.services.idManagement.IdManager;
+import org.example.frequencytestsprocessor.helpers.IdManager;
 
 import java.util.Map;
 
